@@ -4,7 +4,11 @@ Reads THEMIS ASI images 256x256 pixels
 Michael Hirsch
 """
 from dateutil.parser import parse
+#
+from os import putenv
+putenv('CDF_LIB','/opt/cdf/lib')
 from spacepy import pycdf
+#
 import sys
 if sys.version_info<(3,):
     py3k=False
@@ -14,11 +18,12 @@ else:
     from urllib.request import urlretrieve
 
 def loaddata(site,dtime):
+    
+    url,cdffn = urlbuild(site,dtime)
+    
+    pycdf(cdffn)    
     try:
-        data = netcdf4
-    url,htmlfn = urlbuild(site,dtime)
-    try:
-        urlretrieve(url,htmlfn)
+        urlretrieve(url,cdffn)
     except Exception:
         print(url)
 
