@@ -4,11 +4,18 @@ Reads THEMIS ASI images 256x256 pixels
 Michael Hirsch
 """
 from dateutil.parser import parse
-try:
+from spacepy import pycdf
+import sys
+if sys.version_info<(3,):
+    py3k=False
     from urllib import urlretrieve
-except ImportError:
+else:
+    py3k=True
     from urllib.request import urlretrieve
+
 def loaddata(site,dtime):
+    try:
+        data = netcdf4
     url,htmlfn = urlbuild(site,dtime)
     try:
         urlretrieve(url,htmlfn)
