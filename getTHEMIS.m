@@ -14,11 +14,10 @@ function [data,t,hdrs] = getTHEMIS(varargin)
 
 p = inputParser();
 addRequired(p,'fn')
-addOptional(p,'path','~/data')
+addOptional(p,'path','~/data/')
 addParamValue(p,'startind',1) %#ok<*NVREPL>
 addParamValue(p,'stopind',[])
 addParamValue(p,'writevid',false)
-addParamValue(p,'writefits',false)
 addParamValue(p,'fullthumb','f')%f for full, t for thumb
 p.parse(varargin{:})
 U = p.Results;
@@ -49,14 +48,14 @@ variableNames = hdrs.Variables;
 
 t = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site,'_epoch'],...
           'convertepochtodatenum',true,'combineRecords',true);
-epoch0 = cdfread(dfn,'variable',['thg_as',ft,'_',site,'_epoch0'],...
+epoch0 = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site,'_epoch0'],...
           'convertepochtodatenum',true,'combineRecords',true);
 
-% this isn't matlab datenum--how to convert?
+% this isn't matlab datenum, since 0AD?
 % CDFt = cdfread(dfn,'variable',['thg_as',ft,'_',site,'_time'],...
 %              'convertepochtodatenum',true,'combineRecords',true);
 
-data = cdfread(dfn,'variable',['thg_as',ft,'_',site],'combinerecords',true);
+data = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site],'combinerecords',true);
 
 Nrec = length(t);
 if isempty(U.stopind), U.stopind = Nrec; end
@@ -77,7 +76,7 @@ figure(2),clf(2)
 imhist(currFrame)
 title(['First frame histogram: ',datestr(t(1))])
 
-display(['Showing frames from ',int2str(startInd),' to ',int2str(stopInd)])
+display(['Showing frames from ',int2str(U.startind),' to ',int2str(U.stopind)])
 
 [~,dstem] = fileparts(U.fn); %for PNG | AVI
 if U.writevid
@@ -91,9 +90,8 @@ else
     vwObj = [];
 end
 
-for i = startInd:stopInd
+for i = U.startind:U.stopind
     currFrame = squeeze(data(i,:,:));
-    colorbar
     set(ht,'string',{U.fn,...
                    [datestr(t(i)),'UT,  iCDF= ',int2str(i),'/',int2str(Nrec)]})
     set(hi,'cdata',currFrame)
@@ -101,12 +99,6 @@ for i = startInd:stopInd
     if U.writevid
        gf = getframe(hf);
        writeVideo(vwObj,gf);
-    end
-
-    if U.writefits
-       FITSfn = [path,filesep,dstem,'_',int2str(i),'.fits'];
-       display(['writing to ',FITSfn])
-       fitswrite(int32(currFrame),FITSfn) %haven't tried compression yet
     end
 
 pause(0.01)

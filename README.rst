@@ -31,7 +31,7 @@ April 14, 2013, 8 UT
 
 .. code:: matlab
 
-    >>
+    >> 
 
 
 Notes
