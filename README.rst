@@ -23,7 +23,8 @@ Data
 
 example
 -------
-April 14, 2013, 8 UT
+
+April 14, 2013, 8 UT, play a movie 
 
 .. code:: bash
 
@@ -31,7 +32,7 @@ April 14, 2013, 8 UT
 
 .. code:: matlab
 
-    >> 
+    >> getTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
 
 
 Notes
