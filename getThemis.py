@@ -4,15 +4,14 @@ Reads THEMIS ASI images 256x256 pixels
 Michael Hirsch
 """
 from dateutil.parser import parse
-from six import PY3
 #
 from os import putenv
 putenv('CDF_LIB','/opt/cdf/lib')
 from spacepy import pycdf
 #
-if PY3
+try:
     from urllib import urlretrieve
-else:
+except:
     from urllib.request import urlretrieve
 
 def loaddata(site,dtime):
