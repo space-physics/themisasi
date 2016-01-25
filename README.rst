@@ -7,9 +7,11 @@ themis-asi-reader
 
 A simple function collection to read the 256x256 "high resolution" THEMIS ASI ground-based imager data.
 
+.. contents::
 
 
 Themis site map (2009)
+======================
 
 .. image:: http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif
     :alt: Themis site map
