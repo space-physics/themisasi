@@ -3,11 +3,9 @@ themis-asi-reader
 =================
 
 :Author: Michael Hirsch
-:Requirements: Matlab (GNU Octave does not currently have a CDF reader)
+:Requirements: Python or Matlab (GNU Octave does not currently have a CDF reader)
 
 A simple function collection to read the 256x256 "high resolution" THEMIS ASI ground-based imager data.
-
-Note: the Matlab code is the only one working at the moment.
 
 
 
@@ -26,16 +24,19 @@ example
 
 April 14, 2013, 8 UT, play a movie 
 
-.. code:: bash
+::
 
-    $ wget -P ~/data http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04/thg_l1_asf_fykn_2013041408_v01.cdf
+    wget -P ~/data http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04/thg_l1_asf_fykn_2013041408_v01.cdf
 
-.. code:: matlab
+Python
+~~~~~~
+::
 
-    >> getTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
+    ./readTHEMIS thg_l1_asf_fykn_2013041408_v01.cdf
 
+Matlab
+~~~~~~
+::
 
-Notes
-=====
-* When I last tried, the `SpacePy/PyCDF library <http://spacepy.lanl.gov/doc/pycdf.html>`_  wasn't quite working for me in Python, but the Matlab code worked fine.
-* To use Octave, at the moment one would need to `convert CDF to NetCDF <http://cdf.gsfc.nasa.gov/html/dttools.html>`_ and modify the code to read NetCDF. Probably better to just use Matlab or develop the Python code
+    readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
+
