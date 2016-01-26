@@ -47,3 +47,6 @@ Matlab
 
     readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
 
+Themis Plate Scale data
+=======================
+This involves converting sometimes corrupted IDL .sav files to NetCDF4. The non-corrupted files are convertable by GDL, but some corrupted .sav files will require IDL. The file ``sav2nc.pro`` converts the files with GDL or IDL.
