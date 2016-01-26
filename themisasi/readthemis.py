@@ -11,14 +11,16 @@ from datetime import datetime
 from numpy import nonzero
 import re
 from dateutil.parser import parse
+from scipy.io import readsav
 from spacepy import pycdf
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 
 fullthumb='f' #f for full, t for thumb
 
-def playThemis(fn,treq,odir):
+def readthemis(fn,treq,odir):
     fn = Path(fn).expanduser()
+
     if odir: odir = Path(odir).expanduser()
 #%% info from filename (yuck)
     m = re.search('(?<=thg_l\d_as\w_)\w{4}(?=_.*.cdf)',fn.name)
@@ -33,14 +35,25 @@ def playThemis(fn,treq,odir):
             if isinstance(treq[0],str):
                 treq = [parse(t) for t in treq]
             assert isinstance(treq[0],datetime)
+
             tind = nonzero([treq[0]<=t<=treq[1] for t in T])[0]
+            return imgs[tind,...], T[tind],site
+
         else:
-            tind = range(len(T))
-
-        plotmatplotlib(tind,imgs,T,odir)
+            return imgs[:], T[:], site
 
 
-def plotmatplotlib(tind,imgs,t,odir):
+def calthemis(fn):
+    """
+    reads data mapping themis gbo asi pixels to azimuth,elevation
+    """
+    fn = Path(fn).expanduser()
+    with readsav(str(fn),verbose=True) as h:
+        print(h.keys())
+
+
+
+def plotthemis(imgs,T,site='',odir=None):
     fg = figure()
     ax = fg.gca()
     hi = ax.imshow(imgs[0],cmap='gray',origin='bottom',norm=LogNorm())     #sets contrast
@@ -49,20 +62,9 @@ def plotmatplotlib(tind,imgs,t,odir):
     ax.set_xticks([])
     ax.set_yticks([])
 
-    for i in tind:
-        hi.set_data(imgs[i,...])
-        ht.set_text(str(t[i]))
+    for I,t in zip(imgs,T):
+        hi.set_data(I)
+        ht.set_text(str(t))
         draw(),pause(0.05)
         if odir:
-            fg.savefig(str(odir/'Themis_{}_{}.png'.format(site,t[i])),bbox_inches='tight',facecolor='k',dpi=150)
-
-
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    p = ArgumentParser(description = ' reads THEMIS GBO ASI CDF files and plays high speed video')
-    p.add_argument('f',help='file to play')
-    p.add_argument('-t','--treq',help='time requested',nargs=2)
-    p.add_argument('-o','--odir',help='write video to this directory')
-    p = p.parse_args()
-
-    playThemis(p.f,p.treq,p.odir)
+            fg.savefig(str(odir/'Themis_{}_{}.png'.format(site,t.timestamp())),bbox_inches='tight',facecolor='k',dpi=150)
