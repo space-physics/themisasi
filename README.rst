@@ -50,3 +50,14 @@ Matlab
 Themis Plate Scale data
 =======================
 This involves converting sometimes corrupted IDL .sav files to NetCDF4. The non-corrupted files are convertable by GDL, but some corrupted .sav files will require IDL. The file ``sav2nc.pro`` converts the files with GDL or IDL.
+
+Example Corrupt IDL .sav file needing IDL to convert to NetCDF4
+---------------------------------------------------------------
+Use IDL with ``sav2nc.pro`` to convert this corrupted file to NetCDF4 so that you can read the data with Python etc.::
+
+    wget http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/fykn_20110305/themis_skymap_fykn_20110305-+_vXX.sav
+    
+Example IDL .sav file reading with Python
+-----------------------------------------
+::
+    http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/fykn_20081029/themis_skymap_fykn_20061014-20080416_vXX.sav
