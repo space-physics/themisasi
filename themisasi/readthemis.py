@@ -16,6 +16,8 @@ from scipy.io import readsav
 from spacepy import pycdf
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
+#
+from pymap3d.coordconv3d import aer2ecef
 
 fullthumb='f' #f for full, t for thumb
 
@@ -76,14 +78,35 @@ def regthemis(flist):
 
     return az,el,lla
 
-def altfiducial(az,ell,lla):
+def altfiducial(wa,wb,wlla,az,el,lla,projalt=110,wtype='azel'):
     """
+    inputs:
+    wa,wb,ella: az,el,lla (2d,2d,1d ndarrays) of widest FOV upon which to paint all other FOVs
+    az,el,lla: (list,list,Nx3 ndarray) of all other FOVs
+    projalt: projection altitude [km]
+    wtype: azel, xyz, or lla. If azel or lla, we will convert wa,wb to ECEF xyz.
+
+    lla is Nx3 of lat [deg], lon [deg], alt [meters]
+
     paint 110km altitude pixels on other camera
     I have az,el of each pixel and location of each camera
     I would like to take the outermost pixel boundary of the narrower FOV camera
     and paint that onto the FOV of the wider FOV camera at 110km altitude.
+
+    That is, use the widest FOV camera as the basis upon which to draw 110km altitude projections of one or more other FOVs.
+
+    One way to do so is find the ECEF x,y,z, at 110km altitude for narrow camera outer pixel
+    boundary, then find the closest pixels in the wide FOV to those points.
+    Remember, it can be (much) faster to brute force this calculation than to use
+    k-d tree.
+
+    NOTE: assume there are no NaNs in the narrow FOV camera,
+    that the image fills the chip entirely, unlike ASI systems with dead regions around circular center
     """
 
+    # 1) get lla for widest FOV
+    if wtype=='azel':
+        x,y,z = aer2ecef(az,el,srange,lat0=wlla[0],lon0=wlla[1],alt0=wlla[2])
 
 
 
