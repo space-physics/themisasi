@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from numpy import nonzero
 import re
+import h5py
 from dateutil.parser import parse
 from scipy.io import readsav
 from spacepy import pycdf
@@ -48,8 +49,19 @@ def calthemis(fn):
     reads data mapping themis gbo asi pixels to azimuth,elevation
     """
     fn = Path(fn).expanduser()
-    with readsav(str(fn),verbose=True) as h:
-        print(h.keys())
+    if fn.suffix=='.sav':
+        with readsav(str(fn),verbose=True) as h:
+            az = h['skymap/az']
+            el = h['skymap/el']
+            lla= h['skymap/lla']
+    elif fn.suffix=='.h5':
+        with h5py.File(str(fn),'r',libver='latest') as h:
+            az = h['az']
+            el = h['el']
+            lla= h['lla']
+
+    return az,el,lla
+
 
 
 
