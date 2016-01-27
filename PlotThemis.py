@@ -2,13 +2,9 @@
 
 from themisasi.readthemis import readthemis,plotthemis,calthemis
 
-def playThemis(fn,treq,odir):
-
-    imgs,t,site = readthemis(fn,treq,odir)
-
+def playThemis(fn,t,site,odir):
     plotthemis(imgs,t,site,odir)
 
-    return imgs,t
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -20,6 +16,11 @@ if __name__ == '__main__':
     p = p.parse_args()
 
     if p.cal:
-        az,el,lla = calthemis(p.cal)
+        imgs,t,site = readthemis(p.f,p.treq,p.odir)
+        altfiducial(imgs,t) #paint HiST field of view onto Themis
 
-    imgs,t = playThemis(p.f,p.treq,p.odir)
+
+    try:
+        imgs,t = playThemis(p.f,t,site,p.odir)
+    except KeyboardInterrupt:
+        pass

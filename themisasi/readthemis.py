@@ -8,7 +8,7 @@ api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 from pathlib import Path
 from datetime import datetime
-from numpy import nonzero
+from numpy import nonzero, empty
 import re
 import h5py
 from dateutil.parser import parse
@@ -44,23 +44,47 @@ def readthemis(fn,treq,odir):
             return imgs[:], T[:], site
 
 
-def calthemis(fn):
+def calread(fn):
     """
     reads data mapping themis gbo asi pixels to azimuth,elevation
     """
     fn = Path(fn).expanduser()
-    if fn.suffix=='.sav':
+    if fn.suffix=='.sav': # suppose it's THEMIS IDL
         with readsav(str(fn),verbose=True) as h:
-            az = h['skymap/az']
-            el = h['skymap/el']
-            lla= h['skymap/lla']
-    elif fn.suffix=='.h5':
+            az = h['skymap/az'][:]
+            el = h['skymap/el'][:]
+            lla= h['skymap/lla'][:]
+    elif fn.suffix=='.h5': # one of my (converted) calibration files
         with h5py.File(str(fn),'r',libver='latest') as h:
-            az = h['az']
-            el = h['el']
-            lla= h['lla']
+            az = h['az'].value
+            el = h['el'].value
+            lla= h['lla'].value
 
     return az,el,lla
+
+def regthemis(flist):
+    """
+    take plate scale data to other cameras
+    """
+    flist = [Path(f).expanduser() for f in flist]
+
+    az = []; el = [] #each image might be a different size
+    lla = empty((len(flist),3))
+    for i,f in enumerate(flist):
+        a,e,l = calread(f)
+        az.append(a); el.append(e); lla[i,:] = l
+
+    return az,el,lla
+
+def altfiducial(az,ell,lla):
+    """
+    paint 110km altitude pixels on other camera
+    I have az,el of each pixel and location of each camera
+    I would like to take the outermost pixel boundary of the narrower FOV camera
+    and paint that onto the FOV of the wider FOV camera at 110km altitude.
+    """
+
+
 
 
 
