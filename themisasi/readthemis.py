@@ -8,7 +8,7 @@ api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 from pathlib import Path
 from datetime import datetime
-from numpy import nonzero, empty
+from numpy import nonzero, empty,nan
 import re
 import h5py
 from dateutil.parser import parse
@@ -64,10 +64,12 @@ def calread(fn):
 
     return az,el,lla
 
-def regthemis(flist):
+def calmulti(flist):
     """
-    take plate scale data to other cameras
+    read plate scale data of other cameras and store in lists for iteration
+    use lists because other cameras might each have unique pixel counts or configurations
     """
+    if isinstance(flist,str): flist = [flist]
     flist = [Path(f).expanduser() for f in flist]
 
     az = []; el = [] #each image might be a different size
@@ -78,9 +80,11 @@ def regthemis(flist):
 
     return az,el,lla
 
-def altfiducial(wa,wb,wlla,az,el,lla,projalt=110,wtype='azel'):
+def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110,wtype='azel'):
     """
-    inputs:
+    asifn: image filename for ASI
+    asicalfn: plate scale file for ASI
+    othercalfn: plate scale for other camera
     wa,wb,ella: az,el,lla (2d,2d,1d ndarrays) of widest FOV upon which to paint all other FOVs
     az,el,lla: (list,list,Nx3 ndarray) of all other FOVs
     projalt: projection altitude [km]
@@ -104,9 +108,16 @@ def altfiducial(wa,wb,wlla,az,el,lla,projalt=110,wtype='azel'):
     that the image fills the chip entirely, unlike ASI systems with dead regions around circular center
     """
 
+    #get ASI images
+    imgs,t,site = readthemis(asifn,treq,odir)
+    #load plate scale for ASI
+    waz,wel,wlla = calread(asicalfn)
+    #load plate scale for narrow camera and paint outline onto ASI image
+    oaz,oel,olla = calmulti(othercalfn)
+
     # 1) get lla for widest FOV
     if wtype=='azel':
-        x,y,z = aer2ecef(az,el,srange,lat0=wlla[0],lon0=wlla[1],alt0=wlla[2])
+        x,y,z = aer2ecef(waz,wel,nan,lat0=wlla[0],lon0=wlla[1],alt0=wlla[2])
 
 
 
