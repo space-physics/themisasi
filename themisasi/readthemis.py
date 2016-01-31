@@ -175,18 +175,18 @@ def plotthemis(imgs,T,r,c,site='',odir=None,rows=None,cols=None,ext=None):
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
-    fg = figure()
+    fg = figure(2)
     ax = fg.gca()
 
-    hi = ax.imshow(imgs[0],cmap='gray',origin='bottom',norm=LogNorm(),
+    hi = ax.imshow(imgs[0],cmap='gray',origin='lower',norm=LogNorm(),
                    interpolation='none',extent=ext)
     ht = ax.set_title('',color='g')
-    #blank ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-
+    ax.set_xlabel('x-pixels')
+    ax.set_ylabel('y-pixels')
+    ax.autoscale(True,tight=True)
+#%% plot narrow FOV outline
     overlayrowcol(ax,rows,cols)
-
+#%% play video
     for I,t in zip(imgs,T):
         hi.set_data(I)
         ht.set_text(str(t))
