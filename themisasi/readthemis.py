@@ -15,13 +15,11 @@ from netCDF4 import Dataset
 from dateutil.parser import parse
 from scipy.io import readsav
 from spacepy import pycdf
-from matplotlib.pyplot import figure,draw,pause
-from matplotlib.colors import LogNorm
 #
 from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
 from histutils.findnearest import findClosestAzel
-from astrometry_azel.plots import plotazel
-
+from .plots import plotjointazel
+#
 fullthumb='f' #f for full, t for thumb
 
 def readthemis(fn,treq,odir):
@@ -52,6 +50,8 @@ def readthemis(fn,treq,odir):
 def calread(fn):
     """
     reads data mapping themis gbo asi pixels to azimuth,elevation
+    calibration data url is
+    http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
     """
     fn = Path(fn).expanduser()
     if fn.suffix=='.sav': # suppose it's THEMIS IDL
@@ -147,6 +147,7 @@ def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
 #%% find az,el to narrow FOV from ASI FOV
         wpaz,wpel,_ = enu2aer(ope-oe, opn-on, opu-ou)
 #%% nearest neighbor brute force
+        print('finding nearest neighbors (takes 25 seconds per camera)')
         r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
         rows.append(r); cols.append(c)
 #%% plot joint az/el contours
@@ -163,50 +164,3 @@ def getedgeazel(az,el):
     Az.append(az[:,-1]); El.append(el[:,-1])
 
     return Az,El
-
-def plotjointazel(waz,wel,rows,cols,wR,wC,asifn):
-    axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show')
-
-    overlayrowcol(axa,rows,cols)
-    overlayrowcol(axe,rows,cols)
-
-def overlayrowcol(ax,rows,cols):
-    """
-    wants a list of len(4) list x Npixel
-    that is, like a 3D array Ncam x Nside x Npixelonside
-    but using lists since cameras have different resolutions
-    and may be rectangular.
-    """
-    colors = ('g','r','m','y','c')
-
-    if rows is not None and cols is not None:
-        for row,col,color in zip(rows,cols,colors): #for c in cam
-            if isinstance(row,list):
-                for r,c in zip(row,col): # for l in lines
-                    ax.plot(c,r,color=color,linewidth=2,alpha=0.5)
-            else: #single camera
-                ax.plot(col,row,color='g',linewidth=2,alpha=0.5)
-
-def plotthemis(imgs,T,site='',odir=None,rows=None,cols=None,ext=None):
-    """
-    rows,cols expect lines to be along rows Nlines x len(line)
-    list of 1-D arrays or 2-D array
-    """
-    fg = figure()
-    ax = fg.gca()
-
-    hi = ax.imshow(imgs[0],cmap='gray',origin='lower',norm=LogNorm(),
-                   interpolation='none',extent=ext)
-    ht = ax.set_title('',color='g')
-    ax.set_xlabel('x-pixels')
-    ax.set_ylabel('y-pixels')
-    ax.autoscale(True,tight=True)
-#%% plot narrow FOV outline
-    overlayrowcol(ax,rows,cols)
-#%% play video
-    for I,t in zip(imgs,T):
-        hi.set_data(I)
-        ht.set_text(str(t))
-        draw(),pause(0.05)
-        if odir:
-            fg.savefig(str(odir/'Themis_{}_{}.png'.format(site,t.timestamp())),bbox_inches='tight',facecolor='k',dpi=150)

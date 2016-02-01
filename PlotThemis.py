@@ -14,10 +14,11 @@ if __name__ == '__main__':
     p.add_argument('--ocal',help='other camera (narrow FOV) cal file')
     p.add_argument('-t','--treq',help='time requested',nargs=2)
     p.add_argument('-o','--odir',help='write video to this directory')
+    p.add_argument('-o','--ofn',help='write output to this movie file')
     p = p.parse_args()
 
     if p.asical:
-        altfiducial(p.asifn,p.asical,p.ocal,p.treq,p.odir) #paint HiST field of view onto Themis
+        altfiducial(p.asifn,p.asical,p.ocal,p.treq,p.ofn) #paint HiST field of view onto Themis
     else:
         imgs,t,site = readthemis(p.asifn,p.treq,p.odir)
         try:
