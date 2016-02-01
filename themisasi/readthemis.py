@@ -124,30 +124,35 @@ def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
     NOTE: assume there are no NaNs in the narrow FOV camera,
     that the image fills the chip entirely, unlike ASI systems with dead regions around circular center
     """
-
+    if not isinstance(othercalfn,(tuple,list)):
+        othercalfn=[othercalfn]
     #get ASI images
     imgs,t,site = readthemis(asifn,treq,odir)
 #%% load plate scale for ASI
     waz,wel,wlla,wC,wR = calread(asicalfn)
+
+    rows=[]; cols=[]
+    for of in othercalfn:
 #%% load plate scale for narrow camera and paint outline onto ASI image
-    oaz,oel,olla,oC,oR = calread(othercalfn)
+        oaz,oel,olla,oC,oR = calread(of)
 #%% select edges of narrow FOV
-    oaz,oel = getedgeazel(oaz,oel)
+        oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
 #    wenu = array([0,0,0]) #make ASI at ENU origin
-    oe,on,ou = geodetic2enu(olla[0],olla[1],olla[2],
-                            wlla[0],wlla[1],wlla[2])
+        oe,on,ou = geodetic2enu(olla[0],olla[1],olla[2],
+                                wlla[0],wlla[1],wlla[2])
 #%% find the ENU of narrow FOV pixels at 110km from narrow FOV
     # FIXME if rectangular camera chip, use nans perhaps with square array
-    ope ,opn, opu = aer2enu(oaz,oel,projalt/sin(radians(oel)))   #cos(90-x) = sin(x)
+        ope ,opn, opu = aer2enu(oaz,oel,projalt/sin(radians(oel)))   #cos(90-x) = sin(x)
 #%% find az,el to narrow FOV from ASI FOV
-    wpaz,wpel,_ = enu2aer(ope-oe, opn-on, opu-ou)
+        wpaz,wpel,_ = enu2aer(ope-oe, opn-on, opu-ou)
 #%% nearest neighbor brute force
-    r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
+        r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
+        rows.append(r); cols.append(c)
 #%% plot joint az/el contours
-    plotjointazel(waz,wel,oaz,oel,r,c,wR,wC,oR,oC)
+        plotjointazel(waz,wel,rows,cols,wR,wC,asifn)
 
-    return imgs,r,c,t,site,wR,wC
+    return imgs,rows,cols,t,site,wR,wC
 
 def getedgeazel(az,el):
     # Use list because image may not be square
@@ -159,23 +164,35 @@ def getedgeazel(az,el):
 
     return Az,El
 
-def plotjointazel(waz,wel,oaz,oel,rows,cols,wR,wC,oR,oC):
+def plotjointazel(waz,wel,rows,cols,wR,wC,asifn):
     axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show')
 
     overlayrowcol(axa,rows,cols)
     overlayrowcol(axe,rows,cols)
 
 def overlayrowcol(ax,rows,cols):
-    if rows is not None and cols is not None:
-        for row,col in zip(rows,cols):
-            ax.plot(col,row,color='g',linewidth=2,alpha=0.5)
+    """
+    wants a list of len(4) list x Npixel
+    that is, like a 3D array Ncam x Nside x Npixelonside
+    but using lists since cameras have different resolutions
+    and may be rectangular.
+    """
+    colors = ('g','r','m','y','c')
 
-def plotthemis(imgs,T,r,c,site='',odir=None,rows=None,cols=None,ext=None):
+    if rows is not None and cols is not None:
+        for row,col,color in zip(rows,cols,colors): #for c in cam
+            if isinstance(row,list):
+                for r,c in zip(row,col): # for l in lines
+                    ax.plot(c,r,color=color,linewidth=2,alpha=0.5)
+            else: #single camera
+                ax.plot(col,row,color='g',linewidth=2,alpha=0.5)
+
+def plotthemis(imgs,T,site='',odir=None,rows=None,cols=None,ext=None):
     """
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
-    fg = figure(2)
+    fg = figure()
     ax = fg.gca()
 
     hi = ax.imshow(imgs[0],cmap='gray',origin='lower',norm=LogNorm(),
