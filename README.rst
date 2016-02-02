@@ -3,7 +3,7 @@ themis-asi-reader
 =================
 
 :Author: Michael Hirsch
-:Requirements: Python or Matlab (GNU Octave does not currently have a CDF reader)
+:Requirements: Python, SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 A simple function collection to read the 256x256 "high resolution" THEMIS ASI ground-based imager data. 
 It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_, giving azimuth and elevation for each pixel.
@@ -43,6 +43,7 @@ Python
 
 Matlab
 ~~~~~~
+The Matlab code is obsolete, the Python version has so much more.
 ::
 
     readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
