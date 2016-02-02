@@ -1,4 +1,7 @@
 function [data,t,hdrs] = getTHEMIS(varargin)
+%
+% Note this file is obsolete, use the Python versio instead, many more features.
+%
 % Michael Hirsch, Dec 2013
 % Boston University
 % reference: http://themis.ssl.berkeley.edu/gbo/THEMIS_All_Sky_Imager-2.pdf
