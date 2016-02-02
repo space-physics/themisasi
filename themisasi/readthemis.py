@@ -8,7 +8,7 @@ api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 from pathlib import Path
 from datetime import datetime
-from numpy import empty,sin,radians,flipud
+from numpy import empty,sin,radians,flipud,array
 import re
 import h5py
 from netCDF4 import Dataset
@@ -31,14 +31,21 @@ def readthemis(fn,treq,odir):
     site = m.group(0)
 #%% plot,save video
     with pycdf.CDF(str(fn)) as f:
-        T = f['thg_as{}_{}_epoch'.format(fullthumb,site)][:]
-        #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
-        imgs = f['thg_as{}_{}'.format(fullthumb,site)][:] # slicing didn't work for some readon with Pycdf 0.1.5
+        try: #full
+            T = f['thg_asf_{}_epoch'.format(site)][:]
+            #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
+            imgs = f['thg_asf_{}'.format(site)][:] # slicing didn't work for some readon with Pycdf 0.1.5
+        except KeyError:
+            T = f['thg_ast_{}_time'.format(site)][:]
+            imgs = f['thg_ast_{}'.format(site)][:]
 
         if treq:
             if isinstance(treq[0],str):
                 treq = [parse(t) for t in treq]
             assert isinstance(treq[0],datetime)
+
+            if isinstance(T[0],float):
+                T=array([datetime.utcfromtimestamp(t) for t in T])
 
             tind = (treq[0]<=T) & (T<=treq[1])
             return imgs[tind,:,:], T[tind],site
@@ -55,14 +62,14 @@ def calread(fn):
     """
     fn = Path(fn).expanduser()
     if fn.suffix=='.sav': # suppose it's THEMIS IDL
-        with readsav(str(fn),verbose=True) as h:
-            az = h['skymap/full_azimuth'][:]
-            el = h['skymap/full_elevation'][:]
-            lla= [h['skymap/site_map_latitude'],
-                  h['skymap/site_map_longitude'],
-                  h['skymap/site_map_altitude']]
-            x  = h['skymap/full_column'][:]
-            y  = h['skymap/full_row'][:]
+        h= readsav(str(fn),verbose=False) #readsav is not a context manager
+        az, = h['skymap']['full_azimuth']
+        el, = h['skymap']['full_elevation']
+        lla= array([h['skymap']['site_map_latitude'],
+                    h['skymap']['site_map_longitude'],
+                    h['skymap']['site_map_altitude']]).squeeze()
+        x,  = h['skymap']['full_column']
+        y,  = h['skymap']['full_row'][:]
     elif fn.suffix=='.h5':
         with h5py.File(str(fn),'r',libver='latest') as h:
             az = h['az'].value
@@ -130,6 +137,9 @@ def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
     imgs,t,site = readthemis(asifn,treq,odir)
 #%% load plate scale for ASI
     waz,wel,wlla,wC,wR = calread(asicalfn)
+    #TODO ask Emma Spanswick how to reshape binned images, it's not completely trivial.
+    assert wC.shape == imgs.shape[1:] == wR.shape,'we do not handle binned images yet'
+
 
     rows=[]; cols=[]
     for of in othercalfn:

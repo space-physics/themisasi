@@ -6,11 +6,15 @@ import matplotlib.animation as anim
 #
 from astrometry_azel.plots import plotazel
 
-def plotjointazel(waz,wel,rows,cols,wR,wC,asifn):
-    axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show')
+def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None):
+    fg,axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show')
 
     overlayrowcol(axa,rows,cols)
     overlayrowcol(axe,rows,cols)
+
+    if asifn:
+        pfn = Path(asifn).expanduser().with_suffix('.png')
+        fg.savefig(str(pfn),bbox_inches='tight',dpi=100)
 
 def overlayrowcol(ax,rows,cols):
     """
