@@ -6,9 +6,10 @@ to setup spacepy, see  https://scivision.co/installing-spacepy-with-anaconda-pyt
 
 api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
+import logging
 from pathlib import Path
 from datetime import datetime
-from numpy import empty,sin,radians,flipud,array
+from numpy import empty,sin,radians,flipud,array,mgrid
 import re
 import h5py
 from netCDF4 import Dataset
@@ -103,11 +104,11 @@ def calmulti(flist):
 
     return az,el,lla
 
-def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
+def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
     """
-    asifn: image filename for ASI
-    asicalfn: plate scale file for ASI
-    othercalfn: plate scale for other camera
+    wfn: image filename for ASI
+    wcalfn: plate scale file for ASI
+    ncalflist: plate scale for other camera
     projalt: projection altitude [m]
 
 
@@ -131,20 +132,34 @@ def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
     NOTE: assume there are no NaNs in the narrow FOV camera,
     that the image fills the chip entirely, unlike ASI systems with dead regions around circular center
     """
-    if not isinstance(othercalfn,(tuple,list)):
-        othercalfn=[othercalfn]
+    if not isinstance(ncalflist,(tuple,list)):
+        ncalflist=[ncalflist]
     #get ASI images
-    imgs,t,site = readthemis(asifn,treq,odir)
+    imgs,t,site = readthemis(wfn,treq,odir)
 #%% load plate scale for ASI
-    waz,wel,wlla,wC,wR = calread(asicalfn)
+    waz,wel,wlla,wcols,wrows = calread(wcalfn)
     #TODO ask Emma Spanswick how to reshape binned images, it's not completely trivial.
-    assert wC.shape == imgs.shape[1:] == wR.shape,'we do not handle binned images yet'
+    assert wcols.shape == imgs.shape[1:] == wrows.shape,'we do not handle binned images yet'
 
+
+    rows,cols = mergefov(wfn,wlla,waz,wel,wrows,wcols,ncalflist,projalt)
+
+    return imgs,rows,cols,t,site,wrows,wcols
+
+def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt):
+    """
+    projalt: projection altitude METERS
+    """
+    if projalt<1e3:
+        logging.warning('this function expects meters, you picked projection altitude {} km'.format(projalt/1e3))
+
+    if wrows is None and wcols is None:
+        wrows,wcols = mgrid[:waz.shape[0], :waz.shape[1]]
 
     rows=[]; cols=[]
-    for of in othercalfn:
+    for f in narrowflist:
 #%% load plate scale for narrow camera and paint outline onto ASI image
-        oaz,oel,olla,oC,oR = calread(of)
+        oaz,oel,olla,oC,oR = calread(f)
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
@@ -157,13 +172,13 @@ def altfiducial(asifn,asicalfn,othercalfn,treq=None,odir=None,projalt=110e3):
 #%% find az,el to narrow FOV from ASI FOV
         wpaz,wpel,_ = enu2aer(ope-oe, opn-on, opu-ou)
 #%% nearest neighbor brute force
-        print('finding nearest neighbors (takes 25 seconds per camera)')
+        print('finding nearest neighbors {} (takes 25 seconds per camera)'.format(f))
         r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
         rows.append(r); cols.append(c)
 #%% plot joint az/el contours
-        plotjointazel(waz,wel,rows,cols,wR,wC,asifn)
+        plotjointazel(waz,wel,rows,cols,wrows,wcols,wfn,projalt)
 
-    return imgs,rows,cols,t,site,wR,wC
+    return rows,cols
 
 def getedgeazel(az,el):
     # Use list because image may not be square

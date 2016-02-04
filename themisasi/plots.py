@@ -1,13 +1,16 @@
 from pathlib import Path
 from numpy import ones
+from tempfile import mkstemp
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 import matplotlib.animation as anim
 #
 from astrometry_azel.plots import plotazel
 
-def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None):
-    fg,axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show')
+def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None,projalt=None):
+
+    ttxt = 'Projected to {} km\n'.format(projalt/1e3)
+    fg,axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show',ttxt=ttxt)
 
     overlayrowcol(axa,rows,cols)
     overlayrowcol(axe,rows,cols)
@@ -40,15 +43,20 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
     """
     if ofn:
         ofn = Path(ofn).expanduser()
-        Writer = anim.writers['ffmpeg']
-        writer = Writer(fps=5,
-                        metadata=dict(artist='Michael Hirsch'),
-                        codec='ffv1')
-        """
-        NOTE: codec must be compatible with file container type.
-        ffv1: avi
-        mpeg4: mp4
-        """
+        write=True
+    else:
+        ofn = mkstemp()
+        write=False
+
+    Writer = anim.writers['ffmpeg']
+    writer = Writer(fps=5,
+                    metadata=dict(artist='Michael Hirsch'),
+                    codec='ffv1')
+    """
+    NOTE: codec must be compatible with file container type.
+    ffv1: avi
+    mpeg4: mp4
+    """
 
     fg = figure()
     ax = fg.gca()
@@ -69,18 +77,13 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
     else:
         tgood = ones(T.size).astype(bool)
 
-    if not ofn:
+
+    with writer.saving(fg, str(ofn),150):
         for I,t in zip(imgs[tgood,...],T[tgood]):
             hi.set_data(I)
             ht.set_text(ttxt + str(t))
-            draw(),pause(0.05)
-    else:
-        with writer.saving(fg, str(ofn),150):
-            for I,t in zip(imgs[tgood,...],T[tgood]):
-                hi.set_data(I)
-                ht.set_text(ttxt + str(t))
-                draw(),pause(0.01)
-                writer.grab_frame(facecolor='k')
+            draw(),pause(0.01)
+            if write: writer.grab_frame(facecolor='k')
 
 #        if odir:
 #            fg.savefig(str(odir/'Themis_{}_{}.png'.format(site,t.timestamp())),bbox_inches='tight',facecolor='k',dpi=150)
