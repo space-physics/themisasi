@@ -18,6 +18,7 @@ from scipy.io import readsav
 from spacepy import pycdf
 #
 from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
+from pymap3d.vdist import vdist
 from histutils.findnearest import findClosestAzel
 from .plots import plotjointazel
 #
@@ -70,7 +71,7 @@ def calread(fn):
                     h['skymap']['site_map_longitude'],
                     h['skymap']['site_map_altitude']]).squeeze()
         x,  = h['skymap']['full_column']
-        y,  = h['skymap']['full_row'][:]
+        y,  = h['skymap']['full_row']
     elif fn.suffix=='.h5':
         with h5py.File(str(fn),'r',libver='latest') as h:
             az = h['az'].value
@@ -142,11 +143,11 @@ def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
     assert wcols.shape == imgs.shape[1:] == wrows.shape,'we do not handle binned images yet'
 
 
-    rows,cols = mergefov(wfn,wlla,waz,wel,wrows,wcols,ncalflist,projalt)
+    rows,cols = mergefov(wfn,wlla,waz,wel,wrows,wcols,ncalflist,projalt,site)
 
     return imgs,rows,cols,t,site,wrows,wcols
 
-def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt):
+def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site):
     """
     projalt: projection altitude METERS
     """
@@ -158,8 +159,10 @@ def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt):
 
     rows=[]; cols=[]
     for f in narrowflist:
-#%% load plate scale for narrow camera and paint outline onto ASI image
+#%% load plate scale for narrow camera
         oaz,oel,olla,oC,oR = calread(f)
+#%% print distance from wide camera to narrow camera (just for information)
+        print('distance narrow to {}  {} meters'.format(site,vdist(wlla[0],wlla[1],olla[0],olla[1])))
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
