@@ -21,6 +21,8 @@ def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None,projalt=None):
 
 def overlayrowcol(ax,rows,cols):
     """
+    plot FOV outline onto image via the existing axis "ax"
+
     wants a list of len(4) list x Npixel
     that is, like a 3D array Ncam x Nside x Npixelonside
     but using lists since cameras have different resolutions
