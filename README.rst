@@ -49,6 +49,15 @@ The Matlab code is obsolete, the Python version has so much more.
 
     readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
 
+Resources
+=========
+`Themis ASI coordinate spreadsheet <http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls>`_
+
+`THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_
+
+`Themis all-sky imager data repository <http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/>`_
+
+
 Themis Plate Scale data
 =======================
 I discovered that IDL 8.0 had a problem saving structured arrays of bytes. While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. `I submitted a patch to SciPy to allow reading these files. If you get an error, try making the patch yourself. <https://github.com/scipy/scipy/pull/5801>`_
