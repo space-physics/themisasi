@@ -3,7 +3,7 @@ themis-asi-reader
 =================
 
 :Author: Michael Hirsch
-:Requirements: Python, SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+:Requirements: Python, SpacePy and `CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 A simple function collection to read the 256x256 "high resolution" THEMIS ASI ground-based imager data. 
 It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_, giving azimuth and elevation for each pixel.
@@ -12,8 +12,8 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 
 Install
 =======
-First, `install SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_.
-Then from Terminal::
+First `install SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+::
 
     python setup.py develop
 
@@ -50,16 +50,5 @@ The Matlab code is obsolete, the Python version has so much more.
 
 Themis Plate Scale data
 =======================
-This involves converting sometimes corrupted IDL .sav files to NetCDF4. The non-corrupted files are convertable by GDL, but some corrupted .sav files will require IDL. The file ``sav2nc.pro`` converts the files with GDL or IDL.
+I discovered that IDL 8.0 had a problem saving structured arrays of bytes. While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. `I submitted a patch to SciPy to allow reading these files. If you get an error, try making the patch yourself. <https://github.com/scipy/scipy/pull/5801>`_
 
-Example Corrupt IDL .sav file needing IDL to convert to NetCDF4
----------------------------------------------------------------
-Use IDL with ``sav2nc.pro`` to convert this corrupted file to NetCDF4 so that you can read the data with Python etc.::
-
-    wget http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/fykn_20110305/themis_skymap_fykn_20110305-+_vXX.sav
-    
-Example IDL .sav file reading with Python
------------------------------------------
-::
-
-    wget http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/fykn_20081029/themis_skymap_fykn_20061014-20080416_vXX.sav
