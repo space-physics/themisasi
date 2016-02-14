@@ -140,7 +140,7 @@ def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
 #%% load plate scale for ASI
     waz,wel,wlla,wcols,wrows = calread(wcalfn)
     #TODO ask Emma Spanswick how to reshape binned images, it's not completely trivial.
-    assert wcols.shape == imgs.shape[1:] == wrows.shape,'we do not handle binned images yet'
+#    assert wcols.shape == imgs.shape[1:] == wrows.shape,'we do not handle binned images yet'
 
 
     rows,cols = mergefov(wfn,wlla,waz,wel,wrows,wcols,ncalflist,projalt,site)
