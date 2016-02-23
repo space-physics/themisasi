@@ -17,7 +17,9 @@ setup(name='themisasi',
 
 #%%
 try:
-    subprocess.call(['conda','install','--yes','--quiet','--file','requirements.txt'],shell=False) #don't use os.environ
+    subprocess.run(['conda','install','--yes','--quiet','--file','requirements.txt'])
 except Exception as e:
     print('you will need to install packages in requirements.txt  {}'.format(e))
+    with open('requirements.txt','r') a f:
+        print(f.read())
 
