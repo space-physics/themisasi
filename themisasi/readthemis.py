@@ -20,6 +20,7 @@ from spacepy import pycdf
 from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
 from pymap3d.vdist import vdist
 from histutils.findnearest import findClosestAzel
+from histutils.fortrandates import forceutc
 from .plots import plotjointazel
 #
 fullthumb='f' #f for full, t for thumb
@@ -34,11 +35,11 @@ def readthemis(fn,treq,odir):
 #%% plot,save video
     with pycdf.CDF(str(fn)) as f:
         try: #full
-            T = f['thg_asf_{}_epoch'.format(site)][:]
+            T = forceutc(f['thg_asf_{}_epoch'.format(site)][:])
             #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
             imgs = f['thg_asf_{}'.format(site)][:] # slicing didn't work for some readon with Pycdf 0.1.5
         except KeyError:
-            T = f['thg_ast_{}_time'.format(site)][:]
+            T = forceutc(f['thg_ast_{}_time'.format(site)][:])
             imgs = f['thg_ast_{}'.format(site)][:]
 
         if treq:
