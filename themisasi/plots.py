@@ -56,7 +56,7 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
                     codec='ffv1')
     """
     NOTE: codec must be compatible with file container type.
-    ffv1: avi
+    ffv1: avi, mkv
     mpeg4: mp4
     """
 
