@@ -1,6 +1,6 @@
 from pathlib import Path
 from numpy import ones
-from tempfile import mkstemp
+from os import devnull
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 import matplotlib.animation as anim
@@ -47,7 +47,7 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
         ofn = Path(ofn).expanduser()
         write=True
     else:
-        ofn = mkstemp()
+        ofn = devnull
         write=False
 
     Writer = anim.writers['ffmpeg']
