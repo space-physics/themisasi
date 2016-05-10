@@ -119,7 +119,7 @@ def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
     wfn: image filename for ASI
     wcalfn: plate scale file for ASI
     ncalflist: plate scale for other camera
-    projalt: projection altitude [m]
+    projalt: projection altitude [meters]
 
 
     wa,wb,ella: az,el,lla (2d,2d,1d ndarrays) of widest FOV upon which to paint all other FOVs
@@ -158,7 +158,16 @@ def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
 
 def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
     """
+    inputs:
+    -------
+    wfn: wide FOV camera filename
+    wlla: wide FOV lat,lon,alt (deg,deg,meters)
+    waz: wide FOV azimuth map 2-D (deg)
+    wel: wide FOV elevation map 2-D (deg)
+    wrows, wcols: optional (None,None) or 2-D indices of pixels
+    narrowflist: list of narrow
     projalt: projection altitude METERS
+    site: optional text label
     """
     if projalt<1e3:
         logging.warning('this function expects meters, you picked projection altitude {} km'.format(projalt/1e3))
