@@ -37,7 +37,7 @@ def readthemis(fn,treq,odir):
         try: #full
             T = forceutc(f['thg_asf_{}_epoch'.format(site)][:])
             #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
-            imgs = f['thg_asf_{}'.format(site)][:] # slicing didn't work for some readon with Pycdf 0.1.5
+            imgs = f['thg_asf_{}'.format(site)][:] # slicing didn't work for some reason with Pycdf 0.1.5
         except KeyError:
             T = forceutc(f['thg_ast_{}_time'.format(site)][:])
             imgs = f['thg_ast_{}'.format(site)][:]

@@ -3,6 +3,12 @@
 from setuptools import setup
 import subprocess
 
+try:
+    subprocess.run(['conda','install','--yes','--file','requirements.txt'])
+except Exception as e:
+    print('you will need to install packages in requirements.txt  {}'.format(e))
+
+
 with open('README.rst','r') as f:
 	long_description = f.read()
 
@@ -14,12 +20,4 @@ setup(name='themisasi',
 	  url='https://github.com/scienceopen/themisasi',
       packages=['themisasi'],
 	  )
-
-#%%
-try:
-    subprocess.run(['conda','install','--yes','--quiet','--file','requirements.txt'])
-except Exception as e:
-    print('you will need to install packages in requirements.txt  {}'.format(e))
-    with open('requirements.txt','r') a f:
-        print(f.read())
 
