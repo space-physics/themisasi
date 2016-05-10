@@ -18,6 +18,10 @@ setup(name='themisasi',
 	  long_description=long_description,
 	  author='Michael Hirsch',
 	  url='https://github.com/scienceopen/themisasi',
+	  install_requires=['histutils','pymap3d'],
+      dependency_links = [
+        'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
+        'https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d'],
       packages=['themisasi'],
 	  )
 
