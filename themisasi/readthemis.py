@@ -74,16 +74,16 @@ def calread(fn):
         h= readsav(str(fn),verbose=False) #readsav is not a context manager
         az, = h['skymap']['full_azimuth']
         el, = h['skymap']['full_elevation']
-        lla= array([h['skymap']['site_map_latitude'],
-                    h['skymap']['site_map_longitude'],
-                    h['skymap']['site_map_altitude']]).squeeze()
+        lla= {'lat':   h['skymap']['site_map_latitude'],
+              'lon':   h['skymap']['site_map_longitude'],
+              'alt_m': h['skymap']['site_map_altitude']}
         x,  = h['skymap']['full_column']
         y,  = h['skymap']['full_row']
     elif fn.suffix=='.h5':
         with h5py.File(str(fn),'r',libver='latest') as h:
             az = h['az'].value
             el = h['el'].value
-            lla= h['lla'].value
+            lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
             x  = h['x'].value
             y  = h['y'].value
     elif fn.suffix == '.nc':
@@ -92,7 +92,7 @@ def calread(fn):
         with Dataset(str(fn),'r') as h:
             az = h['az'][:]
             el = h['el'][:]
-            lla= h['lla'][:].squeeze()
+            lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
             x  = h['x'][:].astype(int)
             y  = flipud(h['y'][:]).astype(int)
 
@@ -186,7 +186,7 @@ def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
 #%% use ENU for both sites (thanks J. Swoboda)
 #    wenu = array([0,0,0]) #make ASI at ENU origin
         oe,on,ou = geodetic2enu(olla[0],olla[1],olla[2],
-                                wlla[0],wlla[1],wlla[2])
+                                wlla['lat'],wlla['lon'],wlla['alt_m'])
 #%% find the ENU of narrow FOV pixels at 110km from narrow FOV
     # FIXME if rectangular camera chip, use nans perhaps with square array
         ope ,opn, opu = aer2enu(oaz,oel,projalt/sin(radians(oel)))   #cos(90-x) = sin(x)
