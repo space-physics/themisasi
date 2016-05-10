@@ -21,7 +21,8 @@ setup(name='themisasi',
 	  install_requires=['histutils','pymap3d'],
       dependency_links = [
         'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
-        'https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d'],
+        'https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d',
+        'https://github.com/scienceopen/astrometry_azel/tarball/master#egg=astrometry_azel'],
       packages=['themisasi'],
 	  )
 
