@@ -12,10 +12,13 @@ from datetime import datetime
 from numpy import empty,sin,radians,flipud,array,mgrid
 import re
 import h5py
-from netCDF4 import Dataset
 from dateutil.parser import parse
 from scipy.io import readsav
-from spacepy import pycdf
+try:
+    from netCDF4 import Dataset
+    from spacepy import pycdf
+except ImportError:
+    Dataset=pycdf=None
 #
 from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
 from pymap3d.vdist import vdist
@@ -26,6 +29,9 @@ from .plots import plotjointazel
 fullthumb='f' #f for full, t for thumb
 
 def readthemis(fn,treq,odir):
+    if pycdf is None:
+        raise ImportError('you will need NetCDF, pycdf  https://scivision.co/installing-spacepy-with-anaconda-python-3')
+
     fn = Path(fn).expanduser()
 
     if odir: odir = Path(odir).expanduser()
@@ -81,6 +87,8 @@ def calread(fn):
             x  = h['x'].value
             y  = h['y'].value
     elif fn.suffix == '.nc':
+        if Dataset is None:
+            raise ImportError('you will need NetCDF  https://scivision.co/installing-spacepy-with-anaconda-python-3')
         with Dataset(str(fn),'r') as h:
             az = h['az'][:]
             el = h['el'][:]
@@ -148,7 +156,7 @@ def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
 
     return imgs,rows,cols,t,site,wrows,wcols
 
-def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site):
+def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
     """
     projalt: projection altitude METERS
     """
@@ -163,7 +171,7 @@ def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site):
 #%% load plate scale for narrow camera
         oaz,oel,olla,oC,oR = calread(f)
 #%% print distance from wide camera to narrow camera (just for information)
-        print('distance narrow to {}  {} meters'.format(site,vdist(wlla[0],wlla[1],olla[0],olla[1])))
+        print('distance: narrow FOV camera to {}:  {:.1f} meters'.format(site,vdist(wlla[0],wlla[1],olla[0],olla[1])))
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
