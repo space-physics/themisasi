@@ -1,3 +1,5 @@
+setuptools
+nose
 numpy
 scipy
 h5py
