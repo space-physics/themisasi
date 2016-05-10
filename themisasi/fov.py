@@ -5,18 +5,19 @@ from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
 from pymap3d.vdist import vdist
 from histutils.findnearest import findClosestAzel
 #
+from .readthemis import calread
 from .plots import plotjointazel
 
-def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
+def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
     """
     inputs:
     -------
-    wfn: wide FOV camera filename
+    ofn: filename to save (optional)
     wlla: wide FOV lat,lon,alt (deg,deg,meters)
     waz: wide FOV azimuth map 2-D (deg)
     wel: wide FOV elevation map 2-D (deg)
     wrows, wcols: optional (None,None) or 2-D indices of pixels
-    narrowflist: list of narrow
+    narrowflist: list of narrow cal files
     projalt: projection altitude METERS
     site: optional text label
     """
@@ -49,7 +50,7 @@ def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
         r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
         rows.append(r); cols.append(c)
 #%% plot joint az/el contours
-        plotjointazel(waz,wel,rows,cols,wrows,wcols,wfn,projalt)
+        plotjointazel(waz,wel,rows,cols,wrows,wcols,ofn,projalt)
 
     return rows,cols
 
