@@ -180,12 +180,13 @@ def mergefov(wfn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
 #%% load plate scale for narrow camera
         oaz,oel,olla,oC,oR = calread(f)
 #%% print distance from wide camera to narrow camera (just for information)
-        print('distance: narrow FOV camera to {}:  {:.1f} meters'.format(site,vdist(wlla[0],wlla[1],olla[0],olla[1])))
+        print('distance: narrow FOV camera to {}:  {:.1f} meters'.format(site,vdist(wlla['lat'],wlla['lon'],
+                                                                                    olla['lat'],olla['lon'])))
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
 #    wenu = array([0,0,0]) #make ASI at ENU origin
-        oe,on,ou = geodetic2enu(olla[0],olla[1],olla[2],
+        oe,on,ou = geodetic2enu(olla['lat'],olla['lon'],olla['alt_m'],
                                 wlla['lat'],wlla['lon'],wlla['alt_m'])
 #%% find the ENU of narrow FOV pixels at 110km from narrow FOV
     # FIXME if rectangular camera chip, use nans perhaps with square array
