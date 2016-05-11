@@ -5,7 +5,7 @@ from pymap3d.coordconv3d import enu2aer,geodetic2enu,aer2enu
 from pymap3d.vdist import vdist
 from histutils.findnearest import findClosestAzel
 #
-from .readthemis import calread
+from .calread import calread
 from .plots import plotjointazel
 
 def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):

@@ -8,19 +8,17 @@ api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 from pathlib import Path
 from datetime import datetime
-from numpy import empty,flipud,array
+from numpy import array
 import re
-import h5py
 from dateutil.parser import parse
-from scipy.io import readsav
 try:
-    from netCDF4 import Dataset
     from spacepy import pycdf
 except ImportError:
-    Dataset=pycdf=None
+    pycdf=None
 #
 from histutils.fortrandates import forceutc
 from .fov import mergefov
+from .calread import calread
 #
 fullthumb='f' #f for full, t for thumb
 
@@ -59,56 +57,21 @@ def readthemis(fn,treq,odir):
             return imgs[:], T[:], site
 
 
-def calread(fn):
-    """
-    reads data mapping themis gbo asi pixels to azimuth,elevation
-    calibration data url is
-    http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
-    """
-    fn = Path(fn).expanduser()
-    if fn.suffix=='.sav': # suppose it's THEMIS IDL
-        h= readsav(str(fn),verbose=False) #readsav is not a context manager
-        az, = h['skymap']['full_azimuth']
-        el, = h['skymap']['full_elevation']
-        lla= {'lat':   h['skymap']['site_map_latitude'],
-              'lon':   h['skymap']['site_map_longitude'],
-              'alt_m': h['skymap']['site_map_altitude']}
-        x,  = h['skymap']['full_column']
-        y,  = h['skymap']['full_row']
-    elif fn.suffix=='.h5':
-        with h5py.File(str(fn),'r',libver='latest') as h:
-            az = h['az'].value
-            el = h['el'].value
-            lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
-            x  = h['x'].value
-            y  = h['y'].value
-    elif fn.suffix == '.nc':
-        if Dataset is None:
-            raise ImportError('you will need NetCDF  https://scivision.co/installing-spacepy-with-anaconda-python-3')
-        with Dataset(str(fn),'r') as h:
-            az = h['az'][:]
-            el = h['el'][:]
-            lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
-            x  = h['x'][:].astype(int)
-            y  = flipud(h['y'][:]).astype(int)
-
-    return az,el,lla,x,y
-
-def calmulti(flist):
-    """
-    read plate scale data of other cameras and store in lists for iteration
-    use lists because other cameras might each have unique pixel counts or configurations
-    """
-    if isinstance(flist,str): flist = [flist]
-    flist = [Path(f).expanduser() for f in flist]
-
-    az = []; el = [] #each image might be a different size
-    lla = empty((len(flist),3))
-    for i,f in enumerate(flist):
-        a,e,l,x,y = calread(f)
-        az.append(a); el.append(e); lla[i,:] = l
-
-    return az,el,lla
+#def calmulti(flist):
+#    """
+#    read plate scale data of other cameras and store in lists for iteration
+#    use lists because other cameras might each have unique pixel counts or configurations
+#    """
+#    if isinstance(flist,str): flist = [flist]
+#    flist = [Path(f).expanduser() for f in flist]
+#
+#    az = []; el = [] #each image might be a different size
+#    lla = empty((len(flist),3))
+#    for i,f in enumerate(flist):
+#        a,e,l,x,y = calread(f)
+#        az.append(a); el.append(e); lla[i,:] = l
+#
+#    return az,el,lla
 
 def altfiducial(wfn,wcalfn,ncalflist,treq=None,odir=None,projalt=110e3):
     """
