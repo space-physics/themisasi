@@ -1,5 +1,5 @@
 from pathlib import Path
-from numpy import ones
+from numpy import ones, ndarray
 from os import devnull
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
@@ -36,7 +36,7 @@ def overlayrowcol(ax,rows,cols):
 
     if rows is not None and cols is not None:
         for row,col,color in zip(rows,cols,colors): #for c in cam
-            if isinstance(row,list):
+            if isinstance(row,list) or (isinstance(row,ndarray) and row.ndim==2):
                 for r,c in zip(row,col): # for l in lines
                     ax.plot(c,r,color=color,linewidth=2,alpha=0.5)
             else: #single camera
