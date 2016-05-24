@@ -81,7 +81,7 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
     if treq: #maybe you loaded a lot of video but only want to play small parts of it.
         tgood = (treq[0]<=T) & (T<=treq[1])
     else:
-        tgood = ones(T.size).astype(bool)
+        tgood = ones(T.size,bool)
 
 
     with writer.saving(fg, str(ofn),150):
