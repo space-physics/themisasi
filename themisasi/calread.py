@@ -1,4 +1,4 @@
-from pathlib import Path
+from . import Path
 from numpy import flipud
 import h5py
 from scipy.io import readsav

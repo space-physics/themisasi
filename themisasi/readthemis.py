@@ -6,7 +6,7 @@ to setup spacepy, see  https://scivision.co/installing-spacepy-with-anaconda-pyt
 
 api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
-from pathlib import Path
+from . import Path
 from datetime import datetime
 from numpy import array
 import re
