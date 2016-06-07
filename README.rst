@@ -16,7 +16,8 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 Install
 =======
 First `install SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
-::
+
+Then::
 
     python setup.py develop
 
