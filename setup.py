@@ -11,6 +11,7 @@ with open('README.rst','r') as f:
 	long_description = f.read()
 
 setup(name='themisasi',
+      package=['themisasi'],
 	  description='Utilities for working with THEMIS GBO ASI camera data',
 	  long_description=long_description,
 	  author='Michael Hirsch',
