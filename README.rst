@@ -6,16 +6,17 @@ themis-asi-reader
 =================
 
 :Author: Michael Hirsch
-:Requirements: Python, SpacePy and `CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+:Prereq: `SpacePy<https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data. 
-It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_, giving azimuth and elevation for each pixel.
+
+It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_, giving **azimuth and elevation** for each pixel.
 
 .. contents::
 
 Install
 =======
-`install SpacePy and CDF <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+`install SpacePy<https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 ::
 
@@ -55,11 +56,13 @@ The Matlab code is obsolete, the Python version has so much more.
 
 Resources
 =========
-`Themis ASI coordinate spreadsheet <http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls>`_
+`Themis GBO ASI site coordinates <http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls>`_
 
-`THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_
+`THEMIS GBO ASI plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_
 
-`Themis all-sky imager data repository <http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/>`_
+`Themis GBO ASI data repository <http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/>`_
+
+`Themis GBO ASI mosaic (all sites together) <http://themis.ssl.berkeley.edu/gbo/display.py?>`_
 
 
 Themis Plate Scale data
