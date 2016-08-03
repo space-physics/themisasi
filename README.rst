@@ -16,7 +16,7 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 
 Install
 =======
-`install SpacePy<https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+`install SpacePy <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 ::
 
