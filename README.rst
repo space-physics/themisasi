@@ -6,7 +6,7 @@ themis-asi-reader
 =================
 
 :Author: Michael Hirsch
-:Prereq: `SpacePy<https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
+:Prereq: `SpacePy <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
 Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data. 
 
