@@ -28,7 +28,7 @@ Themis site map (2009)
 .. image:: http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif
     :alt: Themis site map
     :scale: 35%
-    :target: http://themis.ssl.berkeley.edu/asi_map.shtml
+    :target: http://themis.ssl.berkeley.edu/gbo/display.py?
 
 
 Reading and Plotting THEMIS ASI Data
