@@ -22,6 +22,7 @@ from .calread import calread
 #
 fullthumb='f' #f for full, t for thumb
 
+
 def readthemis(fn,treq,odir):
     if pycdf is None:
         raise ImportError('you will need NetCDF, pycdf  https://scivision.co/installing-spacepy-with-anaconda-python-3')
