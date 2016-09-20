@@ -10,7 +10,6 @@ except Exception as e:
 setup(name='themisasi',
       packages=['themisasi'],
 	  description='Utilities for working with THEMIS GBO ASI camera data',
-	  author='Michael Hirsch',
 	  url='https://github.com/scienceopen/themisasi',
 	  install_requires=['pathlib2',
                         'histutils','pymap3d','astrometry_azel'],
