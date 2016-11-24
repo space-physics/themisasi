@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-from themisasi import Path
+import matplotlib
+matplotlib.use('agg') 
+from pathlib import Path
 from numpy.testing import run_module_suite,assert_allclose
 #
 from themisasi.readthemis import readthemis,altfiducial
