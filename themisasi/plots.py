@@ -1,4 +1,4 @@
-from . import Path
+from pathlib import Path
 from numpy import ones, ndarray
 from os import devnull
 from matplotlib.pyplot import figure,draw,pause

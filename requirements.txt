@@ -1,6 +1,5 @@
 setuptools
 nose
-pathlib2
 numpy
 scipy
 h5py
