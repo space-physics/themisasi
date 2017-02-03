@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 from setuptools import setup
-import subprocess
 
 try:
-    subprocess.call(['conda','install','--file','requirements.txt'])
+    import conda.cli
+    conda.cli.main('install','--file','requirements.txt')
 except Exception as e:
-    pass
+    print(e)
 
 setup(name='themisasi',
       packages=['themisasi'],
-	  description='Utilities for working with THEMIS GBO ASI camera data',
-	  url='https://github.com/scienceopen/themisasi',
-	  install_requires=['pathlib2',
-                        'histutils','pymap3d','astrometry_azel'],
+	  install_requires=['histutils','pymap3d','astrometry_azel'],
       dependency_links = [
         'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
         'https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d',

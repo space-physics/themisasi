@@ -1,3 +1,5 @@
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg
+   :target: https://doi.org/10.5281/zenodo.215309
 .. image:: https://travis-ci.org/scienceopen/themisasi.svg?branch=master
     :target: https://travis-ci.org/scienceopen/themisasi
 
