@@ -12,6 +12,7 @@ except Exception as e:
 setup(name='themisasi',
       author='Michael Hirsch, Ph.D.',
       url='https://github.com/scienceopen/themisasi',
+      description='reads and plots THEMIS ASI video data of aurora. If you do not have SpacePy, see https://www.scivision.co/installing-spacepy-with-anaconda-python-3/ to install it.',
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 4 - Beta',
