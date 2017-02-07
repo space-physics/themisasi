@@ -22,7 +22,7 @@ def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
     site: optional text label
     """
     if projalt<1e3:
-        logging.warning('this function expects meters, you picked projection altitude {} km'.format(projalt/1e3))
+        logging.warning(f'this function expects meters, you picked projection altitude {projalt/1e3} km')
 
     if wrows is None and wcols is None:
         wrows,wcols = mgrid[:waz.shape[0], :waz.shape[1]]
@@ -32,8 +32,7 @@ def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
 #%% load plate scale for narrow camera
         oaz,oel,olla,oC,oR = calread(f)
 #%% print distance from wide camera to narrow camera (just for information)
-        print('distance: narrow FOV camera to {}:  {:.1f} meters'.format(site,vdist(wlla['lat'],wlla['lon'],
-                                                                                    olla['lat'],olla['lon'])))
+        print(f"distance: narrow FOV camera to {site}:  {vdist(wlla['lat'],wlla['lon'],olla['lat'],olla['lon']):.1f} meters")
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
@@ -46,7 +45,7 @@ def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
 #%% find az,el to narrow FOV from ASI FOV
         wpaz,wpel,_ = enu2aer(ope-oe, opn-on, opu-ou)
 #%% nearest neighbor brute force
-        print('finding nearest neighbors {} (takes 25 seconds per camera)'.format(f))
+        print(f'finding nearest neighbors {f} (takes 25 seconds per camera)')
         r,c = findClosestAzel(waz,wel,wpaz,wpel,True)
         rows.append(r); cols.append(c)
 #%% plot joint az/el contours

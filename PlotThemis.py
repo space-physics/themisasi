@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-from themisasi.readthemis import readthemis,altfiducial
+#!/usr/bin/env python
+from themisasi import readthemis,altfiducial
 from themisasi.plots import plotthemis
 
 def playThemis(fn,t,site,odir):

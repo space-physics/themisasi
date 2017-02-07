@@ -7,7 +7,7 @@ from datetime import datetime
 from matplotlib.pyplot import show
 #import seaborn as sns
 #
-from themisasi.readthemis import altfiducial
+from themisasi import altfiducial
 from themisasi.plots import plotthemis
 
 
