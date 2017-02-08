@@ -16,7 +16,7 @@ try:
 except ImportError:
     pycdf=None
 #
-from histutils.fortrandates import forceutc
+from sciencedates import forceutc
 from .fov import mergefov
 from .calread import calread
 #

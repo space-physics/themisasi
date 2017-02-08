@@ -21,7 +21,7 @@ setup(name='themisasi',
       'Programming Language :: Python :: 3.6',
       ],
       packages=['themisasi'],
-	  install_requires=['histutils','pymap3d','astrometry_azel'],
+	  install_requires=['histutils','pymap3d','astrometry_azel','sciencedates'],
       dependency_links = [
         'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
         'https://github.com/scienceopen/astrometry_azel/tarball/master#egg=astrometry_azel'
