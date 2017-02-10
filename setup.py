@@ -1,13 +1,8 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-try:
-    import conda.cli
-    conda.cli.main('install','--file','requirements.txt')
-except Exception as e:
-    print(e)
-    import pip
-    pip.main(['install','-r','requirements.txt'])
+req = ['histutils','pymap3d','astrometry_azel','sciencedates',
+       'nose','numpy','scipy','h5py','matplotlib','networkx']
 
 setup(name='themisasi',
       author='Michael Hirsch, Ph.D.',
@@ -21,7 +16,7 @@ setup(name='themisasi',
       'Programming Language :: Python :: 3.6',
       ],
       packages=['themisasi'],
-	  install_requires=['histutils','pymap3d','astrometry_azel','sciencedates'],
+	  install_requires=req,
       dependency_links = [
         'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
         'https://github.com/scienceopen/astrometry_azel/tarball/master#egg=astrometry_azel'

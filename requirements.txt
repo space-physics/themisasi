@@ -1,7 +1,0 @@
-nose
-numpy
-scipy
-h5py
-matplotlib
-networkx
-#netcdf4
