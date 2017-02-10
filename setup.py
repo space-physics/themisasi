@@ -15,11 +15,12 @@ setup(name='themisasi',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3.6',
       ],
-      packages=['themisasi'],
-	  install_requires=req,
-      dependency_links = [
+        dependency_links = [
         'https://github.com/scienceopen/histutils/tarball/master#egg=histutils',
         'https://github.com/scienceopen/astrometry_azel/tarball/master#egg=astrometry_azel'
         ],
+      packages=['themisasi'],
+	  install_requires=req,
+
 	  )
 
