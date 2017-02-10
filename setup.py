@@ -17,6 +17,6 @@ setup(name='themisasi',
       ],
       packages=['themisasi'],
 	  install_requires=req,
-
+      setup_requires=['numpy'], #for spacepy
 	  )
 
