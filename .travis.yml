@@ -30,6 +30,7 @@ install:
     - conda create -n test python=$pyv
     - source activate test
     - pip -q install coveralls
+    - conda install numpy
     - pip install . 
 
 script: coverage run tests/test.py -v
