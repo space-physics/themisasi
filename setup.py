@@ -17,6 +17,7 @@ setup(name='themisasi',
       ],
       packages=['themisasi'],
 	  install_requires=req,
-      setup_requires=['numpy'], #for spacepy
+#      setup_requires=['numpy'], #for spacepy, doesn't work
+      extras_require={'spacepy':['spacepy'],'netcdf4':['netcdf4']},
 	  )
 
