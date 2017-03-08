@@ -32,7 +32,7 @@ def mergefov(ofn,wlla,waz,wel,wrows,wcols,narrowflist,projalt,site=''):
 #%% load plate scale for narrow camera
         oaz,oel,olla,oC,oR = calread(f)
 #%% print distance from wide camera to narrow camera (just for information)
-        print(f"distance: narrow FOV camera to {site}:  {vdist(wlla['lat'],wlla['lon'],olla['lat'],olla['lon']):.1f} meters")
+        print(f"distance: narrow FOV camera to {site}:  {vdist(wlla['lat'],wlla['lon'],olla['lat'],olla['lon'])[0]:.1f} meters")
 #%% select edges of narrow FOV
         oaz,oel = getedgeazel(oaz,oel)
 #%% use ENU for both sites (thanks J. Swoboda)
