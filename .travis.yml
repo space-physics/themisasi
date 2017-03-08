@@ -6,6 +6,8 @@ notifications:
 git:
     depth: 3
 
+
+
 matrix:
   include:
 #    - os: osx
@@ -13,6 +15,10 @@ matrix:
 
     - os: linux
       env: pyv=3.6
+      addons:
+          apt:
+            sources: ['ubuntu-toolchain-r-test']
+            packages: gfortran-6
 
 install:
     - if [[ $TRAVIS_OS_NAME == osx ]]; then

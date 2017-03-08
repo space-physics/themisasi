@@ -29,7 +29,7 @@ fullthumb='f' #f for full, t for thumb
 
 def readthemis(fn,treq,odir):
     if pycdf is None:
-        raise ImportError('you need spacepy.pycdf and CDF installed  https://scivision.co/installing-spacepy-with-anaconda-python-3')
+        raise ImportError('you need spacepy.pycdf and CDF installed. \n  https://scivision.co/installing-spacepy-with-anaconda-python-3')
 
     fn = Path(fn).expanduser()
 
