@@ -2,7 +2,7 @@
 from setuptools import setup
 
 req = ['histutils','pymap3d','astrometry_azel','sciencedates',
-       'nose','numpy','scipy','h5py','matplotlib','networkx','spacepy']
+       'nose','numpy','scipy','h5py','matplotlib','networkx','spacepy','netcdf4']
 
 setup(name='themisasi',
       author='Michael Hirsch, Ph.D.',

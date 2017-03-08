@@ -11,11 +11,13 @@ from datetime import datetime
 from numpy import array
 import re
 from dateutil.parser import parse
+from sys import stderr
 try:
     from spacepy import pycdf
-# must be Exception, not ImportError since if CDF is not installed, error is
+# must be Exception, not ImportError since if CDF is not installed, error is:
 # Exception: Cannot load CDF C library from .Try os.environ["CDF_LIB"] = library_directory before import.
-except Exception: 
+except Exception as e: 
+    print(e,file=stderr)
     pycdf=None
 #
 from sciencedates import forceutc
@@ -27,23 +29,24 @@ fullthumb='f' #f for full, t for thumb
 
 def readthemis(fn,treq,odir):
     if pycdf is None:
-        raise ImportError('you will need NetCDF, pycdf  https://scivision.co/installing-spacepy-with-anaconda-python-3')
+        raise ImportError('you need spacepy.pycdf and CDF installed  https://scivision.co/installing-spacepy-with-anaconda-python-3')
 
     fn = Path(fn).expanduser()
 
-    if odir: odir = Path(odir).expanduser()
+    if odir: 
+        odir = Path(odir).expanduser()
 #%% info from filename (yuck)
     m = re.search('(?<=thg_l\d_as\w_)\w{4}(?=_.*.cdf)',fn.name)
     site = m.group(0)
 #%% plot,save video
     with pycdf.CDF(str(fn)) as f:
         try: #full
-            T = forceutc(f['thg_asf_{}_epoch'.format(site)][:])
+            T = forceutc(f[f'thg_asf_{site}_epoch'][:])
             #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
-            imgs = f['thg_asf_{}'.format(site)][:] # slicing didn't work for some reason with Pycdf 0.1.5
+            imgs = f[f'thg_asf_{site}'][:] # slicing didn't work for some reason with Pycdf 0.1.5
         except KeyError:
-            T = forceutc(f['thg_ast_{}_time'.format(site)][:])
-            imgs = f['thg_ast_{}'.format(site)][:]
+            T = forceutc(f[f'thg_ast_{site}_time'][:])
+            imgs = f[f'thg_ast_{site}'][:]
 
         if treq:
             if isinstance(treq[0],str):
