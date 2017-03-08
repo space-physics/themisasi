@@ -13,7 +13,9 @@ import re
 from dateutil.parser import parse
 try:
     from spacepy import pycdf
-except ImportError:
+# must be Exception, not ImportError since if CDF is not installed, error is
+# Exception: Cannot load CDF C library from .Try os.environ["CDF_LIB"] = library_directory before import.
+except Exception: 
     pycdf=None
 #
 from sciencedates import forceutc
