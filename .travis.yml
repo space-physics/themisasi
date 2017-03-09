@@ -1,25 +1,23 @@
 language: generic
 
-dist: trusty
-
 notifications:
     email: false
 
 git:
     depth: 3
 
+services: docker
+
+before_install:
+  - docker pull ubuntu:16.04
+  - docker run -it ubuntu bash
 
 
-matrix:
-  include:
-#    - os: osx
-#      env: pyv=3.6
-
-    - os: linux
-      env: pyv=3.6
-      addons:
-          apt:
-            packages: gfortran
+env: pyv=3.6
+      
+addons:
+  apt:
+    packages: gfortran
 
 install:
     - if [[ $TRAVIS_OS_NAME == osx ]]; then
