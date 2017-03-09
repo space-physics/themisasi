@@ -1,5 +1,7 @@
 language: generic
 
+dist: trusty
+
 notifications:
     email: false
 
@@ -17,8 +19,7 @@ matrix:
       env: pyv=3.6
       addons:
           apt:
-            sources: ['ubuntu-toolchain-r-test']
-            packages: gfortran-6
+            packages: gfortran
 
 install:
     - if [[ $TRAVIS_OS_NAME == osx ]]; then
