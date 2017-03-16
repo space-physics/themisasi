@@ -6,7 +6,7 @@ req = ['histutils','pymap3d','astrometry_azel','sciencedates',
 
 setup(name='themisasi',
       author='Michael Hirsch, Ph.D.',
-      url='https://github.com/scienceopen/themisasi',
+      url='https://github.com/scivision/themisasi',
       description='reads and plots THEMIS ASI video data of aurora.',
       classifiers=[
       'Intended Audience :: Science/Research',
