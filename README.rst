@@ -1,7 +1,5 @@
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg
    :target: https://doi.org/10.5281/zenodo.215309
-.. image:: https://travis-ci.org/scienceopen/themisasi.svg?branch=master
-    :target: https://travis-ci.org/scienceopen/themisasi
 
 =================
 themis-asi-reader
@@ -20,7 +18,7 @@ Install
 =======
 `install SpacePy <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
-::
+then::
 
     python setup.py develop
 
@@ -69,7 +67,9 @@ Resources
 
 Themis Plate Scale data
 =======================
-I discovered that IDL 8.0 had a problem saving structured arrays of bytes. While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. `I submitted a patch to SciPy to allow reading these files. If you get an error, try making the patch yourself. <https://github.com/scipy/scipy/pull/5801>`_
+I discovered that IDL 8.0 had a problem saving structured arrays of bytes. 
+While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. 
+I submitted a `patch to SciPy <https://github.com/scipy/scipy/pull/5801>`_ to allow reading these files. If you get an error, try making the patch yourself. 
 
 As a fallback, read and rewrite the corrupted file with the IDL script in the `idl <idl/>`_ directory.
 

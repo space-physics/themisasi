@@ -2,7 +2,7 @@ import logging
 from numpy import mgrid,sin,radians
 #
 from pymap3d import enu2aer,geodetic2enu,aer2enu
-from pymap3d.vdist import vdist
+from pymap3d.vincenty import vdist
 from histutils.findnearest import findClosestAzel
 #
 from .calread import calread
