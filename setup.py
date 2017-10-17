@@ -26,5 +26,6 @@ setup(name='themisasi',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3.6',
       ],
+      install_requires=req+pipreq,
 	  )
 
