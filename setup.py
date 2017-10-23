@@ -24,7 +24,7 @@ setup(name='themisasi',
       'Development Status :: 4 - Beta',
       'License :: OSI Approved :: MIT License',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
-      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3',
       ],
       install_requires=req+pipreq,
 	  )
