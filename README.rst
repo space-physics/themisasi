@@ -1,3 +1,10 @@
+.. image:: https://travis-ci.org/scivision/themisasi.svg
+    :target: https://travis-ci.org/scivision/themisasi
+
+.. image:: https://coveralls.io/repos/github/scivision/themisasi/badge.svg?branch=master
+    :target: https://coveralls.io/github/scivision/themisasi?branch=master
+
+
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg
    :target: https://doi.org/10.5281/zenodo.215309
 
@@ -20,7 +27,7 @@ Install
 
 then::
 
-    python setup.py develop
+    pip install -e .
 
 Themis site map (2009)
 ======================

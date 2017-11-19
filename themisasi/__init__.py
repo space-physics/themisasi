@@ -7,6 +7,7 @@ to setup spacepy, see  https://scivision.co/installing-spacepy-with-anaconda-pyt
 api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 from pathlib import Path
+import logging
 from datetime import datetime
 from numpy import array
 import re
@@ -21,7 +22,10 @@ except Exception as e:
     pycdf=None
 #
 from sciencedates import forceutc
-from .fov import mergefov
+try:
+    from .fov import mergefov
+except ImportError as e:
+    logging.warning(e)
 from .calread import calread
 #
 fullthumb='f' #f for full, t for thumb

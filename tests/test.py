@@ -5,7 +5,7 @@ from pathlib import Path
 from numpy.testing import run_module_suite,assert_allclose
 #
 from themisasi import altfiducial
-from themisasi.plots import plotthemis
+#from themisasi.plots import plotthemis
 from themisasi.calread import calread
 
 rdir = Path(__file__).parent
