@@ -7,12 +7,18 @@ python:
 os:
   - linux
 
+dist: trusty
+group: edge
+
 notifications:
   email: false
 
 git:
   depth: 3
 
+addons:
+  apt:
+  - gfortran
 
 before_install:
   - pip -q install coveralls
