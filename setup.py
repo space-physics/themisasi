@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-req = ['nose','numpy',
+install_requires = ['numpy',
        'sciencedates',
           'spacepy']
+tests_require=['nose','coveralls']
 # %%
 from setuptools import setup, find_packages
 
@@ -17,9 +18,11 @@ setup(name='themisasi',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3',
       ],
-      install_requires=req,
+      install_requires=install_requires,
       python_requires='>=3.6',
       extras_requires={'plot':['astrometry_azel','matplotlib',],
-                       'fov':['histutils','pymap3d','netcdf4','h5py','scipy',]}
+                       'fov':['histutils','pymap3d','netcdf4','h5py', 'scipy',],
+                       'tests':tests_require},
+      tests_require=tests_require,
 	  )
 
