@@ -27,7 +27,7 @@ before_install:
   - make -s OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
   - make -s install 
   - . $HOME/cdf*dist/bin/definitions.B
-  - cd $TRAVIS_BUILD_DIR/themisasi
+  - cd $TRAVIS_BUILD_DIR
 
 install: python -m pip install -e .[tests]
 
