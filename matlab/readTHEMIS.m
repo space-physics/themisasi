@@ -1,4 +1,4 @@
-function [data,t,hdrs] = getTHEMIS(varargin)
+function [data,t,hdrs] = readTHEMIS(varargin)
 %
 % Note this file is obsolete, use the Python versio instead, many more features.
 %

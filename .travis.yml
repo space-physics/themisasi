@@ -30,7 +30,7 @@ before_install:
   - cd $HOME/cdf*dist
   - make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
   - make install 
-  - . $HOME/cdf-dist/bin/definitions.B
+  - . $HOME/cdf*dist/bin/definitions.B
       
 
 install: python -m pip install -e .[tests]
