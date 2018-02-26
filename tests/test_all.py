@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from pathlib import Path
 import numpy as np
+from datetime import datetime
 import unittest
 #
 import themisasi as tasi
@@ -10,10 +11,16 @@ R = Path(__file__).parent
 datfn = R / 'thg_l1_ast_gako_20110505_v01.cdf'
 calfn = R / 'themis_skymap_gako_20110305-+_vXX.sav'
 
+assert datfn.is_file()
+assert calfn.is_file()
+
 class BasicTests(unittest.TestCase):
 
     def test_readthemis(self):
-        dat = tasi.readthemis(datfn)
+        dat,t,site = tasi.readthemis(datfn)
+        assert isinstance(t[0],datetime)
+        assert site=='gako'
+        assert dat.shape==(1075,32,32) and dat.dtype==np.uint16
 
     def test_calread(self):
 

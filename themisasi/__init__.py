@@ -20,21 +20,21 @@ fullthumb='f' #f for full, t for thumb
 
 def readthemis(fn:Path, treq:datetime=None):
     """read THEMIS ASI camera data"""
-    if pycdf is None:
-        raise ImportError('you need spacepy.pycdf and CDF installed. \n  https://scivision.co/installing-spacepy-with-anaconda-python-3')
-
     fn = Path(fn).expanduser()
-
-
 #%% info from filename (yuck)
     m = re.search('(?<=thg_l\d_as\w_)\w{4}(?=_.*.cdf)',fn.name)
     site = m.group(0)
 #%% plot,save video
     with pycdf.CDF(str(fn)) as f:
         try: #full
-            T = forceutc(f[f'thg_asf_{site}_epoch'][:])
+            try:
+                T = forceutc(f[f'thg_asf_{site}_epoch'][:])
+                key = 'asf'
+            except KeyError:
+                T = forceutc(f[f'thg_ast_{site}_epoch'][:])
+                key = 'ast'
             #epoch0 = f['thg_as{}_{}_epoch0'.format(fullthumb,site)]
-            imgs = f[f'thg_asf_{site}'][:] # slicing didn't work for some reason with Pycdf 0.1.5
+            imgs = f[f'thg_{key}_{site}'][:] # slicing didn't work for some reason with Pycdf 0.1.5
         except KeyError:
             T = forceutc(f[f'thg_ast_{site}_time'][:])
             imgs = f[f'thg_ast_{site}'][:]

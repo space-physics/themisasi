@@ -27,12 +27,18 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 
 Install
 =======
-::
+For Mac and Linux::
+
+    python setup_spacepy.py
+    
+
+and then for any computer install by::
 
     python -m pip install -e .
 
 
 If you have trouble with SpacePy, see `SpacePy install notes <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_.
+
 
 Themis site map (2009)
 ======================

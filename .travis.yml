@@ -21,13 +21,9 @@ addons:
       - libncurses-dev
       
 before_install:
-  - wget https://spdf.sci.gsfc.nasa.gov/pub/software/cdf/dist/latest-release/cdf-dist-all.tar.gz
-  - tar xf cdf*-dist-all.tar.gz -C ~
-  - cd $HOME/cdf*dist
-  - make -s OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
-  - make -s install 
+  - python setup_spacepy.py
   - . $HOME/cdf*dist/bin/definitions.B
-  - cd $TRAVIS_BUILD_DIR
+
 
 install: python -m pip install -e .[tests]
 
