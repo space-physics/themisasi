@@ -27,13 +27,10 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 
 Install
 =======
-For Mac and Linux::
+::
 
     python setup_spacepy.py
     
-
-and then for any computer install by::
-
     python -m pip install -e .
 
 
