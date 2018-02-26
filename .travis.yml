@@ -31,7 +31,7 @@ before_install:
   - make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes all
   - make install 
   - . $HOME/cdf*dist/bin/definitions.B
-      
+  - cd $HOME/themisasi
 
 install: python -m pip install -e .[tests]
 
