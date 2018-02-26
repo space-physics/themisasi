@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-install_requires = ['numpy',
-       'sciencedates',
-          'spacepy']
+install_requires = ['numpy','spacepy',
+                    'sciencedates']
 tests_require=['nose','coveralls']
 # %%
 from setuptools import setup, find_packages
@@ -11,6 +10,7 @@ setup(name='themisasi',
       author='Michael Hirsch, Ph.D.',
       url='https://github.com/scivision/themisasi',
       description='reads and plots THEMIS ASI video data of aurora.',
+      long_description=open('README.rst').read(),
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 4 - Beta',

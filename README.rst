@@ -19,7 +19,7 @@ themis-asi-reader
 :Author: Michael Hirsch
 :Prereq: `SpacePy <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
 
-Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data. 
+Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data.
 
 It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_, giving **azimuth and elevation** for each pixel.
 
@@ -27,11 +27,12 @@ It also reads the `THEMIS ASI star registered plate scale <http://data.phys.ucal
 
 Install
 =======
-`install SpacePy <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_
-
-then::
+::
 
     python -m pip install -e .
+
+
+If you have trouble with SpacePy, see `SpacePy install notes <https://scivision.co/installing-spacepy-with-anaconda-python-3/>`_.
 
 Themis site map (2009)
 ======================
@@ -78,9 +79,9 @@ Resources
 
 Themis Plate Scale data
 =======================
-I discovered that IDL 8.0 had a problem saving structured arrays of bytes. 
-While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. 
-I submitted a `patch to SciPy <https://github.com/scipy/scipy/pull/5801>`_ to allow reading these files. If you get an error, try making the patch yourself. 
+I discovered that IDL 8.0 had a problem saving structured arrays of bytes.
+While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot.
+I submitted a `patch to SciPy <https://github.com/scipy/scipy/pull/5801>`_ to allow reading these files. If you get an error, try making the patch yourself.
 
 As a fallback, read and rewrite the corrupted file with the IDL script in the `idl <idl/>`_ directory.
 

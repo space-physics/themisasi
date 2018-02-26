@@ -18,10 +18,10 @@ if __name__ == '__main__':
     p = p.parse_args()
 
     if p.wcal:
-        altfiducial(p.asifn,p.wcal,p.ncal,p.treq,p.ofn) #paint HiST field of view onto Themis
+        altfiducial(p.asifn,p.wcal,p.ncal, p.treq,p.ofn) #paint HiST field of view onto Themis
     else:
-        imgs,t,site = readthemis(p.asifn,p.treq,p.odir)
+        imgs,t,site = readthemis(p.asifn, p.treq)
         try:
-            imgs,t = playThemis(p.asifn,t,site,p.odir)
+            imgs,t = playThemis(p.asifn, t, site,p.odir)
         except KeyboardInterrupt:
             pass
