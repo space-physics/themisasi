@@ -9,7 +9,7 @@ from astrometry_azel.plots import plotazel
 
 def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None,projalt=None):
 
-    ttxt = 'Projected to {} km\n'.format(projalt/1e3)
+    ttxt = f'Projected to {projalt/1e3} km\n'
     fg,axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show',ttxt=ttxt)
 
     overlayrowcol(axa,rows,cols)
@@ -17,7 +17,7 @@ def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None,projalt=None):
 
     if asifn:
         pfn = Path(asifn).expanduser().with_suffix('.png')
-        fg.savefig(str(pfn),bbox_inches='tight',dpi=100)
+        fg.savefig(pfn,bbox_inches='tight',dpi=100)
 
 def overlayrowcol(ax,rows,cols):
     """
@@ -69,7 +69,7 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
 
     hi = ax.imshow(imgs[0],cmap='gray',origin='lower',norm=LogNorm(),
                    interpolation='none',extent=ext)
-    ttxt = 'Themis ASI {} FOV vs. HST0,HST1: green,red '.format(site)
+    ttxt = f'Themis ASI {site} FOV vs. HST0,HST1: green,red '
     ht = ax.set_title(ttxt,color='g')
     ax.set_xlabel('x-pixels')
     ax.set_ylabel('y-pixels')
@@ -92,5 +92,5 @@ def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
             if write: writer.grab_frame(facecolor='k')
 
 #        if odir:
-#            fg.savefig(str(odir/'Themis_{}_{}.png'.format(site,t.timestamp())),bbox_inches='tight',facecolor='k',dpi=150)
+#            fg.savefig(odir/'Themis_{}_{}.png'.format(site,t.timestamp(),bbox_inches='tight',facecolor='k',dpi=150))
 
