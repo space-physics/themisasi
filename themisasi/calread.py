@@ -15,7 +15,7 @@ def calread(fn):
     """
     fn = Path(fn).expanduser()
     if fn.suffix=='.sav': # suppose it's THEMIS IDL
-        h= readsav(str(fn),verbose=False) #readsav is not a context manager
+        h= readsav(fn, verbose=False) #readsav is not a context manager
         az, = h['skymap']['full_azimuth']
         el, = h['skymap']['full_elevation']
         lla= {'lat':   h['skymap']['site_map_latitude'],
@@ -24,7 +24,7 @@ def calread(fn):
         x,  = h['skymap']['full_column']
         y,  = h['skymap']['full_row']
     elif fn.suffix=='.h5':
-        with h5py.File(str(fn),'r',libver='latest') as h:
+        with h5py.File(fn, 'r') as h:
             az = h['az'].value
             el = h['el'].value
             lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
@@ -33,7 +33,7 @@ def calread(fn):
     elif fn.suffix == '.nc':
         if Dataset is None:
             raise ImportError('you need netCDF4.    pip install netcdf4')
-        with Dataset(str(fn),'r') as h:
+        with Dataset(fn,'r') as h:
             az = h['az'][:]
             el = h['el'][:]
             lla= {'lat':h['lla'][0], 'lon':h['lla'][1], 'alt_m':h['lla'][2]}
