@@ -32,7 +32,7 @@ def calread(fn):
             y  = h['y'].value
     elif fn.suffix == '.nc':
         if Dataset is None:
-            raise ImportError('you will need NetCDF  https://scivision.co/installing-spacepy-with-anaconda-python-3')
+            raise ImportError('you need netCDF4.    pip install netcdf4')
         with Dataset(str(fn),'r') as h:
             az = h['az'][:]
             el = h['el'][:]
