@@ -19,7 +19,7 @@ sitereq = 'whit' #'fykn' 'gako' 'mcgr'
 treq = (datetime(2013,4,14,8,53), datetime(2013,4,14,8,56)) #HIST event
 odir = None
 
-moviefn = 'THEMIS/{}_hst0,1_{}.mkv'.format(sitereq,treq[0].strftime('%Y-%m-%dT%H%M'))
+moviefn = f'THEMIS/{sitereq}_hst0,1_{treq[0].strftime("%Y-%m-%dT%H%M")}.mkv'
 #%%
 
 if sitereq=='fykn':
@@ -41,7 +41,7 @@ elif sitereq=='whit':
     asifn='THEMIS/thg_l1_ast_whit_20130414_v01.cdf'
     asical='THEMIS/cal/themis_skymap_whit_20150814-+_vXX.sav'
 else:
-    raise ValueError('site {} not configured'.format(sitereq))
+    raise ValueError(f'site {sitereq} not configured'
 
 ocal = ['~/code/histfeas/precompute/hst0cal.h5',
         '~/code/histfeas/precompute/hst1cal.h5']

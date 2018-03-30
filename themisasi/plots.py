@@ -1,23 +1,43 @@
 from pathlib import Path
-from numpy import ones, ndarray
-from os import devnull
+import xarray
+import numpy as np
 from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
-import matplotlib.animation as anim
-#
-from astrometry_azel.plots import plotazel
 
-def plotjointazel(waz,wel,rows,cols,wR,wC,asifn=None,projalt=None):
 
-    ttxt = f'Projected to {projalt/1e3} km\n'
-    fg,axa,axe = plotazel(waz,wel,x=wC,y=wR,makeplot='show',ttxt=ttxt)
+def plotjointazel(w0,rows,cols, ofn:Path=None):
 
-    overlayrowcol(axa,rows,cols)
-    overlayrowcol(axe,rows,cols)
+    fg,axs = plotazel(w0)
 
-    if asifn:
-        pfn = Path(asifn).expanduser().with_suffix('.png')
-        fg.savefig(pfn,bbox_inches='tight',dpi=100)
+    overlayrowcol(axs[0], rows, cols)
+    overlayrowcol(axs[1], rows, cols)
+
+    if ofn:
+        ofn = Path(ofn).expanduser()
+        print('saving',ofn)
+        fg.savefig(ofn,bbox_inches='tight',dpi=100)
+
+
+def plotazel(data:xarray.Dataset):
+    fg = figure(figsize=(12,6))
+    ax = fg.subplots(1,2, sharey = True)
+
+    fg.suptitle(data.filename)
+
+    c = ax[0].contour(data['az'].x, data['az'].y, data['az'])
+    ax[0].clabel(c, fmt='%0.1f')
+    ax[0].set_title('azimuth')
+    ax[0].set_xlabel('x-pixels')
+    ax[0].set_ylabel('y-pixels')
+
+
+    c = ax[1].contour(data['el'].x, data['el'].y, data['el'])
+    ax[1].clabel(c, fmt='%0.1f')
+    ax[1].set_title('elevation')
+    ax[1].set_xlabel('x-pixels')
+
+    return fg,ax
+
 
 def overlayrowcol(ax,rows,cols):
     """
@@ -34,63 +54,48 @@ def overlayrowcol(ax,rows,cols):
     """
     colors = ('g','r','m','y','c')
 
-    if rows is not None and cols is not None:
-        for row,col,color in zip(rows,cols,colors): #for c in cam
-            if isinstance(row,list) or (isinstance(row,ndarray) and row.ndim==2):
-                for r,c in zip(row,col): # for l in lines
-                    ax.plot(c,r,color=color,linewidth=2,alpha=0.5)
-            else: #single camera
-                ax.plot(col,row,color='g',linewidth=2,alpha=0.5)
+    if rows is None or cols is None:
+        return
 
-def plotthemis(imgs,T,site='',treq=None,ofn=None,rows=None,cols=None,ext=None):
+
+    if len(rows) == 1 or isinstance(rows,np.ndarray) and rows.ndim==1:
+        ax.plot(cols, rows, color='g',linewidth=2,alpha=0.5, marker='.')
+        return
+
+    for row,col,color in zip(rows,cols,colors): # each line
+        ax.plot(col,row, color=color, linewidth=2, alpha=0.5, marker='.')
+# %%
+def plotasi(data:xarray.Dataset, ofn:Path=None):
     """
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
     if ofn:
         ofn = Path(ofn).expanduser()
-        write=True
-    else:
-        ofn = devnull
-        write=False
+        odir = ofn.parent
 
-    Writer = anim.writers['ffmpeg']
-    writer = Writer(fps=5,
-                    metadata=dict(artist='Michael Hirsch'),
-                    codec='ffv1')
-    """
-    NOTE: codec must be compatible with file container type.
-    ffv1: avi, mkv
-    mpeg4: mp4
-    """
 
     fg = figure()
     ax = fg.gca()
 
-    hi = ax.imshow(imgs[0],cmap='gray',origin='lower',norm=LogNorm(),
-                   interpolation='none',extent=ext)
-    ttxt = f'Themis ASI {site} FOV vs. HST0,HST1: green,red '
+    hi = ax.imshow(data['imgs'][0], cmap='gray',origin='lower',norm=LogNorm(),interpolation='none') # priming
+    ttxt = f'Themis ASI {data.site}\n' # FOV vs. HST0,HST1: green,red '
     ht = ax.set_title(ttxt,color='g')
     ax.set_xlabel('x-pixels')
     ax.set_ylabel('y-pixels')
     ax.autoscale(True,tight=True)
     ax.grid(False)
 #%% plot narrow FOV outline
-    overlayrowcol(ax,rows,cols)
+    if 'imgs2' in data:
+        overlayrowcol(ax, data)
 #%% play video
-    if treq: #maybe you loaded a lot of video but only want to play small parts of it.
-        tgood = (treq[0]<=T) & (T<=treq[1])
-    else:
-        tgood = ones(T.size,bool)
-
-
-    with writer.saving(fg, str(ofn),150):
-        for I,t in zip(imgs[tgood,...],T[tgood]):
-            hi.set_data(I)
-            ht.set_text(ttxt + str(t))
-            draw(),pause(0.01)
-            if write: writer.grab_frame(facecolor='k')
-
-#        if odir:
-#            fg.savefig(odir/'Themis_{}_{}.png'.format(site,t.timestamp(),bbox_inches='tight',facecolor='k',dpi=150))
+    for im in data['imgs']:
+        ts = im.time.values.astype(str)[:-6]
+        hi.set_data(im)
+        ht.set_text(ttxt+ ts)
+        draw(); pause(0.01)
+        if ofn:
+            fn = odir / (ofn.stem + ts + ofn.suffix)
+            print('saving',fn,end='\r')
+            fg.savefig(fn, bbox_inches='tight', facecolor='k')
 

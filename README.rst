@@ -30,7 +30,7 @@ Install
 ::
 
     python setup_spacepy.py
-    
+
     python -m pip install -e .
 
 
@@ -71,13 +71,12 @@ The Matlab code is obsolete, the Python version has so much more.
 
 Resources
 =========
-`Themis GBO ASI site coordinates <http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls>`_
 
-`THEMIS GBO ASI plate scale <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_
-
-`Themis GBO ASI data repository <http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/>`_
-
-`Themis GBO ASI mosaic (all sites together) <http://themis.ssl.berkeley.edu/gbo/display.py?>`_
+* Themis GBO ASI `site coordinates <http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls>`_
+* THEMIS GBO ASI `plate scale #1 <http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/>`_
+* THEMIS GBO ASI `plate scale #2 <http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/>`_
+* Themis GBO ASI `data repository <http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/>`_
+* Themis GBO ASI `mosaic (all sites together) <http://themis.ssl.berkeley.edu/gbo/display.py?>`_
 
 
 Themis Plate Scale data

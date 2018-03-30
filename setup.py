@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-install_requires = ['numpy','spacepy',
+install_requires = ['numpy','spacepy','netcdf4','h5py', 'scipy',
                     'sciencedates']
 tests_require=['pytest','nose','coveralls']
 # %%
@@ -8,20 +8,23 @@ from setuptools import setup, find_packages
 setup(name='themisasi',
       packages=find_packages(),
       author='Michael Hirsch, Ph.D.',
+      version='0.5.0',
       url='https://github.com/scivision/themisasi',
       description='reads and plots THEMIS ASI video data of aurora.',
       long_description=open('README.rst').read(),
       classifiers=[
-      'Intended Audience :: Science/Research',
       'Development Status :: 4 - Beta',
-      'License :: OSI Approved :: MIT License',
+      'Environment :: Console',
+      'Intended Audience :: Science/Research',
+      'Operating System :: OS Independent',
+      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3.7',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
-      'Programming Language :: Python :: 3',
       ],
       install_requires=install_requires,
       python_requires='>=3.6',
-      extras_require={'plot':['astrometry_azel','matplotlib',],
-                       'fov':['histutils','pymap3d','netcdf4','h5py', 'scipy',],
+      extras_require={'plot':['matplotlib','seaborn'],
+                       'fov':['histutils','pymap3d',],
                        'tests':tests_require},
       tests_require=tests_require,
 	  )
