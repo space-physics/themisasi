@@ -17,11 +17,11 @@ import h5py
 from scipy.io import readsav
 from netCDF4 import Dataset
 #
-fullthumb='f' #f for full, t for thumb
 
-
-def load(fn:Path, treq:datetime=None, calfn:Path=None) -> xarray.Dataset:
+def load(fn:Path, treq:datetime=None, calfn:Path=None, fullthumb:str='f') -> xarray.Dataset:
     """read THEMIS ASI camera data"""
+    assert fullthumb in ('t','f')
+
     fn = Path(fn).expanduser()
 #%% info from filename (yuck)
     m = re.search('(?<=thg_l\d_as\w_)\w{4}(?=_.*.cdf)',fn.name)
@@ -36,7 +36,10 @@ def load(fn:Path, treq:datetime=None, calfn:Path=None) -> xarray.Dataset:
         treq = list(map(parse,treq))
 # %% time slice (assumes monotonically increasing time)
     with pycdf.CDF(str(fn)) as f:
-        time = f[f'thg_{key}_{site}_epoch'][:]
+        if fullthumb=='f':
+            time = f[f'thg_{key}_{site}_epoch'][:]
+        elif fullthumb=='t':
+            time = list(map(datetime.utcfromtimestamp,f[f'thg_{key}_{site}_time'][:]))
 
         if treq is None:
             i = slice(None)
