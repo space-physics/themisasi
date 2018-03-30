@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-install_requires = ['numpy','spacepy','netcdf4','h5py', 'scipy',
-                    'sciencedates']
+install_requires = ['numpy','spacepy','netcdf4','h5py', 'scipy','xarray']
 tests_require=['pytest','nose','coveralls']
 # %%
 from setuptools import setup, find_packages
@@ -8,7 +7,7 @@ from setuptools import setup, find_packages
 setup(name='themisasi',
       packages=find_packages(),
       author='Michael Hirsch, Ph.D.',
-      version='0.5.0',
+      version='0.6.0',
       url='https://github.com/scivision/themisasi',
       description='reads and plots THEMIS ASI video data of aurora.',
       long_description=open('README.rst').read(),
