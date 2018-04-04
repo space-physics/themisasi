@@ -5,12 +5,12 @@ from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 
 
-def plotjointazel(w0,rows,cols, ofn:Path=None):
+def jointazel(w0:xarray.Dataset, ofn:Path=None):
 
     fg,axs = plotazel(w0)
 
-    overlayrowcol(axs[0], rows, cols)
-    overlayrowcol(axs[1], rows, cols)
+    overlayrowcol(axs[0], w0['row1'], w0['col1'])
+    overlayrowcol(axs[1], w0['row1'], w0['col1'])
 
     if ofn:
         ofn = Path(ofn).expanduser()
@@ -46,24 +46,16 @@ def overlayrowcol(ax,rows,cols):
     inputs:
     ax: existing plot axis to overlay lines outlining FOV
     rows,cols: indices to plot
-
-    wants a list of len(4) list x Npixel
-    that is, like a 3D array Ncam x Nside x Npixelonside
-    but using lists since cameras have different resolutions
-    and may be rectangular.
     """
-    colors = ('g','r','m','y','c')
 
     if rows is None or cols is None:
         return
 
 
-    if len(rows) == 1 or isinstance(rows,np.ndarray) and rows.ndim==1:
-        ax.plot(cols, rows, color='g',linewidth=2,alpha=0.5, marker='.')
+    if len(rows) == 1 or isinstance(rows,(np.ndarray,xarray.DataArray)) and rows.ndim==1:
+        ax.scatter(cols, rows, color='g',alpha=0.5, marker='.')
         return
 
-    for row,col,color in zip(rows,cols,colors): # each line
-        ax.plot(col,row, color=color, linewidth=2, alpha=0.5, marker='.')
 # %%
 def plotasi(data:xarray.Dataset, ofn:Path=None):
     """

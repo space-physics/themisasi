@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-install_requires = ['numpy','spacepy','netcdf4','h5py', 'scipy','xarray']
+install_requires = ['numpy','spacepy','netcdf4','h5py', 'scipy>=0.17','xarray']
 tests_require=['pytest','nose','coveralls']
 # %%
 from setuptools import setup, find_packages
