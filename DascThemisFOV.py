@@ -25,6 +25,6 @@ if __name__ == '__main__':
 # %% merge FOV
     themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='boundary') #paint HiST field of view onto Themis
 # %% plot joint az/el contours
-    tap.jointazel(themis, p.ofn)
+    tap.jointazel(themis, p.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
 
     show()

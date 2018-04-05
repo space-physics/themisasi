@@ -5,9 +5,9 @@ from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 
 
-def jointazel(w0:xarray.Dataset, ofn:Path=None):
+def jointazel(w0:xarray.Dataset, ofn:Path=None, ttxt:str=''):
 
-    fg,axs = plotazel(w0)
+    fg,axs = plotazel(w0, ttxt)
 
     overlayrowcol(axs[0], w0['row1'], w0['col1'])
     overlayrowcol(axs[1], w0['row1'], w0['col1'])
@@ -18,11 +18,11 @@ def jointazel(w0:xarray.Dataset, ofn:Path=None):
         fg.savefig(ofn,bbox_inches='tight',dpi=100)
 
 
-def plotazel(data:xarray.Dataset):
+def plotazel(data:xarray.Dataset, ttxt:str=''):
     fg = figure(figsize=(12,6))
     ax = fg.subplots(1,2, sharey = True)
 
-    fg.suptitle(data.filename)
+    fg.suptitle(data.filename + ' ' + ttxt)
 
     c = ax[0].contour(data['az'].x, data['az'].y, data['az'])
     ax[0].clabel(c, fmt='%0.1f')
