@@ -11,6 +11,8 @@
    :target: https://codeclimate.com/github/scivision/themisasi/maintainability
    :alt: Maintainability
 
+.. image:: https://img.shields.io/badge/powered%20by-xarray-orange.svg?style=flat
+   :target:  http://xarray.pydata.org/en/stable/why-xarray.html
 
 =================
 themis-asi-reader
