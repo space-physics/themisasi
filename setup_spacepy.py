@@ -39,3 +39,5 @@ subprocess.check_call(['make','install'],cwd=cwd) #no sudo
 
 print('\nadd the following to ~/.bashrc\n')
 print(f'. {cwd}/bin/definitions.B')
+print('then reopen your Terminal and type the following to complete SpacePy install:')
+print('pip install spacepy')

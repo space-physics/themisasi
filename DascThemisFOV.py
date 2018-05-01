@@ -7,9 +7,9 @@ UAF DASC FOV overlaid on THEMIS GBO ASI FOV
 import themisasi.plots as tap
 import themisasi.fov as taf
 import themisasi as ta
+import dascutils.io as dio
 from matplotlib.pyplot import show
-#
-import dascutils as du
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
 # %% load data
     themis = ta.loadcal(p.themiscal)
-    dasc = du.load(*p.dasccal)
+    dasc = dio.load(*p.dasccal)
 # %% merge FOV
     themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='boundary') #paint HiST field of view onto Themis
 # %% plot joint az/el contours

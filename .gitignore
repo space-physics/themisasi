@@ -1,3 +1,5 @@
+.pytest_cache/
+
 *.png
 *.cdf
 # Byte-compiled / optimized / DLL files
