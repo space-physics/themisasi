@@ -5,18 +5,21 @@ from matplotlib.pyplot import figure,draw,pause
 from matplotlib.colors import LogNorm
 
 
-def jointazel(w0:xarray.Dataset, ofn:Path=None, ttxt:str=''):
+def jointazel(cam:xarray.Dataset, ofn:Path=None, ttxt:str=''):
 
-    fg,axs = plotazel(w0, ttxt)
+    fg,axs = plotazel(cam, ttxt)
 
-    overlayrowcol(axs[0], w0['row1'], w0['col1'])
-    overlayrowcol(axs[1], w0['row1'], w0['col1'])
+    overlayrowcol(axs[0], cam['rows'], cam['cols'])
+    overlayrowcol(axs[1], cam['rows'], cam['cols'])
 
     if ofn:
         ofn = Path(ofn).expanduser()
         print('saving',ofn)
         fg.savefig(ofn,bbox_inches='tight',dpi=100)
-
+        
+    if 'Baz' in cam.attrs:
+        axs[0].plot(cam.Bcol, cam.Brow, marker='*',markersize=12, color='red')
+        axs[1].plot(cam.Bcol, cam.Brow, marker='*',markersize=12, color='red')
 
 def plotazel(data:xarray.Dataset, ttxt:str=''):
     fg = figure(figsize=(12,6))
