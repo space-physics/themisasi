@@ -8,18 +8,24 @@ from matplotlib.colors import LogNorm
 def jointazel(cam:xarray.Dataset, ofn:Path=None, ttxt:str=''):
 
     fg,axs = plotazel(cam, ttxt)
-
-    overlayrowcol(axs[0], cam['rows'], cam['cols'])
-    overlayrowcol(axs[1], cam['rows'], cam['cols'])
+# %% plot line from other camera to magnetic zenith
+    overlayrowcol(axs[0], cam.rows, cam.cols,'g')
+    overlayrowcol(axs[1], cam.rows, cam.cols,'g')
+# %% plot plane including this camera and line to magnetic zenith from other camera
+    axs[0] = overlayrowcol(axs[0], cam.cutrow, cam.cutcol,'r','1-D cut')
+    axs[1] = overlayrowcol(axs[1], cam.cutrow, cam.cutcol,'r','1-D cut')
 
     if ofn:
         ofn = Path(ofn).expanduser()
         print('saving',ofn)
         fg.savefig(ofn,bbox_inches='tight',dpi=100)
-        
+
     if 'Baz' in cam.attrs:
-        axs[0].plot(cam.Bcol, cam.Brow, marker='*',markersize=12, color='red')
-        axs[1].plot(cam.Bcol, cam.Brow, marker='*',markersize=12, color='red')
+        axs[0].scatter(cam.Bcol, cam.Brow, 250, 'red', '*', label='Mag. Zen.')
+        axs[1].scatter(cam.Bcol, cam.Brow, 250, 'red', '*', label='Mag. Zen.')
+
+    for a in axs:
+        a.legend()
 
 def plotazel(data:xarray.Dataset, ttxt:str=''):
     fg = figure(figsize=(12,6))
@@ -42,7 +48,7 @@ def plotazel(data:xarray.Dataset, ttxt:str=''):
     return fg,ax
 
 
-def overlayrowcol(ax,rows,cols):
+def overlayrowcol(ax, rows, cols, color:str=None, label:str=None):
     """
     plot FOV outline onto image via the existing axis "ax"
 
@@ -56,9 +62,12 @@ def overlayrowcol(ax,rows,cols):
 
 
     if len(rows) == 1 or isinstance(rows,(np.ndarray,xarray.DataArray)) and rows.ndim==1:
-        ax.scatter(cols, rows, color='g',alpha=0.5, marker='.')
-        return
+        ax.scatter(cols, rows, color=color,alpha=0.5, marker='.', label=label)
+    else:
+        raise ValueError('unknonn row/col layout, was expecting 1-D')
 
+
+    return ax
 # %%
 def plotasi(data:xarray.Dataset, ofn:Path=None):
     """

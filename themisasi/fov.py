@@ -41,15 +41,19 @@ def mergefov(w0:xarray.Dataset, w1:xarray.Dataset, projalt:float=110e3, method:s
         azSlice1, elSlice1, rSlice1 = ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz,
                                                w1.lat, w1.lon, w1.alt_m)
         # find image indices (mask) corresponding to slice az,el
-        w0['rows'], w0['cols'] = findClosestAzel(w0['az'], w0['el'], azSlice0, elSlice0)
+        w0['rows'], w0['cols'] = findClosestAzel(w0['az'].where(w0['fovmask']),
+                                                 w0['el'].where(w0['fovmask']),
+                                                 azSlice0, elSlice0)
         w0.attrs['Brow'], w0.attrs['Bcol'] = findClosestAzel(w0['az'], w0['el'], w0.Baz, w0.Bel)
-        
-        w1['rows'], w1['cols'] = findClosestAzel(w1['az'], w1['el'], azSlice1, elSlice1)
+
+        w1['rows'], w1['cols'] = findClosestAzel(w1['az'].where(w1['fovmask']),
+                                                 w1['el'].where(w1['fovmask']),
+                                                 azSlice1, elSlice1)
         w1.attrs['Brow'], w1.attrs['Bcol'] = findClosestAzel(w1['az'], w1['el'], w1.Baz, w1.Bel)
     else:
         slantrange = projalt / np.sin(np.radians(np.ma.masked_invalid(w1['el'].where(w1['fovmask']))))    # csc(x) = 1/sin(x)
         assert (slantrange >= projalt).all(), 'slantrange must be >= projection altitude'
-    
+
         e0, n0, u0 = aer2enu(w1['az'], w1['el'], slantrange)
     #%% find az,el to narrow FOV from ASI FOV
         az0,el0,_ = enu2aer(e0-e1, n0-n1, u0-u1)
@@ -73,10 +77,21 @@ def pixelmask(data:xarray.Dataset, method:str) -> xarray.Dataset:
     elif method=='perimeter': # perimeter for arbitrary shapes  e.g all-sky cameras
         mask = ndi.distance_transform_cdt(~np.isnan(data['az']), 'taxicab') == 1
     elif method.lower()=='mzslice':
-        srpts = np.logspace(4.3, 6.9, 40)
-        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = aer2ecef(data.attrs['Baz'],data.attrs['Bel'], srpts,
+        """
+        Assuming the imagers are all-sky, we arbitrarily discard pixels of low elevation as distortion is high low to horizon.
+        """
+        MIN_EL = 5 # degrees, arbitrary
+        if data.srpts is None:
+            return ValueError('must include slant range points')
+
+        mask = np.zeros(data['az'].shape, dtype=bool)
+        mask[data['el'] >= MIN_EL] = True
+
+        data['fovmask'] = (('y','x'),mask)
+
+        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = aer2ecef(data.attrs['Baz'],data.attrs['Bel'], data.srpts,
                                                                               data.attrs['lat'],data.attrs['lon'],data.attrs['alt_m'])
-        return data        
+        return data
     else:
         raise ValueError(f'unknown mask {method}')
 # %% sanity check
