@@ -12,8 +12,11 @@ def jointazel(cam:xarray.Dataset, ofn:Path=None, ttxt:str=''):
     overlayrowcol(axs[0], cam.rows, cam.cols,'g')
     overlayrowcol(axs[1], cam.rows, cam.cols,'g')
 # %% plot plane including this camera and line to magnetic zenith from other camera
-    axs[0] = overlayrowcol(axs[0], cam.cutrow, cam.cutcol,'r','1-D cut')
-    axs[1] = overlayrowcol(axs[1], cam.cutrow, cam.cutcol,'r','1-D cut')
+    try:
+        axs[0] = overlayrowcol(axs[0], cam.cutrow, cam.cutcol,'r','1-D cut')
+        axs[1] = overlayrowcol(axs[1], cam.cutrow, cam.cutcol,'r','1-D cut')
+    except AttributeError:
+        pass  # this was not a 1-D plane case
 
     if ofn:
         ofn = Path(ofn).expanduser()

@@ -3,9 +3,66 @@ import xarray
 import numpy as np
 import scipy.ndimage as ndi
 #
+from pymap3d.haversine import anglesep
 from pymap3d import enu2aer,geodetic2enu,aer2enu,aer2ecef,ecef2aer
 from pymap3d.vincenty import vdist
 from histutils.findnearest import findClosestAzel
+
+def line2plane(cam:xarray.Dataset) -> xarray.Dataset:
+    """
+    previously, you find the row, col pixels along the line from the other camera to magnetic zenith.
+    In this function, you find the indices of the plane passing through that line and both cameras.
+
+    Inputs:
+    -------
+    row: row indices of line
+    col: column indices of line
+    nPlane: number of samples (pixels) to take for plane. If the plane is horizontal in the images, it would be approximately the number of x-pixels.
+            If diagonal, it would be about sqrt(2)*Nx. If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
+            This parameter is not critical.
+    """
+# %% linear regression
+    polycoeff = np.polyfit(cam['cols'], cam['rows'], deg=3, full=False)
+# %% columns (x)  to cut from picture (have to pick either rows or cols, arbitrarily I use cols)
+    # NOT range, NEED dtype= for arange api
+
+# %% rows (y) to cut from picture
+    cam['cutrow'] = np.rint(np.polyval(polycoeff, cam['cutcol'])).astype(int)
+    assert (cam['cutrow'] >= 0).all() and (cam['cutrow'] < cam.y.size).all(),'impossible least squares fit for 1-D cut\n is your video orientation correct? are you outside the FOV?'
+
+    # DONT DO THIS: cutrow.clip(0,self.supery,cutrow)
+# %% angle from magnetic zenith corresponding to those pixels
+    anglesep_deg = anglesep(cam.Bel, cam.Baz,
+                            cam.el.values[cam.cutrow, cam.cutcol],  # NEED .values or you'll get 2-D instead of 1-D!
+                            cam.az.values[cam.cutrow, cam.cutcol])
+
+    if cam.verbose:
+        from maatplotlib.pyplot import figure
+        ax = figure().gca()
+        ax.plot(cam.cutcol, anglesep_deg, label='angle_sep from MZ')
+        ax.plot(cam.cutcol, cam.el.values[cam.cutrow, cam.cutcol], label='elevation angle [deg]')
+        ax.legend()
+
+    assert anglesep_deg.ndim==1
+    if not np.isfinite(anglesep_deg).all():
+        logging.error(f'did you pick areas outside the {cam.filename} FOV?')
+# %% assemble angular distances from magnetic zenith--these are used in the tomography algorithm
+    cam['angle_deg'], cam['angleMagzenind'] = sky2beam(anglesep_deg, cam.cutcol.size)
+
+    return cam
+
+
+def sky2beam(anglesep_deg, Ncol:int):
+        angle_deg = np.empty(Ncol, float)
+        MagZenInd = anglesep_deg.argmin() # whether minimum angle distance from MZ is slightly positive or slightly negative, this should be OK
+
+        angle_deg[MagZenInd:] = 90. + anglesep_deg[MagZenInd:]
+        angle_deg[:MagZenInd] = 90. - anglesep_deg[:MagZenInd]
+#%% LSQ
+        col = np.arange(Ncol, dtype=int)
+        polycoeff = np.polyfit(col,angle_deg,deg=1,full=False)
+
+        return np.polyval(polycoeff,col), MagZenInd
 
 
 def mergefov(w0:xarray.Dataset, w1:xarray.Dataset, projalt:float=110e3, method:str=None):
