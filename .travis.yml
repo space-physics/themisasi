@@ -21,7 +21,7 @@ addons:
       - libncurses-dev
       
 before_install:
-  - python setup_spacepy.py
+  - python setup_spacepy.py > /dev/null
   - . $HOME/cdf*dist/bin/definitions.B
 
 
