@@ -13,8 +13,8 @@ if __name__ == '__main__':
     p.add_argument('cal', help='ASI az/el cal file to read', nargs='?')
     p.add_argument('-t', '--treq', help='time requested', nargs=2)
     p.add_argument('-o', '--odir', help='write video to this directory')
-    p = p.parse_args()
+    P = p.parse_args()
 
-    imgs = ta.load(p.asifn, p.treq, p.cal)
+    imgs = ta.load(P.asifn, P.treq, P.cal)
 
-    imgs = tap.plotasi(imgs, p.odir)
+    imgs = tap.plotasi(imgs, P.odir)

@@ -30,7 +30,6 @@ elif sys.platform.lower().startswith('windows'):
     raise ValueError(
         'Windows is not easy with SpacePy. Consider Windows Subsystem for Linux. Otherwise, see: \n https://pythonhosted.org/SpacePy/install_windows.html')
 else:
-    cmd = None
     raise ValueError(f'I dont know how to install SpacePy on {sys.platform}')
 
 

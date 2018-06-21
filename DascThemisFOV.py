@@ -18,16 +18,16 @@ if __name__ == '__main__':
     p.add_argument('themiscal', help='ASI calibration')
     p.add_argument('dasccal', help='DASC cal', nargs=3)
     p.add_argument('-o', '--ofn', help='write output plot')
-    p = p.parse_args()
+    P = p.parse_args()
 
 # %% load data
-    themis = ta.loadcal(p.themiscal)
-    dasc = dio.load(*p.dasccal)
+    themis = ta.loadcal(P.themiscal)
+    dasc = dio.load(*P.dasccal)
 # %% merge FOV
     # paint HiST field of view onto Themis
     themis, dasc = taf.mergefov(
         themis, dasc, projalt=110e3, method='perimeter')
 # %% plot joint az/el contours
-    tap.jointazel(themis, p.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
+    tap.jointazel(themis, P.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
 
     show()
