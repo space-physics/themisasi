@@ -13,17 +13,20 @@ from matplotlib.pyplot import show
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
-    p = ArgumentParser(description = 'register/plot other camera FOV onto Themis FOV')
-    p.add_argument('themiscal',help='ASI calibration')
-    p.add_argument('dasccal',help='DASC cal',nargs=3)
-    p.add_argument('-o','--ofn',help='write output plot')
+    p = ArgumentParser(
+        description='register/plot other camera FOV onto Themis FOV')
+    p.add_argument('themiscal', help='ASI calibration')
+    p.add_argument('dasccal', help='DASC cal', nargs=3)
+    p.add_argument('-o', '--ofn', help='write output plot')
     p = p.parse_args()
 
 # %% load data
     themis = ta.loadcal(p.themiscal)
     dasc = dio.load(*p.dasccal)
 # %% merge FOV
-    themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='perimeter') #paint HiST field of view onto Themis
+    # paint HiST field of view onto Themis
+    themis, dasc = taf.mergefov(
+        themis, dasc, projalt=110e3, method='perimeter')
 # %% plot joint az/el contours
     tap.jointazel(themis, p.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
 
