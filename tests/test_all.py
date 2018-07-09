@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from pathlib import Path
+import pytest
 import numpy as np
+from numpy.testing import assert_allclose
 #
 import themisasi as ta
 #
@@ -24,10 +26,10 @@ def test_calread():
 
     cal = ta.loadcal(calfn)
 
-    np.testing.assert_allclose(cal['el'][29, 161], 15.458)
-    np.testing.assert_allclose(cal['az'][29, 161], 1.6255488)
-    np.testing.assert_allclose(cal.lon, -145.16)
+    assert_allclose(cal['el'][29, 161], 15.458)
+    assert_allclose(cal['az'][29, 161], 1.6255488)
+    assert_allclose(cal.lon, -145.16)
 
 
 if __name__ == '__main__':
-    np.testing.run_module_suite()
+    pytest.main()
