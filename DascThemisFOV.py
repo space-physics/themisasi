@@ -2,7 +2,8 @@
 """
 UAF DASC FOV overlaid on THEMIS GBO ASI FOV
 
-./DascThemisFOV.py ~/data/themis/themis_skymap_gako_20070401.sav ../dascutils/tests/PKR_DASC_0428_20151007_082305.930.FITS ../dascutils/cal/PKR_DASC_20110112_AZ_10deg.fits ../dascutils/cal/PKR_DASC_20110112_EL_10deg.fits
+./DascThemisFOV.py ~/data/themis/themis_skymap_gako_20070401.sav ../dascutils/tests/PKR_DASC_0428_20151007_082305.930.FITS \
+       ../dascutils/cal/PKR_DASC_20110112_AZ_10deg.fits ../dascutils/cal/PKR_DASC_20110112_EL_10deg.fits
 """
 import themisasi.plots as tap
 import themisasi.fov as taf

@@ -18,9 +18,11 @@ def line2plane(cam: xarray.Dataset) -> xarray.Dataset:
     -------
     row: row indices of line
     col: column indices of line
-    nPlane: number of samples (pixels) to take for plane. If the plane is horizontal in the images, it would be approximately the number of x-pixels.
-            If diagonal, it would be about sqrt(2)*Nx. If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
-            This parameter is not critical.
+    nPlane: number of samples (pixels) to take for plane.
+      If the plane is horizontal in the images, it would be approximately the number of x-pixels.
+      If diagonal, it would be about sqrt(2)*Nx.
+      If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
+      This parameter is not critical.
     """
 # %% linear regression
     polycoeff = np.polyfit(cam['cols'], cam['rows'], deg=3, full=False)
@@ -164,8 +166,10 @@ def pixelmask(data: xarray.Dataset, method: str=None) -> xarray.Dataset:
 
         data['fovmask'] = (('y', 'x'), mask)
 
-        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = aer2ecef(data.attrs['Baz'], data.attrs['Bel'], data.srpts,
-                                                                              data.attrs['lat'], data.attrs['lon'], data.attrs['alt_m'])
+        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = aer2ecef(data.attrs['Baz'], data.attrs['Bel'],
+                                                                              data.srpts,
+                                                                              data.attrs['lat'], data.attrs['lon'],
+                                                                              data.attrs['alt_m'])
         return data
     else:
         raise ValueError(f'unknown mask {method}')

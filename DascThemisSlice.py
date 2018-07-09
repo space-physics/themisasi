@@ -6,7 +6,8 @@ The API to take the slice is very old code with a cumbersome, awkward API.
 I have started by making a monkey-patched use of this API.
 If the project proceeds, I would perhaps redo the API much more cleanly.
 
-./DascThemisFOV.py ~/data/themis/themis_skymap_gako_20070401.sav ~/data/dasc/PKR_DASC_0000_20080326_070857.000.FITS ../dascutils/cal/PKR_DASC_20110112_AZ_10deg.fits ../dascutils/cal/PKR_DASC_20110112_EL_10deg.fits
+./DascThemisFOV.py ~/data/themis/themis_skymap_gako_20070401.sav ~/data/dasc/PKR_DASC_0000_20080326_070857.000.FITS \
+     ../dascutils/cal/PKR_DASC_20110112_AZ_10deg.fits ../dascutils/cal/PKR_DASC_20110112_EL_10deg.fits
 
 DASC coord: 65.1260, -147.479
 DASC exposure: 1 sec.
