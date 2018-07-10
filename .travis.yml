@@ -25,6 +25,11 @@ addons:
 before_install:
   - python setup_spacepy.py > /dev/null
   - . $HOME/cdf*dist/bin/definitions.B
+  
+  # Fake X11 server
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to star
 
 
 install: pip install -e .[tests,fov]

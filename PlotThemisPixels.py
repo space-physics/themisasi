@@ -10,6 +10,7 @@ PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf \
     tests/thg_l2_asc_fykn_19700101_v01.cdf \
     -az 65 70 -el 48 68
 """
+import os
 import logging
 from argparse import ArgumentParser
 import numpy as np
@@ -24,6 +25,7 @@ try:
 except ImportError as e:
     logging.error(f'not showing plots due to {e}')
     tap = None
+
 
 def getimgind(imgs: xarray.Dataset, lla: Tuple[float, float, float],
               az: float, el: float) -> np.ndarray:
@@ -86,7 +88,8 @@ def main():
     if tap is not None:
         tap.plottimeseries(dat, imgs.time)
 
-        show()
+        if 'TRAVIS' not in os.environ or not os.environ['TRAVIS']:
+            show()
 
 
 if __name__ == '__main__':

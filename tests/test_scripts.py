@@ -12,15 +12,15 @@ def test_video():
     subprocess.check_call(['PlotThemis', str(datfn), str(calfn),
                            '--treq', '2011-05-05T09:47:00', '2011-05-05T09:47:10'])
 
+
 def test_pixels_azel():
     subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
                            '-az', '65', '70', '-el', '48', '68'])
 
 
-
 def test_pixels_latlon():
     subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
-                           '-lla', '68', '-145','100.'])
+                           '-lla', '68', '-145', '100.'])
 
 
 if __name__ == '__main__':

@@ -16,6 +16,7 @@ assert datfn.is_file()
 assert cal1fn.is_file()
 assert cal2fn.is_file()
 
+
 def test_readthemis():
     data = ta.load(datfn)
 
@@ -24,7 +25,7 @@ def test_readthemis():
 
 
 def test_calread():
-# %% IDL SAV
+    # %% IDL SAV
     cal1 = ta.loadcal(cal1fn)
 
     assert_allclose(cal1['el'][29, 161], 15.458)
