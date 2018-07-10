@@ -6,6 +6,7 @@ to setup spacepy, see  https://scivision.co/installing-spacepy-with-anaconda-pyt
 
 api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
+import logging
 from pathlib import Path
 from datetime import datetime
 import xarray
@@ -74,6 +75,9 @@ def load(fn: Path,
         data = xarray.merge(({'imgs': imgs}, cal))
         data.attrs = cal.attrs
         data.attrs.update(imgs.attrs)
+        if data.caltime is not None:
+            if (data.caltime >= data.time).any():
+                logging.error('calibration is taken AFTER the images--may be incorrect lat/lon az/el plate scale')
     else:
         data = xarray.Dataset({'imgs': imgs})
         data.attrs = imgs.attrs
@@ -88,15 +92,26 @@ def loadcal(fn: Path) -> xarray.Dataset:
     http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
     """
     site = None
+    time = None
     fn = Path(fn).expanduser()
-    if fn.suffix == '.sav':
+
+    if fn.suffix == '.cdf':
+        site = fn.name.split('_')[3]
+        with pycdf.CDF(str(fn)) as h:
+            az = h[f'thg_asf_{site}_azim'][0]
+            el = h[f'thg_asf_{site}_elev'][0]
+            lat = h[f'thg_asc_{site}_glat'][...]
+            lon = (h[f'thg_asc_{site}_glon'][...] + 180) % 360 - 180  # [0,360] -> [-180,180]
+            alt_m = h[f'thg_asc_{site}_alti'][...]
+            x = y = h[f'thg_asf_{site}_c256'][...]
+            time = datetime.utcfromtimestamp(h[f'thg_asf_{site}_time'][-1])
+    elif fn.suffix == '.sav':
         site = fn.name.split('_')[2]
         h = readsav(fn, verbose=False)
         az = h['skymap']['full_azimuth'][0]
         el = h['skymap']['full_elevation'][0]
         lat = h['skymap']['site_map_latitude'].item()
-        lon = (h['skymap']['site_map_longitude'].item() +
-               180) % 360 - 180  # [0,360] -> [-180,180]
+        lon = (h['skymap']['site_map_longitude'].item() + 180) % 360 - 180  # [0,360] -> [-180,180]
         alt_m = h['skymap']['site_map_altitude'].item()
         x = h['skymap']['full_column'][0][0, :]
         y = h['skymap']['full_row'][0][:, 0]
@@ -118,12 +133,15 @@ def loadcal(fn: Path) -> xarray.Dataset:
             alt_m = h['lla'][2]
             x = h['x'][0, :].astype(int)
             y = np.flipud(h['y'][:, 0]).astype(int)
+    else:
+        raise ValueError(f'{fn} calibration file format is not known to this program.')
 
     cal = xarray.Dataset({'az': (('y', 'x'), az),
                           'el': (('y', 'x'), el)},
                          coords={'y': y, 'x': x},
                          attrs={'lat': lat, 'lon': lon, 'alt_m': alt_m,
-                                'site': site, 'filename': fn.name})
+                                'site': site, 'filename': fn.name,
+                                'caltime': time})
 
     return cal
 

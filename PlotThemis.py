@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 """
-python PlotThemis.py ~/data/themis/thg_l1_asf_gako_2008032607_v01.cdf
+PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 """
+from argparse import ArgumentParser
 import themisasi as ta
 import themisasi.plots as tap
 
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    p = ArgumentParser(
-        description=' reads THEMIS GBO ASI CDF files and plays high speed video')
-    p.add_argument('asifn', help='ASI file to play')
+
+def main():
+    p = ArgumentParser(description=' reads THEMIS GBO ASI CDF files and plays high speed video')
+    p.add_argument('asifn', help='ASI (or cal, if only argument) file to play')
     p.add_argument('cal', help='ASI az/el cal file to read', nargs='?')
     p.add_argument('-t', '--treq', help='time requested', nargs=2)
     p.add_argument('-o', '--odir', help='write video to this directory')
@@ -17,4 +17,10 @@ if __name__ == '__main__':
 
     imgs = ta.load(P.asifn, P.treq, P.cal)
 
-    imgs = tap.plotasi(imgs, P.odir)
+    tap.plotazel(imgs)
+
+    tap.plotasi(imgs, P.odir)
+
+
+if __name__ == '__main__':
+    main()

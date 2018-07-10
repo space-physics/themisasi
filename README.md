@@ -11,72 +11,93 @@
 # Themis ASI Reader
 
 
-Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data.
+Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data, from Python &ge; 3.6.
 
-It also reads the THEMIS ASI star registered 
+It also reads the THEMIS ASI star registered
 [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/),
 giving **azimuth and elevation** for each pixel.
 
 ## Install
 
 Requires
-[SpacePy](https://scivision.co/installing-spacepy-with-anaconda-python-3/) 
+[SpacePy](https://scivision.co/installing-spacepy-with-anaconda-python-3/)
 to read CDF files (not NetCDF).
+This SpacePy setup script is primarily for Linux and Mac.
+On Microsoft Windows PC, consider Windows Subsystem for Linux.
 
     python setup_spacepy.py
-
 
 And as usual:
 
     python -m pip install -e .
 
-If you have trouble with SpacePy, see 
+If you have trouble with SpacePy, see
 [SpacePy install notes](https://scivision.co/installing-spacepy-with-anaconda-python-3/).
-
-## Themis site map (2009)
-
-[![Themis site map](http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif)](http://themis.ssl.berkeley.edu/gbo/display.py?)
 
 ## Reading and Plotting THEMIS ASI Data
 
-Get video data from Themis all-sky imager 
-[data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
+1. Get video data from Themis all-sky imager [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
+2. [optional] find [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/) if you want projected lat/lon for each pixel.
+   These files are named `*asc*.cdf` or `*skymap*.sav`.
 
-### April 14, 2013, 8 UT Fort Yukon
 
-    wget -P ~/data http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04/thg_l1_asf_fykn_2013041408_v01.cdf
+### Example
 
-#### Python
+April 14, 2013, 8 UT Fort Yukon
 
-    ./PlotThemis thg_l1_asf_fykn_2013041408_v01.cdf
+1. Download data
+   ```sh
+   wget -P ~/data http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04/thg_l1_asf_fykn_2013041408_v01.cdf
+   ```
+2. [optional] get this camera [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/thg_l2_asc_fykn_19700101_v01.cdf)
+   If you want to just plot this calibration data:
+   ```sh
+   PlotThemis ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
+   ```
+3. Playback the video content.
+   Use the `-o` option to dump the frames to individual PNGs for easier back-and-forth viewing.
+   The calibration file (second filename) is optional.
+   ```sh
+   PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
+   ```
 
-#### Matlab
 
-The Matlab code is obsolete, the Python version has so much more. :
+## Notes
 
-    readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
+Themis site map (2009)
 
-## Resources
+[![Themis site map](http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif)](http://themis.ssl.berkeley.edu/gbo/display.py?)
 
--   Themis GBO ASI 
+
+### Resources
+
+-   Themis GBO ASI
     [site coordinates](http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls)
--   THEMIS GBO ASI 
+-   THEMIS GBO ASI
     [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/)
--   THEMIS GBO ASI 
+-   THEMIS GBO ASI
     [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
--   Themis GBO ASI 
+-   Themis GBO ASI
     [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
--   Themis GBO ASI 
+-   Themis GBO ASI
     [mosaic (all sites together)](http://themis.ssl.berkeley.edu/gbo/display.py?)
 
-## Themis Plate Scale data
 
-I discovered that IDL 8.0 had a problem saving structured arrays of bytes. 
-While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot. 
-I submitted a 
-[patch to SciPy](https://github.com/scipy/scipy/pull/5801) 
+
+### Matlab
+
+The Matlab code is obsolete, the Python version has so much more:
+```matlab
+readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
+```
+### data corruption
+
+I discovered that IDL 8.0 had a problem saving structured arrays of bytes.
+While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot.
+I submitted a
+[patch to SciPy](https://github.com/scipy/scipy/pull/5801)
 to allow reading these files, which was incorporated into SciPy 0.18.0.
 
-As a fallback, read and rewrite the corrupted file with the IDL script in the 
-[idl](idl/) 
+As a fallback, read and rewrite the corrupted file with the IDL script in the
+[idl](idl/)
 directory.

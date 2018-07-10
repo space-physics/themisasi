@@ -1,6 +1,7 @@
 from pathlib import Path
 import xarray
 import numpy as np
+from datetime import datetime
 from matplotlib.pyplot import figure, draw, pause
 from matplotlib.colors import LogNorm
 
@@ -32,10 +33,17 @@ def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
 
 
 def plotazel(data: xarray.Dataset, ttxt: str=''):
+    if 'az' not in data or 'el' not in data:
+        return
+
     fg = figure(figsize=(12, 6))
     ax = fg.subplots(1, 2, sharey=True)
 
-    fg.suptitle(data.filename + ' ' + ttxt)
+    ttxt = f'{data.filename} {ttxt}'
+    if data.caltime is not None:
+        ttxt += f'{data.caltime}'
+
+    fg.suptitle(ttxt)
 
     c = ax[0].contour(data['az'].x, data['az'].y, data['az'])
     ax[0].clabel(c, fmt='%0.1f')
@@ -49,6 +57,14 @@ def plotazel(data: xarray.Dataset, ttxt: str=''):
     ax[1].set_xlabel('x-pixels')
 
     return fg, ax
+
+
+def plottimeseries(data: np.ndarray, time: datetime):
+    assert data.ndim == 2
+
+    ax = figure().gca()
+
+    ax.plot(time, data)
 
 
 def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
@@ -77,6 +93,7 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
+
     if ofn:
         ofn = Path(ofn).expanduser()
         odir = ofn.parent
@@ -96,13 +113,16 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
     if 'imgs2' in data:
         overlayrowcol(ax, data.rows, data.cols)
 # %% play video
-    for im in data['imgs']:
-        ts = im.time.values.astype(str)[:-6]
-        hi.set_data(im)
-        ht.set_text(ttxt + ts)
-        draw()
-        pause(0.01)
-        if ofn:
-            fn = odir / (ofn.stem + ts + ofn.suffix)
-            print('saving', fn, end='\r')
-            fg.savefig(fn, bbox_inches='tight', facecolor='k')
+    try:
+        for im in data['imgs']:
+            ts = im.time.values.astype(str)[:-6]
+            hi.set_data(im)
+            ht.set_text(ttxt + ts)
+            draw()
+            pause(0.01)
+            if ofn:
+                fn = odir / (ofn.stem + ts + ofn.suffix)
+                print('saving', fn, end='\r')
+                fg.savefig(fn, bbox_inches='tight', facecolor='k')
+    except KeyboardInterrupt:
+        return
