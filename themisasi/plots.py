@@ -59,12 +59,15 @@ def plotazel(data: xarray.Dataset, ttxt: str=''):
     return fg, ax
 
 
-def plottimeseries(data: np.ndarray, time: datetime):
+def plottimeseries(data: np.ndarray, time: datetime, ttxt: str=''):
     assert data.ndim == 2
 
     ax = figure().gca()
 
     ax.plot(time, data)
+    ax.set_xlabel('time')
+    ax.set_ylabel('brightness [data numbers]')
+    ax.set_title(ttxt)
 
 
 def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):

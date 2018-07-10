@@ -1,12 +1,58 @@
 import logging
 import xarray
 import numpy as np
+from typing import Tuple, List
 import scipy.ndimage as ndi
 #
 from pymap3d.haversine import anglesep
-from pymap3d import enu2aer, geodetic2enu, aer2enu, aer2ecef, ecef2aer
+import pymap3d as pm
 from pymap3d.vincenty import vdist
-from histutils.findnearest import findClosestAzel
+import histutils.findnearest as fnd
+
+
+def getimgind(imgs: xarray.Dataset, lla: np.ndarray,
+              az: np.ndarray, el: np.ndarray) -> np.ndarray:
+    """ find pixels in images according to lat,lon,alt or az,el spec"""
+    if lla is not None:
+        lla = np.atleast_2d(lla)
+        assert lla.ndim == 2
+        assert lla.shape[1] == 3
+        N = lla.shape[0]
+    elif az is not None and el is not None:
+        az = np.atleast_1d(az)
+        el = np.atleast_1d(el)
+        assert az.ndim == 1 and el.ndim == 1
+        N = az.size
+    else:
+        raise ValueError('must specify LLA or az/el')
+# %% work
+    ind = np.empty((N, 2), dtype=int)
+
+    if lla is not None:
+        az, el, _ = pm.geodetic2aer(lla[:, 0], lla[:, 1], lla[:, 2]*1000,
+                                    imgs.lat, imgs.lon, imgs.alt_m)
+
+    for i, (a, e) in enumerate(zip(az, el)):
+        ind[i, :] = fnd.findClosestAzel(imgs.az, imgs.el, a, e)
+
+    ind = np.unique(ind, axis=0)
+
+    assert ind.ndim == 2
+    assert ind.shape[1] == 2  # row, column
+
+    return ind
+
+
+def projected_coord(imgs: xarray.Dataset, ind: np.ndarray, lla: Tuple[float, float, float]):
+    az = imgs.az[ind[:, 0], ind[:, 1]].values.squeeze()
+    el = imgs.el[ind[:, 0], ind[:, 1]].values.squeeze()
+
+    alt_m = lla[2]*1000 if lla is not None else 100e3
+
+    plat, plon, palt_m = pm.aer2geodetic(az, el, alt_m / np.sin(np.radians(el)),
+                                         imgs.lat, imgs.lon, imgs.alt_m)
+
+    return az, el, plat, plon, palt_m
 
 
 def line2plane(cam: xarray.Dataset) -> xarray.Dataset:
@@ -97,27 +143,27 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float=110e3, metho
     print(
         f"intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers")
 # %% ENU projection from cam0 to cam1
-    e1, n1, u1 = geodetic2enu(w1.lat, w1.lon, w1.alt_m,
-                              w0.lat, w0.lon, w0.alt_m)
+    e1, n1, u1 = pm.geodetic2enu(w1.lat, w1.lon, w1.alt_m,
+                                 w0.lat, w0.lon, w0.alt_m)
 # %% find the ENU of narrow FOV pixels at 110km from narrow FOV
     w1 = pixelmask(w1, method)
     if method is not None and method.lower() == 'mzslice':
         w0 = pixelmask(w0, method)
-        azSlice0, elSlice0, rSlice0 = ecef2aer(w1.x2mz, w1.y2mz, w1.z2mz,
-                                               w0.lat, w0.lon, w0.alt_m)
-        azSlice1, elSlice1, rSlice1 = ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz,
-                                               w1.lat, w1.lon, w1.alt_m)
+        azSlice0, elSlice0, rSlice0 = pm.ecef2aer(w1.x2mz, w1.y2mz, w1.z2mz,
+                                                  w0.lat, w0.lon, w0.alt_m)
+        azSlice1, elSlice1, rSlice1 = pm.ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz,
+                                                  w1.lat, w1.lon, w1.alt_m)
         # find image indices (mask) corresponding to slice az,el
-        w0['rows'], w0['cols'] = findClosestAzel(w0['az'].where(w0['fovmask']),
-                                                 w0['el'].where(w0['fovmask']),
-                                                 azSlice0, elSlice0)
-        w0.attrs['Brow'], w0.attrs['Bcol'] = findClosestAzel(
+        w0['rows'], w0['cols'] = fnd.findClosestAzel(w0['az'].where(w0['fovmask']),
+                                                     w0['el'].where(w0['fovmask']),
+                                                     azSlice0, elSlice0)
+        w0.attrs['Brow'], w0.attrs['Bcol'] = fnd.findClosestAzel(
             w0['az'], w0['el'], w0.Baz, w0.Bel)
 
-        w1['rows'], w1['cols'] = findClosestAzel(w1['az'].where(w1['fovmask']),
-                                                 w1['el'].where(w1['fovmask']),
-                                                 azSlice1, elSlice1)
-        w1.attrs['Brow'], w1.attrs['Bcol'] = findClosestAzel(
+        w1['rows'], w1['cols'] = fnd.findClosestAzel(w1['az'].where(w1['fovmask']),
+                                                     w1['el'].where(w1['fovmask']),
+                                                     azSlice1, elSlice1)
+        w1.attrs['Brow'], w1.attrs['Bcol'] = fnd.findClosestAzel(
             w1['az'], w1['el'], w1.Baz, w1.Bel)
     else:
         # csc(x) = 1/sin(x)
@@ -127,13 +173,13 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float=110e3, metho
         assert (slantrange >= projalt).all(
         ), 'slantrange must be >= projection altitude'
 
-        e0, n0, u0 = aer2enu(w1['az'], w1['el'], slantrange)
+        e0, n0, u0 = pm.aer2enu(w1['az'], w1['el'], slantrange)
     # %% find az,el to narrow FOV from ASI FOV
-        az0, el0, _ = enu2aer(e0 - e1, n0 - n1, u0 - u1)
+        az0, el0, _ = pm.enu2aer(e0 - e1, n0 - n1, u0 - u1)
         assert (el0 >= 0).all(
         ), 'FOVs may not overlap, negative elevation from cam0 to cam1'
     # %% nearest neighbor brute force
-        w0['rows'], w0['cols'] = findClosestAzel(w0['az'], w0['el'], az0, el0)
+        w0['rows'], w0['cols'] = fnd.findClosestAzel(w0['az'], w0['el'], az0, el0)
 
     return w0, w1
 
@@ -166,10 +212,10 @@ def pixelmask(data: xarray.Dataset, method: str=None) -> xarray.Dataset:
 
         data['fovmask'] = (('y', 'x'), mask)
 
-        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = aer2ecef(data.attrs['Baz'], data.attrs['Bel'],
-                                                                              data.srpts,
-                                                                              data.attrs['lat'], data.attrs['lon'],
-                                                                              data.attrs['alt_m'])
+        data.attrs['x2mz'], data.attrs['y2mz'], data.attrs['z2mz'] = pm.aer2ecef(data.attrs['Baz'], data.attrs['Bel'],
+                                                                                 data.srpts,
+                                                                                 data.attrs['lat'], data.attrs['lon'],
+                                                                                 data.attrs['alt_m'])
         return data
     else:
         raise ValueError(f'unknown mask {method}')

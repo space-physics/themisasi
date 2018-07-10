@@ -5,6 +5,7 @@ Playback THEMIS ASI videos
 
 PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 """
+import os
 import logging
 from argparse import ArgumentParser
 import themisasi as ta
@@ -12,7 +13,9 @@ try:
     import themisasi.plots as tap
 except ImportError as e:
     logging.error(f'not showing plots due to {e}')
-    tap = None
+    tap = None  # type: ignore
+
+CI = bool(os.environ['CI']) if 'CI' in os.environ else False
 
 
 def main():
@@ -24,11 +27,13 @@ def main():
     P = p.parse_args()
 
     imgs = ta.load(P.asifn, P.treq, P.cal)
+# %% plot
+    if tap is None or CI:
+        return
 
-    if tap is not None:
-        tap.plotazel(imgs)
+    tap.plotazel(imgs)
 
-        tap.plotasi(imgs, P.odir)
+    tap.plotasi(imgs, P.odir)
 
 
 if __name__ == '__main__':

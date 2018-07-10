@@ -25,23 +25,26 @@ to read CDF files (not NetCDF).
 This SpacePy setup script is primarily for Linux and Mac.
 On Microsoft Windows PC, consider Windows Subsystem for Linux.
 
-    python setup_spacepy.py
 
-And as usual:
-
-    python -m pip install -e .
+1. install SpacePy
+   ```sh
+   python setup_spacepy.py
+   ```
+2. Install Themis-ASI code and optional `fov` prereqs useful for merging and examing field of view (FOV)
+   ```sh
+   python -m pip install -e .[fov]
+   ```
 
 If you have trouble with SpacePy, see
 [SpacePy install notes](https://scivision.co/installing-spacepy-with-anaconda-python-3/).
 
-## Reading and Plotting THEMIS ASI Data
+## Usage
+
+### Downlad, Read and Plot THEMIS ASI Data
 
 1. Get video data from Themis all-sky imager [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
 2. [optional] find [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/) if you want projected lat/lon for each pixel.
    These files are named `*asc*.cdf` or `*skymap*.sav`.
-
-
-### Example
 
 April 14, 2013, 8 UT Fort Yukon
 
@@ -54,15 +57,36 @@ April 14, 2013, 8 UT Fort Yukon
    ```sh
    PlotThemis ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
    ```
-3. Playback the video content.
-   Use the `-o` option to dump the frames to individual PNGs for easier back-and-forth viewing.
-   The calibration file (second filename) is optional.
-   ```sh
-   PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
-   ```
-
+   
 With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
 For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.
+
+
+### Video Playback / PNG conversion
+
+This example plays the video content.
+
+Use the `-o` option to dump the frames to individual PNGs for easier back-and-forth viewing.
+The calibration file (second filename) is optional.
+```sh
+PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
+```
+
+### Plot time series of pixel(s)
+Again, be sure the calibration file is appropriate for the time range of the video--the camera may have been moved / reoriented during maintenance.
+
+The pixels can be specified by (azimuth, elevation) or (lat, lon, projection altitude [km])
+
+Azimuth / Elevation:
+```sh
+PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf tests/thg_l2_asc_fykn_19700101_v01.cdf -az 65 70 -el 48 68
+```
+
+Latitude, Longitude, Projection Altitude [kilometers]:
+Typically the brightest aurora is in the 100-110 km altitude range, so a common approximate is to assume "all" of the brightness comes from a single altitude in this region.
+```sh
+PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf tests/thg_l2_asc_fykn_19700101_v01.cdf -lla 65 -145 100.
+```
 
 ## Notes
 
