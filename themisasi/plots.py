@@ -94,6 +94,9 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
     list of 1-D arrays or 2-D array
     """
 
+    if data['imgs'].shape[0] == 0:
+        return
+
     if ofn:
         ofn = Path(ofn).expanduser()
         odir = ofn.parent

@@ -61,6 +61,8 @@ April 14, 2013, 8 UT Fort Yukon
    PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
    ```
 
+With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
+For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.
 
 ## Notes
 

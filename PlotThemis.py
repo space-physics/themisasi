@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 """
+Playback THEMIS ASI videos
+* optionally, save images to stack of PNGs
+
 PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 """
+import logging
 from argparse import ArgumentParser
 import themisasi as ta
-import themisasi.plots as tap
+try:
+    import themisasi.plots as tap
+except ImportError as e:
+    logging.error(f'not showing plots due to {e}')
+    tap = None
 
 
 def main():
@@ -17,9 +25,10 @@ def main():
 
     imgs = ta.load(P.asifn, P.treq, P.cal)
 
-    tap.plotazel(imgs)
+    if tap is not None:
+        tap.plotazel(imgs)
 
-    tap.plotasi(imgs, P.odir)
+        tap.plotasi(imgs, P.odir)
 
 
 if __name__ == '__main__':

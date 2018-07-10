@@ -27,7 +27,7 @@ before_install:
   - . $HOME/cdf*dist/bin/definitions.B
 
 
-install: pip install -e .[tests]
+install: pip install -e .[tests,fov]
 
 script:
   - pytest -sv
