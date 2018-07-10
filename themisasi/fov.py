@@ -1,7 +1,7 @@
 import logging
 import xarray
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple
 import scipy.ndimage as ndi
 #
 from pymap3d.haversine import anglesep
