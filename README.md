@@ -22,10 +22,11 @@ giving **azimuth and elevation** for each pixel.
 Requires
 [SpacePy](https://scivision.co/installing-spacepy-with-anaconda-python-3/)
 to read CDF files (not NetCDF).
+If you have an easier way to read CDF vs. using SpacePy, we would be happy to know about it.
 This SpacePy setup script is primarily for Linux and Mac.
 On Microsoft Windows PC, consider Windows Subsystem for Linux.
 
-0. Install a Fortran compiler. This is because currently SpacePy requires FFnet, which does not current have wheels and is not on `conda`.
+0. Install a Fortran compiler. This is because currently SpacePy requires FFnet, which does not currently have PyPi wheels and is not on `conda`.
    * Mac: `brew install gcc`
    * Linux: `apt install gfortran`
 1. install SpacePy
