@@ -25,8 +25,11 @@ to read CDF files (not NetCDF).
 If you have an easier way to read CDF vs. using SpacePy, we would be happy to know about it.
 This SpacePy setup script is primarily for Linux and Mac.
 
-For Microsoft Windows:
+For Microsoft Windows ONLY:
 1. install [Windows Subsystem for Linux](https://www.scivision.co/install-windows-subsystem-for-linux/) 2. install [Anaconda Python on Windows Subsystem for Linux](https://www.scivision.co/anaconda-python-with-windows-subsystem-for-linux/)
+
+
+Mac, Linux, Windows Subsytem for Linux:
 
 0. Install a Fortran compiler. This is because currently SpacePy requires FFnet, which does not currently have PyPi wheels and is not on `conda`.
    * Mac: `brew install gcc`
