@@ -32,9 +32,10 @@ For Microsoft Windows ONLY:
 
 Mac, Linux, Windows Subsytem for Linux:
 
-0. Install a Fortran compiler. This is because currently SpacePy requires FFnet, which does not currently have PyPi wheels and is not on `conda`.
-   * Mac: `brew install gcc`
-   * Linux: `apt install gfortran`
+0. Install a Fortran compiler and Curses library. 
+   This is because currently SpacePy requires FFnet, which does not currently have PyPi wheels and is not on `conda`.
+   * Mac: `brew install gcc ncurses`
+   * Linux: `apt install gfortran libncurses-dev`
 1. install SpacePy
    ```sh
    python setup_spacepy.py
