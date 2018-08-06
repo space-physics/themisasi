@@ -25,7 +25,9 @@ to read CDF files (not NetCDF).
 This SpacePy setup script is primarily for Linux and Mac.
 On Microsoft Windows PC, consider Windows Subsystem for Linux.
 
-
+0. Install a Fortran compiler. This is because currently SpacePy requires FFnet, which does not current have wheels and is not on `conda`.
+   * Mac: `brew install gcc`
+   * Linux: `apt install gfortran`
 1. install SpacePy
    ```sh
    python setup_spacepy.py

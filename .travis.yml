@@ -8,40 +8,40 @@ git:
   quiet: true
 
 python:
-  - 3.6
+- 3.6
  # - 3.7  FIXME h5py py37 wheel wait
 
 os:
-  - linux
+- linux
 
 addons:
   apt:
     packages:
-      - gcc
-      - make
-      - gfortran
-      - libncurses-dev
+    - gcc
+    - make
+    - gfortran
+    - libncurses-dev
       
 before_install:
-  - python setup_spacepy.py > /dev/null
-  - . $HOME/cdf*dist/bin/definitions.B
-  
-  # Fake X11 server
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to star
+- python setup_spacepy.py > /dev/null
+- . $HOME/cdf*dist/bin/definitions.B
+
+# Fake X11 server
+- "export DISPLAY=:99.0"
+- "sh -e /etc/init.d/xvfb start"
+- sleep 3 # give xvfb some time to star
 
 
 install: pip install -e .[tests,fov]
 
 script:
-  - pytest -sv
-  - flake8
-  # - mypy . --ignore-missing-imports  # relax for new mypy version
+- pytest -rsv
+- flake8
+# - mypy . --ignore-missing-imports  # relax for new mypy version
 
 after_success:
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then
-    pytest --cov;
-    coveralls;
-    fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then
+  pytest --cov;
+  coveralls;
+  fi
 
