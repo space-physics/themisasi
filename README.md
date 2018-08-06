@@ -49,8 +49,24 @@ If you have trouble with SpacePy, see
 [SpacePy install notes](https://scivision.co/installing-spacepy-with-anaconda-python-3/).
 
 ## Usage
+One of the main ways analysts might use THEMIS-ASI data is by loading it into a 3-D array (time, x, y).
 
-### Downlad, Read and Plot THEMIS ASI Data
+```python
+import themisasi as ta
+
+dat = ta.load('~/data/thg_l1_asf_fykn_2013041408_v01.cdf')
+```
+THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html), 
+which is used throughout geosciences and astronomy as a "smart" Numpy array.
+The simple image data stack is obtained by:
+```python
+imgs = dat['imgs']
+```
+
+`dat.time` contains the approximate time of each image (consider the finite exposure time).
+`dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
+
+### Download, Read and Plot THEMIS ASI Data
 
 1. Get video data from Themis all-sky imager [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
 2. [optional] find [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/) if you want projected lat/lon for each pixel.
