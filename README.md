@@ -1,6 +1,7 @@
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
 [![Travis-CI status](https://travis-ci.org/scivision/themisasi.svg)](https://travis-ci.org/scivision/themisasi)
 [![Coverage](https://coveralls.io/repos/github/scivision/themisasi/badge.svg?branch=master)](https://coveralls.io/github/scivision/themisasi?branch=master)
+[![Build status](https://ci.appveyor.com/api/projects/status/lw66b366lx6ipwe7?svg=true)](https://ci.appveyor.com/project/scivision/themisasi)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1da43f5a03c6e7456ef/maintainability)](https://codeclimate.com/github/scivision/themisasi/maintainability)
 [![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
 [![pypi format](https://img.shields.io/pypi/format/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
