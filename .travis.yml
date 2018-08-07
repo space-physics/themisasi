@@ -21,8 +21,6 @@ addons:
     - libncurses-dev
       
 before_install:
-- python setup_spacepy.py > /dev/null
-- . $HOME/cdf*dist/bin/definitions.B
 
 # Fake X11 server
 - "export DISPLAY=:99.0"
@@ -30,7 +28,9 @@ before_install:
 - sleep 3 # give xvfb some time to star
 
 
-install: pip install -e .[tests,fov]
+install: 
+- pip install -e .[tests,fov]
+- . $HOME/cdf*dist/bin/definitions.B
 
 script:
 - pytest -rsv
