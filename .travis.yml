@@ -9,28 +9,13 @@ git:
 
 python:
 - 3.6
- # - 3.7  FIXME h5py py37 wheel wait
+- 3.7
 
 os:
 - linux
 
-addons:
-  apt:
-    packages:
-    - gfortran
-    - libncurses-dev
-      
-before_install:
-
-# Fake X11 server
-- "export DISPLAY=:99.0"
-- "sh -e /etc/init.d/xvfb start"
-- sleep 3 # give xvfb some time to star
-
-
 install: 
-- pip install -e .[tests,fov]
-- . $HOME/cdf*dist/bin/definitions.B
+- pip install -e .[tests]
 
 script:
 - pytest -rsv
