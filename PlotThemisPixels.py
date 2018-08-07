@@ -13,7 +13,7 @@ PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf \
 import logging
 from argparse import ArgumentParser
 import numpy as np
-import themisasi as ta
+import themisasi.io as tio
 import themisasi.fov as taf
 import themisasi.plots as tap
 try:
@@ -39,7 +39,7 @@ def main():
     p.add_argument('-v', '--verbose', action='store_true')
     P = p.parse_args()
 
-    imgs = ta.load(P.asifn, P.treq, P.cal)
+    imgs = tio.load(P.asifn, P.treq, P.cal)
 
     if P.verbose:
         tap.plotazel(imgs)

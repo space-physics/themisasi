@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import urllib.request
+from themisasi import urlretrieve
 import tarfile
 from pathlib import Path
 import sys
@@ -12,9 +12,7 @@ url = 'https://spdf.sci.gsfc.nasa.gov/pub/software/cdf/dist/latest-release/cdf-d
 
 ofn = R / url.split('/')[-1]
 
-if not ofn.is_file():
-    print(f'downloading {ofn}')
-    urllib.request.urlretrieve(url, ofn)
+urlretrieve(url, ofn)
 
 print(f'extracting {ofn} to {R}')
 with tarfile.open(ofn, mode="r") as f:

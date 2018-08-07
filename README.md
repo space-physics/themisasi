@@ -72,11 +72,11 @@ imgs = dat['imgs']
 2. [optional] find [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/) if you want projected lat/lon for each pixel.
    These files are named `*asc*.cdf` or `*skymap*.sav`.
 
-April 14, 2013, 8 UT Fort Yukon
+February 4, 2012, 8 UT Fort Yukon
 
 1. Download data
    ```sh
-   wget -P ~/data http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04/thg_l1_asf_fykn_2013041408_v01.cdf
+   DownloadThemis 2012-02-04T08
    ```
 2. [optional] get this camera [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/thg_l2_asc_fykn_19700101_v01.cdf)
    If you want to just plot this calibration data:

@@ -7,7 +7,7 @@ PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 """
 import logging
 from argparse import ArgumentParser
-import themisasi as ta
+import themisasi.io as tio
 try:
     import themisasi.plots as tap
 except ImportError as e:
@@ -23,7 +23,7 @@ def main():
     p.add_argument('-o', '--odir', help='write video to this directory')
     P = p.parse_args()
 
-    imgs = ta.load(P.asifn, P.treq, P.cal)
+    imgs = tio.load(P.asifn, P.treq, P.cal)
 # %% plot
     if tap is None:
         return
