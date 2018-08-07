@@ -16,8 +16,11 @@ assert cal1fn.is_file()
 assert cal2fn.is_file()
 
 
-def test_download(tmpdir):
-    ta.download(['2012-08-08T10', '2012-08-08T11'], odir=tmpdir, site='gako',
+def test_download():
+    ta.download('2006-09-29T14', odir=R, site='gako',
+                host='http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/')
+
+    ta.download(('2006-09-29T14', '2006-09-30-04'), odir=R, site='gako',
                 host='http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/')
 
 

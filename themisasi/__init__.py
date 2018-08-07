@@ -1,8 +1,9 @@
 from dateutil.parser import parse
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import requests
 import logging
+import numpy as np
 from typing import List, Union
 
 
@@ -42,11 +43,15 @@ def download(treq: List[Union[str, datetime]], host: str, site: str, odir: Path,
     start = parse(treq[0]) if isinstance(treq[0], str) else treq[0]
     if len(treq) == 2:
         end = parse(treq[1]) if isinstance(treq[1], str) else treq[1]
+    else:
+        end = start
 
     if end < start:
         raise ValueError('start time must be before end time!')
 # %% start download
-    fpath = (f'{host}{site}/{start.year:4d}/{start.month:2d}/'
-             f'thg_l1_asf_{site}_{start.year:4d}{start.month:02d}{start.day:02d}{start.hour:02d}_v01.cdf')
+    for T in np.arange(start, end+timedelta(hours=1), timedelta(hours=1)):
+        t = T.astype(datetime)
+        fpath = (f'{host}{site}/{t.year:4d}/{t.month:2d}/'
+                 f'thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf')
 
-    urlretrieve(fpath, odir / fpath.split('/')[-1])
+        urlretrieve(fpath, odir / fpath.split('/')[-1])
