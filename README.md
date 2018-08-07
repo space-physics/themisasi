@@ -53,9 +53,9 @@ If you have trouble with SpacePy, see
 One of the main ways analysts might use THEMIS-ASI data is by loading it into a 3-D array (time, x, y).
 
 ```python
-import themisasi as ta
+import themisasi.io as tio
 
-dat = ta.load('~/data/thg_l1_asf_fykn_2013041408_v01.cdf')
+dat = tio.load('~/data/thg_l1_asf_fykn_2013041408_v01.cdf')
 ```
 THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html), 
 which is used throughout geosciences and astronomy as a "smart" Numpy array.
@@ -66,6 +66,15 @@ imgs = dat['imgs']
 
 `dat.time` contains the approximate time of each image (consider the finite exposure time).
 `dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
+
+Loading calibration data gives azimuth, elevation for each pixel and lat, lon of each camera.
+```python
+import themisasi.io as tio
+
+dat = tio.load(fn='~/data/thg_l1_asf_fykn_2013041408_v01.cdf', 
+               calfn='~/data/themis_skymap_fykn_20061014.sav')
+```
+now `dat` contains several more variables and metadata.
 
 ### Download, Read and Plot THEMIS ASI Data
 
