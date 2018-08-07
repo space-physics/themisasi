@@ -12,13 +12,12 @@ def urlretrieve(url: str, fn: Path, overwrite: bool=False):
         print(f'SKIPPED {fn}')
         return
 
+    R = requests.head(url, allow_redirects=True, timeout=10)
+    if R.status_code != 200:
+        logging.error(f'{url} not found. \n HTTP ERROR {R.status_code}')
+        return
+
     with fn.open('wb') as f:
-
-        R = requests.head(url, allow_redirects=True, timeout=10)
-        if R.status_code != 200:
-            logging.error(f'{url} not found. \n HTTP ERROR {R.status_code}')
-            return
-
         print(f'downloading {int(R.headers["Content-Length"])//1000000} MBytes:  {fn.name}')
 
         R = requests.get(url, allow_redirects=True, timeout=10)
@@ -51,7 +50,7 @@ def download(treq: List[Union[str, datetime]], host: str, site: str, odir: Path,
 # %% start download
     for T in np.arange(start, end+timedelta(hours=1), timedelta(hours=1)):
         t = T.astype(datetime)
-        fpath = (f'{host}{site}/{t.year:4d}/{t.month:2d}/'
+        fpath = (f'{host}{site}/{t.year:4d}/{t.month:02d}/'
                  f'thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf')
 
         urlretrieve(fpath, odir / fpath.split('/')[-1])
