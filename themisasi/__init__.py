@@ -11,17 +11,15 @@ def urlretrieve(url: str, fn: Path, overwrite: bool=False):
     if not overwrite and fn.is_file() and fn.stat().st_size > 10000:
         print(f'SKIPPED {fn}')
         return
-
+# %% prepare to download
     R = requests.head(url, allow_redirects=True, timeout=10)
     if R.status_code != 200:
         logging.error(f'{url} not found. \n HTTP ERROR {R.status_code}')
         return
-
+# %% download
+    print(f'downloading {int(R.headers["Content-Length"])//1000000} MBytes:  {fn.name}')
+    R = requests.get(url, allow_redirects=True, timeout=10)
     with fn.open('wb') as f:
-        print(f'downloading {int(R.headers["Content-Length"])//1000000} MBytes:  {fn.name}')
-
-        R = requests.get(url, allow_redirects=True, timeout=10)
-
         f.write(R.content)
 
 
