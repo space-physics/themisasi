@@ -22,6 +22,8 @@ def test_download(tmpdir):
 
 
 def test_read():
+    pytest.importorskip('spacepy')
+
     data = tio.load(datfn)
 
     assert data['imgs'].site == 'gako'
@@ -30,6 +32,7 @@ def test_read():
 
 @pytest.mark.filterwarnings('ignore:Not able to verify number of bytes from header')
 def test_calread_idl():
+    pytest.importorskip('scipy')
 
     cal1 = tio.loadcal(cal1fn)
 
@@ -39,6 +42,8 @@ def test_calread_idl():
 
 
 def test_calread_cdf():
+    pytest.importorskip('spacepy')
+
     cal2 = tio.loadcal(cal2fn)
 
     assert cal2['el'][29, 161] == approx(19.132568)

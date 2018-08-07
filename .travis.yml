@@ -17,8 +17,6 @@ os:
 addons:
   apt:
     packages:
-    - gcc
-    - make
     - gfortran
     - libncurses-dev
       
