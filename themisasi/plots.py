@@ -1,12 +1,19 @@
 from pathlib import Path
 import xarray
+import logging
 import numpy as np
 from datetime import datetime
-from matplotlib.pyplot import figure, draw, pause
-from matplotlib.colors import LogNorm
+try:
+    from matplotlib.pyplot import figure, draw, pause
+    from matplotlib.colors import LogNorm
+except (ImportError, RuntimeError) as e:
+    logging.error(f'plotting skipped   {e}')
+    figure = None
 
 
 def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
+    if figure is None:
+        return
 
     fg, axs = plotazel(cam, ttxt)
 # %% plot line from other camera to magnetic zenith
@@ -33,6 +40,9 @@ def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
 
 
 def plotazel(data: xarray.Dataset, ttxt: str=''):
+    if figure is None:
+        return
+
     if 'az' not in data or 'el' not in data:
         return
 
@@ -60,6 +70,9 @@ def plotazel(data: xarray.Dataset, ttxt: str=''):
 
 
 def plottimeseries(data: np.ndarray, time: datetime, ttxt: str=''):
+    if figure is None:
+        return
+
     assert data.ndim == 2
 
     ax = figure().gca()
@@ -78,6 +91,8 @@ def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
     ax: existing plot axis to overlay lines outlining FOV
     rows,cols: indices to plot
     """
+    if figure is None:
+        return
 
     if rows is None or cols is None:
         return
@@ -96,6 +111,8 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
+    if figure is None:
+        return
 
     if data['imgs'].shape[0] == 0:
         return

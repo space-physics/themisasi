@@ -14,14 +14,16 @@ def test_video():
 
 
 def test_pixels_azel():
+    pytest.importorskip('histutils')
     subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
                            '-az', '65', '70', '-el', '48', '68'])
 
 
 def test_pixels_latlon():
+    pytest.importorskip('histutils')
     subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
                            '-lla', '68', '-145', '100.'])
 
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main(['-x', __file__])

@@ -2,12 +2,14 @@ import logging
 import xarray
 import numpy as np
 from typing import Tuple
-import scipy.ndimage as ndi
-#
 from pymap3d.haversine import anglesep
 import pymap3d as pm
 from pymap3d.vincenty import vdist
 import histutils.findnearest as fnd
+try:
+    import scipy.ndimage as ndi
+except ImportError:
+    ndi = None
 
 
 def getimgind(imgs: xarray.Dataset, lla: np.ndarray,
@@ -197,8 +199,10 @@ def pixelmask(data: xarray.Dataset, method: str=None) -> xarray.Dataset:
         mask[:, -1] = True
         mask[-1, :] = True
     elif method == 'perimeter':  # perimeter for arbitrary shapes  e.g all-sky cameras
-        mask = ndi.distance_transform_cdt(
-            ~np.isnan(data['az']), 'taxicab') == 1
+        if ndi is None:
+            raise ImportError('pip install scipy')
+
+        mask = ndi.distance_transform_cdt(~np.isnan(data['az']), 'taxicab') == 1
     elif method.lower() == 'mzslice':
         """
         Assuming the imagers are all-sky, we arbitrarily discard pixels of low elevation as distortion is high low to horizon.

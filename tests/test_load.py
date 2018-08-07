@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 from pathlib import Path
 import pytest
-import numpy as np
-from numpy.testing import assert_allclose
-#
+from pytest import approx
 import themisasi as ta
 #
 R = Path(__file__).parent
@@ -21,23 +19,26 @@ def test_readthemis():
     data = ta.load(datfn)
 
     assert data['imgs'].site == 'gako'
-    assert data['imgs'].shape == (1075, 32, 32) and data['imgs'].dtype == np.uint16
+    assert data['imgs'].shape == (1075, 32, 32) and data['imgs'].dtype == 'uint16'
 
 
-def test_calread():
-    # %% IDL SAV
+@pytest.mark.filterwarnings('ignore:Not able to verify number of bytes from header')
+def test_calread_idl():
+
     cal1 = ta.loadcal(cal1fn)
 
-    assert_allclose(cal1['el'][29, 161], 15.458)
-    assert_allclose(cal1['az'][29, 161], 1.6255488)
-    assert_allclose(cal1.lon, -145.16)
-# %% CDF
+    assert cal1['el'][29, 161] == approx(15.458)
+    assert cal1['az'][29, 161] == approx(1.6255488)
+    assert cal1.lon == approx(-145.16)
+
+
+def test_calread_cdf():
     cal2 = ta.loadcal(cal2fn)
 
-    assert_allclose(cal2['el'][29, 161], 19.132568)
-    assert_allclose(cal2['az'][29, 161], 183.81241)
-    assert_allclose(cal2.lon, -145.16)
+    assert cal2['el'][29, 161] == approx(19.132568)
+    assert cal2['az'][29, 161] == approx(183.81241)
+    assert cal2.lon == approx(-145.16)
 
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main(['-x', __file__])

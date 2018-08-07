@@ -5,10 +5,13 @@ paint HiST field of view onto Themis
 """
 from datetime import datetime
 from matplotlib.pyplot import show
-# import seaborn as sns
-#
 from themisasi import altfiducial
 from themisasi.plots import plotthemis
+try:
+    import seaborn as sns
+    sns.set_context('talk')
+except ImportError:
+    pass
 
 
 sitereq = 'whit'  # 'fykn' 'gako' 'mcgr'

@@ -10,20 +10,17 @@ PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf \
     tests/thg_l2_asc_fykn_19700101_v01.cdf \
     -az 65 70 -el 48 68
 """
-import os
 import logging
 from argparse import ArgumentParser
 import numpy as np
 import themisasi as ta
 import themisasi.fov as taf
+import themisasi.plots as tap
 try:
-    import themisasi.plots as tap
     from matplotlib.pyplot import show
 except ImportError as e:
     logging.error(f'not showing plots due to {e}')
-    tap = None  # type: ignore
-
-CI = bool(os.environ['CI']) if 'CI' in os.environ else False
+    show = None  # type: ignore
 
 
 def main():
@@ -58,7 +55,7 @@ def main():
     for i, j in enumerate(ind):
         dat[:, i] = imgs['imgs'][:, j[0], j[1]]
 # %% plot
-    if tap is None or CI:
+    if show is None:
         return
 
     ttxt = f'{imgs.filename}'

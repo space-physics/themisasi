@@ -12,19 +12,20 @@ If the project proceeds, I would perhaps redo the API much more cleanly.
 DASC coord: 65.1260, -147.479
 DASC exposure: 1 sec.
 """
+from argparse import ArgumentParser
 import numpy as np
-from matplotlib.pyplot import show
-#
 import themisasi.fov as taf
 import themisasi as ta
 import themisasi.plots as tap
 import dascutils.io as dio
+try:
+    from matplotlib.pyplot import show
+except ImportError:
+    show = None
 
 
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    p = ArgumentParser(
-        description='register/plot other camera FOV onto Themis FOV')
+def main():
+    p = ArgumentParser(description='register/plot other camera FOV onto Themis FOV')
     p.add_argument('themiscal', help='ASI calibration')
     p.add_argument('dasccal', help='DASC cal', nargs=3)
     p.add_argument('-o', '--ofn', help='write output plot')
@@ -58,6 +59,8 @@ if __name__ == '__main__':
     themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='MZslice')
     themis = taf.line2plane(themis)
     dasc = taf.line2plane(dasc)
+    if show is None:
+        return
 # %% plot slice pixel mask
     tap.jointazel(
         themis, P.ofn, 'Themis Gakona slice toward DASC and magnetic zenith')
@@ -65,3 +68,7 @@ if __name__ == '__main__':
         dasc, P.ofn, 'DASC Poker Flat slice toward Themis Gakona and magnetic zenith')
 
     show()
+
+
+if __name__ == '__main__':
+    main()

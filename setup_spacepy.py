@@ -21,11 +21,9 @@ with tarfile.open(ofn, mode="r") as f:
     f.extractall(R)
 # %% build
 if sys.platform.lower().startswith('linux'):
-    cmd = 'make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes -j4 all'.split(
-        ' ')
+    cmd = 'make OS=linux ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes -j4 all'.split(' ')
 elif sys.platform.lower().startswith('darwin'):
-    cmd = 'make OS=macosx ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes -j4 all'.split(
-        ' ')
+    cmd = 'make OS=macosx ENV=gnu CURSES=yes FORTRAN=no UCOPTIONS=-O2 SHARED=yes -j4 all'.split(' ')
 elif sys.platform.lower().startswith('windows'):
     raise ValueError(
         'Windows is not easy with SpacePy. Consider Windows Subsystem for Linux.'

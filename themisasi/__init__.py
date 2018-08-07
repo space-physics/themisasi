@@ -13,16 +13,30 @@ import xarray
 import re
 import numpy as np
 from dateutil.parser import parse
-from spacepy import pycdf
-import h5py
-from scipy.io import readsav
 from typing import List, Union
-from netCDF4 import Dataset
+try:
+    from spacepy import pycdf
+except ImportError:
+    pycdf = None
+try:
+    import h5py
+except ImportError:
+    h5py = None
+try:
+    from netCDF4 import Dataset
+except ImportError:
+    Dataset = None
+try:
+    from scipy.io import readsav
+except ImportError:
+    readsav = None
 
 
 def load(fn: Path,
          treq: Union[str, datetime, List[datetime]]=None,
          calfn: Path=None) -> xarray.Dataset:
+    if pycdf is None:
+        raise ImportError('need to setup SpacePy')
     """read THEMIS ASI camera data"""
 # %% filename handling
     fn = Path(fn).expanduser()
@@ -127,6 +141,8 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
         raise FileNotFoundError(f'calibration file not found: {fn}')
 
     if fn.suffix == '.cdf':
+        if pycdf is None:
+            raise ImportError('need to setup SpacePy')
         site = fn.name.split('_')[3]
         with pycdf.CDF(str(fn)) as h:
             az = h[f'thg_asf_{site}_azim'][0]
@@ -137,6 +153,9 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
             x = y = h[f'thg_asf_{site}_c256'][...]
             time = datetime.utcfromtimestamp(h[f'thg_asf_{site}_time'][-1])
     elif fn.suffix == '.sav':
+        if readsav is None:
+            raise ImportError('pip install scipy')
+
         site = fn.name.split('_')[2]
         h = readsav(fn, verbose=False)
         az = h['skymap']['full_azimuth'][0]
@@ -147,6 +166,9 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
         x = h['skymap']['full_column'][0][0, :]
         y = h['skymap']['full_row'][0][:, 0]
     elif fn.suffix == '.h5':
+        if h5py is None:
+            raise ImportError('pip install h5py')
+
         with h5py.File(fn, 'r') as h:
             az = h['az'][:]
             el = h['el'][:]
@@ -156,6 +178,9 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
             x = h['x'][0, :]
             y = h['y'][:, 0]
     elif fn.suffix == '.nc':
+        if Dataset is None:
+            raise ImportError('pip install netCDF4')
+
         with Dataset(fn, 'r') as h:
             az = h['az'][:]
             el = h['el'][:]

@@ -8,8 +8,11 @@ import themisasi as ta
 import themisasi.plots as tap
 from pathlib import Path
 from matplotlib.pyplot import show
-import seaborn as sns
-sns.set_context('talk')
+try:
+    import seaborn as sns
+    sns.set_context('talk')
+except ImportError:
+    pass
 
 # %% user parameters
 datadir = Path('~/data/themis').expanduser()
