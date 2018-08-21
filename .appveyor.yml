@@ -19,7 +19,7 @@ install:
 - git clone https://github.com/scivision/cdflib
 - cd cdflib
 - pip install -e .
-- cd themisasi
+- cd ../themisasi
 
 - pip install -e .[tests]
 
