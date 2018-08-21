@@ -28,7 +28,11 @@ giving **azimuth and elevation** for each pixel.
    ```
 2. install this program
    ```sh
-   cd ../cdflib
+   cd ..
+   
+   git clone https://github.com/scivision/themisasi
+   
+   cd themisasi
    
    pip install -e .
    ```
