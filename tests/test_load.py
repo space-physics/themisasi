@@ -29,7 +29,6 @@ def test_download():
 
 
 def test_read():
-    pytest.importorskip('spacepy')
 
     data = tio.load(datfn)
 
@@ -49,7 +48,6 @@ def test_calread_idl():
 
 
 def test_calread_cdf():
-    pytest.importorskip('spacepy')
 
     cal2 = tio.loadcal(cal2fn)
 

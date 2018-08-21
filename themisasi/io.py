@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 """
 Read THEMIS GBO ASI data
-
-to setup spacepy, see  https://scivision.co/installing-spacepy-with-anaconda-python-3
-
-api ref: http://spacepy.lanl.gov/doc/autosummary/spacepy.pycdf.CDF.html
 """
 import logging
 from pathlib import Path
@@ -14,10 +10,7 @@ import re
 import numpy as np
 from dateutil.parser import parse
 from typing import List, Union
-try:
-    from spacepy import pycdf
-except ImportError:
-    pycdf = None
+import cdflib
 try:
     import h5py
 except ImportError:
@@ -35,8 +28,6 @@ except ImportError:
 def load(fn: Path,
          treq: Union[str, datetime, List[datetime]]=None,
          calfn: Path=None) -> xarray.Dataset:
-    if pycdf is None:
-        raise ImportError('need to setup SpacePy')
     """read THEMIS ASI camera data"""
 # %% filename handling
     fn = Path(fn).expanduser()
@@ -64,23 +55,23 @@ def load(fn: Path,
     else:
         raise TypeError(f'not sure what treq {treq} is')
 # %% time slice (assumes monotonically increasing time)
-    with pycdf.CDF(str(fn)) as f:
-        if fullthumb == 'f':
-            time = f[f'thg_{key}_{site}_epoch'][:]
-        elif fullthumb == 't':
-            time = np.array(list(map(datetime.utcfromtimestamp,
-                                     f[f'thg_{key}_{site}_time'][:])))
+    h = cdflib.CDF(fn)
+    if fullthumb == 'f':
+        time = h[f'thg_{key}_{site}_epoch'][:]
+    elif fullthumb == 't':
+        time = np.array(list(map(datetime.utcfromtimestamp,
+                                 h[f'thg_{key}_{site}_time'][:])))
 
-        if treq is None:
-            i = slice(None)
-        elif isinstance(treq, datetime):
-            i = slice(abs(time - treq).argmin())
-        elif len(treq) == 2:  # start, end
-            i = slice(abs(time - treq[0]).argmin(), abs(time - treq[1]).argmin())
-        else:
-            raise ValueError('for now, time req is single time or time range')
+    if treq is None:
+        i = slice(None)
+    elif isinstance(treq, datetime):
+        i = slice(abs(time - treq).argmin())
+    elif len(treq) == 2:  # start, end
+        i = slice(abs(time - treq[0]).argmin(), abs(time - treq[1]).argmin())
+    else:
+        raise ValueError('for now, time req is single time or time range')
 
-        imgs = f[f'thg_{key}_{site}'][i]
+    imgs = h[f'thg_{key}_{site}'][i]
 
     time = time[i]
     if len(time) == 0:
@@ -141,17 +132,15 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
         raise FileNotFoundError(f'calibration file not found: {fn}')
 
     if fn.suffix == '.cdf':
-        if pycdf is None:
-            raise ImportError('need to setup SpacePy')
         site = fn.name.split('_')[3]
-        with pycdf.CDF(str(fn)) as h:
-            az = h[f'thg_asf_{site}_azim'][0]
-            el = h[f'thg_asf_{site}_elev'][0]
-            lat = h[f'thg_asc_{site}_glat'][...]
-            lon = (h[f'thg_asc_{site}_glon'][...] + 180) % 360 - 180  # [0,360] -> [-180,180]
-            alt_m = h[f'thg_asc_{site}_alti'][...]
-            x = y = h[f'thg_asf_{site}_c256'][...]
-            time = datetime.utcfromtimestamp(h[f'thg_asf_{site}_time'][-1])
+        h = cdflib.CDF(fn)
+        az = h[f'thg_asf_{site}_azim'][0]
+        el = h[f'thg_asf_{site}_elev'][0]
+        lat = h[f'thg_asc_{site}_glat']
+        lon = (h[f'thg_asc_{site}_glon'] + 180) % 360 - 180  # [0,360] -> [-180,180]
+        alt_m = h[f'thg_asc_{site}_alti']
+        x = y = h[f'thg_asf_{site}_c256']
+        time = datetime.utcfromtimestamp(h[f'thg_asf_{site}_time'][-1])
     elif fn.suffix == '.sav':
         if readsav is None:
             raise ImportError('pip install scipy')

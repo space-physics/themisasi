@@ -20,34 +20,28 @@ giving **azimuth and elevation** for each pixel.
 
 ## Install
 
-Requires
-[SpacePy](https://scivision.co/installing-spacepy-with-anaconda-python-3/)
-to read CDF files (not NetCDF).
-If you have an easier way to read CDF vs. using SpacePy, we would be happy to know about it.
-This SpacePy setup script is primarily for Linux and Mac.
-
-For Microsoft Windows ONLY:
-1. install [Windows Subsystem for Linux](https://www.scivision.co/install-windows-subsystem-for-linux/)
-2. install [Anaconda Python on Windows Subsystem for Linux](https://www.scivision.co/anaconda-python-with-windows-subsystem-for-linux/)
-
-
-Mac, Linux, Windows Subsytem for Linux:
-
-0. Install a Fortran compiler and Curses library. 
-   This is because currently SpacePy requires FFnet, which does not currently have PyPi wheels and is not on `conda`.
-   * Mac: `brew install gcc ncurses`
-   * Linux: `apt install gfortran libncurses-dev`
-1. install SpacePy
+1. install `cdflib`, which only uses Numpy to read CDF:
    ```sh
-   python setup_spacepy.py
+   git clone https://github.com/scivision/cdflib
+   cd cdflib
+   pip install -e .
    ```
-2. Install Themis-ASI code and optional `fov` prereqs useful for merging and examing field of view (FOV)
+2. install this program
    ```sh
-   python -m pip install -e .[fov]
+   cd ../cdflib
+   
+   pip install -e .
    ```
+   
+You can test the basic functionality by from the top `cdflib` directory:
+```sh
+pytest
+```
 
-If you have trouble with SpacePy, see
-[SpacePy install notes](https://scivision.co/installing-spacepy-with-anaconda-python-3/).
+[optional] Install Themis-ASI code and optional `fov` prereqs useful for merging and examing field of view (FOV)
+```sh
+python -m pip install -e .[fov]
+```
 
 ## Usage
 One of the main ways analysts might use THEMIS-ASI data is by loading it into a 3-D array (time, x, y).
