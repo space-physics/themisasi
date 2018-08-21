@@ -14,7 +14,14 @@ build: off
 init:
 - cmd: set PATH=%PY_DIR%;%PY_DIR%\Scripts;%PATH%
 
-install: pip install -e .[tests]
+install: 
+- cd ..
+- git clone https://github.com/scivision/cdflib
+- cd cdflib
+- pip install -e .
+- cd $APPVEYOR_BUILD_FOLDER
+
+- pip install -e .[tests]
 
 test_script: pytest -rsv
 

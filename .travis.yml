@@ -11,7 +11,13 @@ python:
 os:
 - linux
 
-install: 
+install:
+- cd ..
+- git clone https://github.com/scivision/cdflib
+- cd cdflib
+- pip install -e .
+- cd $TRAVIS_BUILD_DIR
+
 - pip install -e .[tests]
 
 script:
