@@ -1,19 +1,13 @@
 from pathlib import Path
 import xarray
-import logging
 import numpy as np
 from datetime import datetime
-try:
-    from matplotlib.pyplot import figure, draw, pause
-    from matplotlib.colors import LogNorm
-except (ImportError, RuntimeError) as e:
-    logging.error(f'plotting skipped   {e}')
-    figure = None
+from matplotlib.pyplot import figure, draw, pause
+from matplotlib.colors import LogNorm
+import pymap3d as pm
 
 
 def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
-    if figure is None:
-        return
 
     fg, axs = plotazel(cam, ttxt)
 # %% plot line from other camera to magnetic zenith
@@ -40,8 +34,6 @@ def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
 
 
 def plotazel(data: xarray.Dataset, ttxt: str=''):
-    if figure is None:
-        return
 
     if 'az' not in data or 'el' not in data:
         return
@@ -70,8 +62,6 @@ def plotazel(data: xarray.Dataset, ttxt: str=''):
 
 
 def plottimeseries(data: np.ndarray, time: datetime, ttxt: str=''):
-    if figure is None:
-        return
 
     assert data.ndim == 2
 
@@ -91,9 +81,6 @@ def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
     ax: existing plot axis to overlay lines outlining FOV
     rows,cols: indices to plot
     """
-    if figure is None:
-        return
-
     if rows is None or cols is None:
         return
 
@@ -111,8 +98,6 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
     """
-    if figure is None:
-        return
 
     if data['imgs'].shape[0] == 0:
         return
@@ -149,3 +134,85 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
                 fg.savefig(fn, bbox_inches='tight', facecolor='k')
     except KeyboardInterrupt:
         return
+
+
+def plotasi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
+    if alt_km is None:
+        plotasi(dat, ofn)
+        return
+
+    if dat['imgs'].shape[0] == 0:
+        return
+
+    if ofn:
+        ofn = Path(ofn).expanduser()
+        odir = ofn.parent
+
+    srange = alt_km / np.sin(np.radians(dat.el.values))
+    lat, lon, alt = pm.aer2geodetic(dat.az.values, dat.el.values, srange,
+                                    dat.lat, dat.lon, dat.alt_km)
+
+    fg = figure()
+    ax = fg.gca()
+
+    hi = pcolormesh_nan(lon, lat, dat['imgs'][0], cmap='gray', axis=ax)  # priming
+
+    ttxt = f'Themis ASI {dat.site}  projected to altitude {alt_km} km\n'  # FOV vs. HST0,HST1: green,red '
+    ht = ax.set_title(ttxt, color='g')
+    ax.set_xlabel('longitude')
+    ax.set_ylabel('latitude')
+    ax.autoscale(True, tight=True)
+    ax.grid(False)
+# %% plot narrow FOV outline
+    if 'imgs2' in dat:
+        overlayrowcol(ax, dat.rows, dat.cols)
+# %% play video
+    try:
+        for im in dat['imgs']:
+            ts = im.time.values.astype(str)[:-6]
+            hi.set_data(im)
+            ht.set_text(ttxt + ts)
+            draw()
+            pause(0.01)
+            if ofn:
+                fn = odir / (ofn.stem + ts + ofn.suffix)
+                print('saving', fn, end='\r')
+                fg.savefig(fn, bbox_inches='tight', facecolor='k')
+    except KeyboardInterrupt:
+        return
+
+
+def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=None):
+    """handles NaN in x and y by smearing last valid value in column or row out,
+    which doesn't affect plot because "c" will be masked too
+    """
+
+    mask = np.isfinite(x) & np.isfinite(y)
+    top = None
+
+    for i, m in enumerate(mask):
+        good = m.nonzero()[0]
+
+        if good.size == 0:
+            continue
+        elif top is None:
+            top = i
+        else:
+            bottom = i
+
+        x[i, good[-1]:] = x[i, good[-1]]
+        y[i, good[-1]:] = y[i, good[-1]]
+
+        x[i, :good[0]] = x[i, good[0]]
+        y[i, :good[0]] = y[i, good[0]]
+
+    x[:top, :] = x[top, :].nanmax()
+    y[:top, :] = y[top, :].nanmax()
+
+    x[bottom:, :] = x[bottom, :].nanmax()
+    y[bottom:, :] = y[bottom, :].nanmax()
+
+    if axis is None:
+        axis = figure().gca()
+
+    axis.pcolormesh(x, y, np.ma.masked_where(~mask, c), cmap=cmap)
