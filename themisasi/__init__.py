@@ -4,7 +4,9 @@ from pathlib import Path
 import requests
 import logging
 import numpy as np
-from typing import List, Union
+from typing import Sequence, Union
+
+URL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
 
 
 def urlretrieve(url: str, fn: Path, overwrite: bool=False):
@@ -23,12 +25,15 @@ def urlretrieve(url: str, fn: Path, overwrite: bool=False):
         f.write(R.content)
 
 
-def download(treq: List[Union[str, datetime]], host: str, site: str, odir: Path, overwrite: bool=False):
+def download(treq: Sequence[Union[str, datetime]], site: str, odir: Path, overwrite: bool=False, host: str=URL):
     """
     startend: tuple of datetime
     year,month,day: integer
     hour, minute:  start,stop integer len == 2
     """
+    if not host:
+        raise ValueError(f'Must specify download host, e.g. {URL}')
+
 # %% sanity checks
     odir = Path(odir).expanduser().resolve()
     if not odir.is_dir():

@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 def main():
     p = ArgumentParser()
-    p.add_argument('startend', help='start/end times UTC e.g. 2012-11-03T06:23 2012-11-03T06:24', nargs=2)
+    p.add_argument('startend', help='start/end times UTC e.g. 2012-11-03T06:23 2012-11-03T06:24', nargs='+')
     p.add_argument('site', help='fykn gako etc.')
     p.add_argument('odir', help='directory to write downloaded CDF to')
     p.add_argument('-overwrite', help='overwrite existing files', action='store_true')
@@ -17,7 +17,7 @@ def main():
 
     p = p.parse_args()
 
-    ta.download(p.startend, p.host, p.site, p.odir, p.overwrite)
+    ta.download(p.startend, p.site, p.odir, p.overwrite, p.host)
 
 
 if __name__ == '__main__':

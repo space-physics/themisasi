@@ -95,6 +95,13 @@ February 4, 2012, 8 UT Fort Yukon
 With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
 For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.
 
+You can optionally download from within Python:
+```python
+import themisasi as ta
+
+ta.download('2012-03-12T12', 'fykn', '/tmp')
+```
+
 
 ### Video Playback / PNG conversion
 
