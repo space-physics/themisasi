@@ -22,18 +22,10 @@ giving **azimuth and elevation** for each pixel.
 
 1. install `cdflib`, which only uses Numpy to read CDF:
    ```sh
-   git clone https://github.com/scivision/cdflib
-   cd cdflib
-   pip install -e .
+   pip install -r requirements.txt
    ```
 2. install this program
    ```sh
-   cd ..
-   
-   git clone https://github.com/scivision/themisasi
-   
-   cd themisasi
-   
    pip install -e .
    ```
    
@@ -93,7 +85,7 @@ February 4, 2012, 8 UT Fort Yukon
    ```
    
 With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
-For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.
+For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.https://github.com/dib-lab/khmer/pull/1430
 
 You can optionally download from within Python:
 ```python
