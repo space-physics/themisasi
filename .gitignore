@@ -1,3 +1,5 @@
+.eggs/
+src/
 .mypy_cache/
 .pytest_cache/
 

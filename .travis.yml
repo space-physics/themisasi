@@ -12,11 +12,8 @@ os:
 - linux
 
 install:
-- cd ..
-- git clone https://github.com/scivision/cdflib
-- cd cdflib
-- pip install -e .
-- cd $TRAVIS_BUILD_DIR
+# temp workaround while waiting for PR
+- pip install -r requirements.txt
 
 - pip install -e .[tests]
 
