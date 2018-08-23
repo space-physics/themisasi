@@ -29,7 +29,7 @@ def test_download():
 
 
 def test_read():
-
+    pytest.importorskip('cdflib')
     data = tio.load(datfn)
 
     assert data['imgs'].site == 'gako'
@@ -48,7 +48,7 @@ def test_calread_idl():
 
 
 def test_calread_cdf():
-
+    pytest.importorskip('cdflib')
     cal2 = tio.loadcal(cal2fn)
 
     assert cal2['el'][29, 161] == approx(19.132568)
@@ -57,4 +57,4 @@ def test_calread_cdf():
 
 
 if __name__ == '__main__':
-    pytest.main(['-x', __file__])
+    pytest.main(['-xrsv', __file__])

@@ -27,9 +27,11 @@ def urlretrieve(url: str, fn: Path, overwrite: bool=False):
 
 def download(treq: Sequence[Union[str, datetime]], site: str, odir: Path, overwrite: bool=False, host: str=URL):
     """
-    startend: tuple of datetime
-    year,month,day: integer
-    hour, minute:  start,stop integer len == 2
+    treq: time request e.g. '2012-02-01T03' or a time range ['2012-02-01T03', '2012-02-01T05']
+    site: camera site e.g. gako, fykn
+    odir: output directory e.g. ~/data
+    overwrite: overwrite existing files--normally wasteful of download space, unless you had a corrupted download.
+    host: website hosting files
     """
     if not host:
         raise ValueError(f'Must specify download host, e.g. {URL}')
