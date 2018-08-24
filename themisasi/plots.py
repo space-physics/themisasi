@@ -206,11 +206,11 @@ def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=
         x[i, :good[0]] = x[i, good[0]]
         y[i, :good[0]] = y[i, good[0]]
 
-    x[:top, :] = x[top, :].nanmax()
-    y[:top, :] = y[top, :].nanmax()
+    x[:top, :] = np.nanmax(x[top, :])
+    y[:top, :] = np.nanmax(y[top, :])
 
-    x[bottom:, :] = x[bottom, :].nanmax()
-    y[bottom:, :] = y[bottom, :].nanmax()
+    x[bottom:, :] = np.nanmax(x[bottom, :])
+    y[bottom:, :] = np.nanmax(y[bottom, :])
 
     if axis is None:
         axis = figure().gca()
