@@ -10,10 +10,7 @@ import themisasi.plots as tap
 import themisasi.fov as taf
 import themisasi.io as tio
 import dascutils.io as dio
-try:
-    from matplotlib.pyplot import show
-except (ImportError, RuntimeError):
-    show = None
+from matplotlib.pyplot import show
 
 
 def main():
@@ -30,9 +27,6 @@ def main():
     # paint HiST field of view onto Themis
     themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='perimeter')
 # %% plot joint az/el contours
-    if show is None:
-        return
-
     tap.jointazel(themis, P.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
 
     show()

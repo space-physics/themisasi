@@ -24,6 +24,8 @@ try:
 except ImportError:
     readsav = None
 
+Epoch = cdflib.cdfepoch()
+
 
 def load(fn: Path,
          treq: Union[str, datetime, List[datetime]]=None,
@@ -57,7 +59,7 @@ def load(fn: Path,
 # %% time slice (assumes monotonically increasing time)
     h = cdflib.CDF(fn)
     if fullthumb == 'f':
-        time = h[f'thg_{key}_{site}_epoch'][:]
+        time = Epoch.to_datetime(h[f'thg_{key}_{site}_epoch'][:], to_np=True)
     elif fullthumb == 't':
         time = np.array(list(map(datetime.utcfromtimestamp,
                                  h[f'thg_{key}_{site}_time'][:])))
@@ -65,16 +67,23 @@ def load(fn: Path,
     if treq is None:
         i = slice(None)
     elif isinstance(treq, datetime):
-        i = slice(abs(time - treq).argmin())
+        i = abs(time - treq).argmin()
+    elif len(treq) == 1:
+        i = abs(time - treq[0]).argmin()
     elif len(treq) == 2:  # start, end
-        i = slice(abs(time - treq[0]).argmin(), abs(time - treq[1]).argmin())
+        i = slice(abs(time - treq[0]).argmin(),
+                  abs(time - treq[1]).argmin())
     else:
         raise ValueError('for now, time req is single time or time range')
 
     imgs = h[f'thg_{key}_{site}'][i]
+    if imgs.ndim == 2:
+        imgs = imgs[None, ...]
 
     time = time[i]
-    if len(time) == 0:
+    if isinstance(time, datetime):
+        time = [time]
+    elif len(time) == 0:
         logging.error(f'no times were found with requested time bounds {treq}')
 # %% collect output
     imgs = xarray.DataArray(imgs, {'time': time}, ['time', 'y', 'x'],

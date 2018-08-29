@@ -123,7 +123,7 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
 # %% play video
     try:
         for im in data['imgs']:
-            ts = im.time.values.astype(str)[:-6]
+            ts = str(im.time.astype('datetime64[us]').astype(datetime))
             hi.set_data(im)
             ht.set_text(ttxt + ts)
             draw()
@@ -136,7 +136,10 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
         return
 
 
-def plotasi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
+def asi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
+    """
+    plots ASI projected to altitude
+    """
     if alt_km is None:
         plotasi(dat, ofn)
         return
@@ -182,6 +185,41 @@ def plotasi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
         return
 
 
+def asi_radec(dat: xarray.Dataset, ofn: Path=None):
+    """
+    plots ASI projected to altitude
+    """
+
+    if dat['imgs'].shape[0] == 0:
+        return
+
+    if ofn:
+        ofn = Path(ofn).expanduser()
+
+    az = dat.az.values
+    el = dat.el.values
+    az.setflags(write=True)
+    el.setflags(write=True)
+
+    bad = el < 10  # low to horizon, calibration is very bad
+    az[bad] = np.nan
+    el[bad] = np.nan
+
+    ra, dec = pm.azel2radec(az, el, dat.lat, dat.lon, dat.time)
+
+    fg = figure()
+    ax = fg.gca()
+
+    pcolormesh_nan(ra, dec, dat['imgs'].values[0], cmap='gray', axis=ax)  # priming
+
+    ttxt = f'Themis ASI {dat.site}  \n'
+    ax.set_title(ttxt, color='g')
+    ax.set_xlabel('right ascension [deg]')
+    ax.set_ylabel('declination [deg]')
+    ax.autoscale(True, tight=True)
+    ax.grid(False)
+
+
 def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=None):
     """handles NaN in x and y by smearing last valid value in column or row out,
     which doesn't affect plot because "c" will be masked too
@@ -206,13 +244,13 @@ def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=
         x[i, :good[0]] = x[i, good[0]]
         y[i, :good[0]] = y[i, good[0]]
 
-    x[:top, :] = np.nanmax(x[top, :])
-    y[:top, :] = np.nanmax(y[top, :])
+    x[:top, :] = np.nanmean(x[top, :])
+    y[:top, :] = np.nanmean(y[top, :])
 
-    x[bottom:, :] = np.nanmax(x[bottom, :])
-    y[bottom:, :] = np.nanmax(y[bottom, :])
+    x[bottom:, :] = np.nanmean(x[bottom, :])
+    y[bottom:, :] = np.nanmean(y[bottom, :])
 
     if axis is None:
         axis = figure().gca()
 
-    axis.pcolormesh(x, y, np.ma.masked_where(~mask, c), cmap=cmap)
+    return axis.pcolormesh(x, y, np.ma.masked_where(~mask, c), cmap=cmap)
