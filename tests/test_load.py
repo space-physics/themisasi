@@ -31,6 +31,13 @@ def test_read():
     assert data['imgs'].site == 'gako'
     assert data['imgs'].shape == (23, 256, 256) and data['imgs'].dtype == 'uint16'
 
+    with pytest.raises(ValueError):
+        ta.load(datfn, calfn=cal1fn)
+
+    data = ta.load(datfn, calfn=cal2fn)
+    assert 'az' in data and 'el' in data
+    assert data['az'].shape == data['imgs'].shape[1:]
+
 
 def test_read_timereq():
     dat = ta.load(datfn)

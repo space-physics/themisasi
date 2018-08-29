@@ -184,7 +184,7 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
             raise ImportError('pip install scipy')
 
         site = fn.name.split('_')[2]
-        h = readsav(fn, verbose=False)
+        h = readsav(fn, python_dict=True, verbose=False)
         az = h['skymap']['full_azimuth'][0]
         el = h['skymap']['full_elevation'][0]
         lat = h['skymap']['site_map_latitude'].item()
@@ -192,6 +192,8 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
         alt_m = h['skymap']['site_map_altitude'].item()
         x = h['skymap']['full_column'][0][0, :]
         y = h['skymap']['full_row'][0][:, 0]
+        tstr = h['skymap']['generation_info'][0][0][2]
+        time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
     elif fn.suffix == '.h5':
         if h5py is None:
             raise ImportError('pip install h5py')
