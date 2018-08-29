@@ -5,6 +5,7 @@ import requests
 import logging
 import numpy as np
 from typing import Sequence, Union
+from .io import load, loadcal  # noqa: F401
 
 URL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
 
