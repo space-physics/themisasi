@@ -11,6 +11,7 @@ from typing import Tuple, Sequence, Union
 import numpy as np
 from dateutil.parser import parse
 import cdflib
+import scipy.io
 try:
     import h5py
 except ImportError:
@@ -19,10 +20,7 @@ try:
     from netCDF4 import Dataset
 except ImportError:
     Dataset = None
-try:
-    from scipy.io import readsav
-except ImportError:
-    readsav = None
+
 
 Epoch = cdflib.cdfepoch()
 
@@ -180,11 +178,8 @@ def loadcal(fn: Path, imgs: xarray.Dataset=None) -> xarray.Dataset:
         x = y = h[f'thg_asf_{site}_c256']
         time = datetime.utcfromtimestamp(h[f'thg_asf_{site}_time'][-1])
     elif fn.suffix == '.sav':
-        if readsav is None:
-            raise ImportError('pip install scipy')
-
         site = fn.name.split('_')[2]
-        h = readsav(fn, python_dict=True, verbose=False)
+        h = scipy.io.readsav(fn, python_dict=True, verbose=False)
         az = h['skymap']['full_azimuth'][0]
         el = h['skymap']['full_elevation'][0]
         lat = h['skymap']['site_map_latitude'].item()

@@ -67,7 +67,6 @@ def test_read_timereq():
 
 @pytest.mark.filterwarnings('ignore:Not able to verify number of bytes from header')
 def test_calread_idl():
-    pytest.importorskip('scipy')
 
     cal1 = ta.loadcal(cal1fn)
 
