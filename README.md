@@ -28,26 +28,26 @@ giving **azimuth and elevation** for each pixel.
    ```sh
    pip install -e .
    ```
-   
+
 You can test the basic functionality by from the top `cdflib` directory:
 ```sh
 pytest
 ```
 
-[optional] Install Themis-ASI code and optional `fov` prereqs useful for merging and examing field of view (FOV)
-```sh
-python -m pip install -e .[fov]
-```
-
 ## Usage
 One of the main ways analysts might use THEMIS-ASI data is by loading it into a 3-D array (time, x, y).
 
+### Single time
+This example is where the ASI video files are in `~/data/themis`, and the Gakona site is selected at the time shown.
 ```python
-import themisasi.io as tio
+import themisasi as ta
 
-dat = tio.load('~/data/thg_l1_asf_fykn_2013041408_v01.cdf')
+dat = ta.load('~/data/themis', site='gako', treq='2011-01-06T17:00:03')
 ```
-THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html), 
+This returns the camera image from Gakona camera closest to the requested time, and the 'az', 'el' calibration data, if available.
+
+
+THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
 which is used throughout geosciences and astronomy as a "smart" Numpy array.
 The simple image data stack is obtained by:
 ```python
@@ -57,19 +57,25 @@ imgs = dat['imgs']
 `dat.time` contains the approximate time of each image (consider the finite exposure time).
 `dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
 
+### Image + Azimuth, Elevation
 Loading calibration data gives azimuth, elevation for each pixel and lat, lon of each camera.
 ```python
-import themisasi.io as tio
+import themisasi as ta
 
-dat = tio.load(fn='~/data/thg_l1_asf_fykn_2013041408_v01.cdf', 
-               calfn='~/data/themis_skymap_fykn_20061014.sav')
+dat = ta.load('~/data/themis', site='gako', treq='2011-01-06T17:00:03')
 ```
-now `dat` contains several more variables and metadata.
+If an appropriate calibration file exists, `dat` additionally contains 'az', 'el', 'lat', 'lon' and so on to allow using data for multi-camera analyses.
+Convert azimuth/elevation to ra/dec using
+[pymap3d](https://github.com/scivision/pymap3d).
+
 
 ### Download, Read and Plot THEMIS ASI Data
 
-1. Get video data from Themis all-sky imager [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
-2. [optional] find [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/) if you want projected lat/lon for each pixel.
+1. Get video data from Themis all-sky imager
+   [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
+2. (optional) find
+   [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
+   if you want projected lat/lon for each pixel.
    These files are named `*asc*.cdf` or `*skymap*.sav`.
 
 February 4, 2012, 8 UT Fort Yukon
@@ -83,7 +89,7 @@ February 4, 2012, 8 UT Fort Yukon
    ```sh
    PlotThemis ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
    ```
-   
+
 With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
 For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.https://github.com/dib-lab/khmer/pull/1430
 
@@ -102,7 +108,7 @@ This example plays the video content.
 Use the `-o` option to dump the frames to individual PNGs for easier back-and-forth viewing.
 The calibration file (second filename) is optional.
 ```sh
-PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
+PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 ```
 
 ### Plot time series of pixel(s)
@@ -112,13 +118,13 @@ The pixels can be specified by (azimuth, elevation) or (lat, lon, projection alt
 
 Azimuth / Elevation:
 ```sh
-PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf tests/thg_l2_asc_fykn_19700101_v01.cdf -az 65 70 -el 48 68
+PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf -az 65 70 -el 48 68
 ```
 
 Latitude, Longitude, Projection Altitude [kilometers]:
 Typically the brightest aurora is in the 100-110 km altitude range, so a common approximate is to assume "all" of the brightness comes from a single altitude in this region.
 ```sh
-PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf tests/thg_l2_asc_fykn_19700101_v01.cdf -lla 65 -145 100.
+PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf -lla 65 -145 100.
 ```
 
 ## Notes

@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pytest import approx
 import themisasi as ta
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import tempfile
 #
 R = Path(__file__).parent
@@ -17,7 +17,7 @@ assert cal1fn.is_file()
 assert cal2fn.is_file()
 
 
-def test_read():
+def test_filename():
     with tempfile.NamedTemporaryFile() as f:
         bfn = f.name
         with pytest.raises(OSError):
@@ -31,6 +31,9 @@ def test_read():
     assert data['imgs'].site == 'gako'
     assert data['imgs'].shape == (23, 256, 256) and data['imgs'].dtype == 'uint16'
 
+
+def test_filename_calname():
+
     with pytest.raises(ValueError):
         ta.load(datfn, calfn=cal1fn)
 
@@ -39,48 +42,81 @@ def test_read():
     assert data['az'].shape == data['imgs'].shape[1:]
 
 
-def test_read_timereq():
+def test_site():
+    # %% load by filename
     dat = ta.load(datfn)
     times = dat.time.values
 
     assert (times >= datetime(2011, 1, 6, 17)).all()
     assert (times <= datetime(2011, 1, 6, 18)).all()
-# %% bad time requests
-    with pytest.raises(TypeError):
-        dat = ta.load(datfn, 1)
-
-    with pytest.raises(ValueError):
-        dat = ta.load(datfn, '2011-01-06T16:59:59')
-
-    with pytest.raises(ValueError):
-        dat = ta.load(datfn, '2011-01-06T18:00:01')
-# %% good time requests
-    dat = ta.load(datfn, '2011-01-06T17:00:12')
+# %% load by site/time
+    dat = ta.load(R, 'gako', '2011-01-06T17:00:00')
     assert dat['imgs'].shape[0] == 1
     time = dat.time.values.astype('datetime64[us]').astype(datetime)
-    assert time - datetime(2011, 1, 6, 17, 0, 12) < timedelta(seconds=0.02)
+    assert abs(time - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
 
-    dat = ta.load(datfn, ('2011-01-06T17:00:00', '2011-01-06T17:00:12'))
+    dat = ta.load(R, 'gako', treq=('2011-01-06T17:00:00', '2011-01-06T17:00:12'))
+    assert dat['imgs'].shape[0] == 4
+    times = dat.time.values.astype('datetime64[us]').astype(datetime)
+    assert (times >= datetime(2011, 1, 6, 17)).all()
+    assert (times <= datetime(2011, 1, 6, 17, 0, 12)).all()
+
+    ta.load(R, 'gako', treq=('2011-01-06T16:59:59', '2011-01-06T17:00:12'))
+    assert dat['imgs'].shape[0] == 4
+    times = dat.time.values.astype('datetime64[us]').astype(datetime)
+    assert (times >= datetime(2011, 1, 6, 17)).all()
+    assert (times <= datetime(2011, 1, 6, 17, 0, 12)).all()
+
+
+def test_bad_time():
+    with pytest.raises(TypeError):
+        ta.load(datfn, treq=1)
+
+    with pytest.raises(ValueError):
+        ta.load(datfn, treq='2011-01-06T16:59:59')
+
+    with pytest.raises(ValueError):
+        ta.load(datfn, treq='2011-01-06T18:00:01')
+
+    with pytest.raises(FileNotFoundError):
+        ta.load(R, 'gako', treq='2010-01-01')
+
+    with pytest.raises(FileNotFoundError):
+        ta.load(R, 'gako', treq=('2010-01-01', '2010-01-01T01'))
+
+
+def test_good_time():
+    dat = ta.load(datfn, treq='2011-01-06T17:00:12')
+    assert dat['imgs'].shape[0] == 1
+    time = dat.time.values.astype('datetime64[us]').astype(datetime)
+    assert abs(time - datetime(2011, 1, 6, 17, 0, 12)) < timedelta(seconds=0.02)
+
+    dat = ta.load(datfn, treq=('2011-01-06T17:00:00', '2011-01-06T17:00:12'))
     assert dat['imgs'].shape[0] == 4
     time = dat.time.values.astype('datetime64[us]').astype(datetime)
 
 
-@pytest.mark.filterwarnings('ignore:Not able to verify number of bytes from header')
 def test_calread_idl():
 
-    cal1 = ta.loadcal(cal1fn)
+    cal = ta.loadcal(cal1fn)
 
-    assert cal1['el'][29, 161] == approx(15.458)
-    assert cal1['az'][29, 161] == approx(1.6255488)
-    assert cal1.lon == approx(-145.16)
+    assert cal['el'][29, 161] == approx(15.458)
+    assert cal['az'][29, 161] == approx(1.6255488)
+    assert cal.lon == approx(-145.16)
 
 
 def test_calread_cdf():
-    cal2 = ta.loadcal(cal2fn)
+    cal = ta.loadcal(cal2fn)
 
-    assert cal2['el'][29, 161] == approx(19.132568)
-    assert cal2['az'][29, 161] == approx(183.81241)
-    assert cal2.lon == approx(-145.16)
+    assert cal['el'][29, 161] == approx(19.132568)
+    assert cal['az'][29, 161] == approx(183.81241)
+    assert cal.lon == approx(-145.16)
+
+
+def test_calread_sitedate():
+
+    cal = ta.loadcal(R, 'gako', '2011-01-06')
+    assert cal.caltime.date() == date(2007, 2, 2)
 
 
 if __name__ == '__main__':

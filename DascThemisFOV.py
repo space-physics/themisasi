@@ -8,7 +8,7 @@ UAF DASC FOV overlaid on THEMIS GBO ASI FOV
 from argparse import ArgumentParser
 import themisasi.plots as tap
 import themisasi.fov as taf
-import themisasi.io as tio
+import themisasi as ta
 import dascutils.io as dio
 from matplotlib.pyplot import show
 
@@ -21,7 +21,7 @@ def main():
     P = p.parse_args()
 
 # %% load data
-    themis = tio.loadcal(P.themiscal)
+    themis = ta.loadcal(P.themiscal)
     dasc = dio.load(*P.dasccal)
 # %% merge FOV
     # paint HiST field of view onto Themis

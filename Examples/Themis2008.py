@@ -27,9 +27,9 @@ odir = None
 
 asical = datadir / 'themis_skymap_gako_20070401.sav'
 # %% load data, with calibration az/el
-data0 = ta.load(datadir / asifn[0], treq[0], asical)
-data1 = ta.load(datadir / asifn[0], treq[1], asical)
-data2 = ta.load(datadir / asifn[1], treq[2], asical)
+data0 = ta.load(datadir / asifn[0], treq=treq[0], calfn=asical)
+data1 = ta.load(datadir / asifn[0], treq=treq[1], calfn=asical)
+data2 = ta.load(datadir / asifn[1], treq=treq[2], calfn=asical)
 # %% plot
 tap.plotasi(data0)
 tap.plotasi(data1)

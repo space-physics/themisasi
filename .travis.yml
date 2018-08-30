@@ -21,7 +21,7 @@ install:
 script:
 - pytest -rsv
 - if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then flake8; fi
-- if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then mypy . --ignore-missing-imports; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then mypy . --ignore-missing-imports  --no-strict-optional; fi
 
 after_success:
 - if [[ $TRAVIS_PYTHON_VERSION == 3.6* ]]; then

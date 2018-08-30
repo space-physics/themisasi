@@ -15,7 +15,7 @@ DASC exposure: 1 sec.
 from argparse import ArgumentParser
 import numpy as np
 import themisasi.fov as taf
-import themisasi.io as tio
+import themisasi as ta
 import themisasi.plots as tap
 import dascutils.io as dio
 try:
@@ -33,7 +33,7 @@ def main():
     P = p.parse_args()
 
 # %% load az/el data
-    themis = tio.loadcal(P.themiscal)
+    themis = ta.loadcal(P.themiscal)
     if themis.site == 'gako':
         themis.attrs['Baz'] = 21.028
         themis.attrs['Bel'] = 75.816

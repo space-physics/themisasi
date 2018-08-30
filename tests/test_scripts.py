@@ -4,27 +4,27 @@ import subprocess
 from pathlib import Path
 
 R = Path(__file__).parent
-datfn = R / 'thg_l1_ast_gako_20110505_v01.cdf'
-calfn = R / 'thg_l2_asc_gako_19700101_v01.cdf'
 
 
 def test_video():
     pytest.importorskip('matplotlib')
-    subprocess.check_call(['PlotThemis', str(datfn), str(calfn),
-                           '--treq', '2011-05-05T09:47:00', '2011-05-05T09:47:10'])
+    subprocess.check_call(['PlotThemis', str(R), 'gako',
+                           '2011-01-06T17:00:03'])
 
 
 def test_pixels_azel():
     pytest.importorskip('histutils')
     pytest.importorskip('matplotlib')
-    subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
+    subprocess.check_call(['PlotThemisPixels', str(R), 'gako',
+                           '2011-01-06T17:00:00', '2011-01-06T17:00:06',
                            '-az', '65', '70', '-el', '48', '68'])
 
 
 def test_pixels_latlon():
     pytest.importorskip('histutils')
     pytest.importorskip('matplotlib')
-    subprocess.check_call(['PlotThemisPixels', str(datfn), str(calfn),
+    subprocess.check_call(['PlotThemisPixels', str(R), 'gako',
+                           '2011-01-06T17:00:00', '2011-01-06T17:00:06',
                            '-lla', '68', '-145', '100.'])
 
 
