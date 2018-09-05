@@ -1,1 +1,3 @@
 include LICENSE
+recursive-include tests *.py
+recursive-include Examples *.py
