@@ -2,7 +2,7 @@
 """
 Plot THEMIS ASI in RA, DEC projection
 
-ThemisRadec ~/data/2012-11-03/thg_l1_asf_gako_2012110306_v01.cdf ~/data/themis/themis_skymap_gako_20070401.sav -t 2012-11-03T06:30
+ThemisRadec ~/data/2012-11-03/ gako 2012-11-03T06:30 ~/data/themis
 """
 from argparse import ArgumentParser
 import themisasi.io as tio
@@ -13,12 +13,12 @@ def main():
     p = ArgumentParser(description=' reads THEMIS GBO ASI CDF files and plays high speed video')
     p.add_argument('path', help='Themis ASI image file directory')
     p.add_argument('site', help='4 character site name e.g. gako')
-    p.add_argumetn('treq', help='time or time range to load')
-    p.add_argument('-t', '--treq', help='time requested', nargs='+')
-    p.add_argument('-o', '--odir', help='write video to this directory')
+    p.add_argument('treq', help='time or time range to load', nargs='+')
+    p.add_argument('-c', '--calpath', help='path to calibration files', nargs='?')
+    p.add_argument('-o', '--odir', help='output directory to write plots')
     P = p.parse_args()
 
-    imgs = tio.load(P.path, site=P.site, treq=P.treq)
+    imgs = tio.load(P.path, site=P.site, treq=P.treq, calfn=P.calpath)
 # %% plot
     tap.asi_radec(imgs, P.odir)
 

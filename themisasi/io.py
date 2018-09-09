@@ -40,7 +40,7 @@ def load(path: Path,
 
     cal = None
     if calfn:
-        cal = loadcal(calfn)
+        cal = loadcal(calfn, site, treq)
     else:
         try:
             cal = loadcal(path, site, treq)
@@ -231,8 +231,24 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
         alt_m = h['skymap']['site_map_altitude'].item()
         x = h['skymap']['full_column'][0][0, :]
         y = h['skymap']['full_row'][0][:, 0]
-        tstr = h['skymap']['generation_info'][0][0][2]
-        time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
+        try:
+            tstr = h['skymap']['generation_info'][0][0][2]
+            time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
+        except (KeyError, ValueError):
+            if h['skymap']['site_unix_time'] > 0:
+                tutc = h['skymap']['site_unix_time']
+            elif h['skymap']['imager_unix_time'] > 0:
+                tutc = h['skymap']['imager_unix_time']
+            else:
+                tutc = None
+
+            if tutc is not None:
+                time = datetime.utcfromtimestamp(tutc)
+            else:  # last resort
+                time = datetime(int(fn.name[19:23]),
+                                int(fn.name[23:25]),
+                                int(fn.name[25:27]))
+
     elif fn.suffix == '.h5':
         if h5py is None:
             raise ImportError('pip install h5py')
@@ -264,7 +280,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
                           'el': (('y', 'x'), el)},
                          coords={'y': y, 'x': x},
                          attrs={'lat': lat, 'lon': lon, 'alt_m': alt_m,
-                                'site': site, 'filename': fn.name,
+                                'site': site, 'calfilename': fn.name,
                                 'caltime': time})
 
     return cal
@@ -307,29 +323,29 @@ def _findcal(path: Path, site: str, time: datetime) -> Path:
     if not isinstance(time, datetime):
         raise TypeError(f'must specify single datetime, you gave:  {time}')
 # %% CDF .cdf
-    fcdf = sorted(path.glob(f'thg_l2_asc_{site}_*.cdf'))
+    fcdf = list(path.glob(f'thg_l2_asc_{site}_*.cdf'))
     dates = [loadcal(fn).caltime for fn in fcdf]
 
     datecdf = None
     if dates:
-        for i, date in enumerate(dates[::-1]):
+        for i, date in enumerate(dates):
             if date < time:
                 break
         if date < time:
             datecdf = date
-            icdf = len(fcdf) - (i+1)
+            icdf = len(dates) - (i+1)
 # %% IDL .sav
-    fsav = sorted(path.glob(f'themis_skymap_{site}_*.sav'))
+    fsav = list(path.glob(f'themis_skymap_{site}_*.sav'))
     dates = [loadcal(fn).caltime for fn in fsav]
 
     datesav = None
     if dates:
-        for i, date in enumerate(dates[::-1]):
+        for i, date in enumerate(dates):
             if date < time:
                 break
         if date < time:
             datesav = date
-            isav = len(fsav) - (i+1)
+            isav = len(dates) - (i+1)
 
 # %% get result
     if not dates:
