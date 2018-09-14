@@ -65,7 +65,7 @@ def test_nonexisting():
         except requests.exceptions.ConnectionError:
             pytest.xfail('bad internet connection')
 
-        assert len(w) == 1  # 1 warning for bad time
+        assert len(w) in (1, 2)
 
 
 if __name__ == '__main__':
