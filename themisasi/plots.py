@@ -7,7 +7,7 @@ from matplotlib.colors import LogNorm
 import pymap3d as pm
 
 
-def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
+def jointazel(cam: xarray.Dataset, ofn: Path = None, ttxt: str = ''):
 
     fg, axs = plotazel(cam, ttxt)
 # %% plot line from other camera to magnetic zenith
@@ -33,7 +33,7 @@ def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
         a.legend()
 
 
-def plotazel(data: xarray.Dataset, ttxt: str=''):
+def plotazel(data: xarray.Dataset, ttxt: str = ''):
 
     if 'az' not in data or 'el' not in data:
         return
@@ -61,7 +61,7 @@ def plotazel(data: xarray.Dataset, ttxt: str=''):
     return fg, ax
 
 
-def plottimeseries(data: np.ndarray, time: datetime, ttxt: str=''):
+def plottimeseries(data: np.ndarray, time: datetime, ttxt: str = ''):
 
     assert data.ndim == 2
 
@@ -73,7 +73,7 @@ def plottimeseries(data: np.ndarray, time: datetime, ttxt: str=''):
     ax.set_title(ttxt)
 
 
-def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
+def overlayrowcol(ax, rows, cols, color: str = None, label: str = None):
     """
     plot FOV outline onto image via the existing axis "ax"
 
@@ -93,7 +93,7 @@ def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
 # %%
 
 
-def plotasi(data: xarray.Dataset, ofn: Path=None):
+def plotasi(data: xarray.Dataset, ofn: Path = None):
     """
     rows,cols expect lines to be along rows Nlines x len(line)
     list of 1-D arrays or 2-D array
@@ -136,7 +136,7 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
         return
 
 
-def asi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
+def asi_projection(dat: xarray.Dataset, alt_km: float = None, ofn: Path = None):
     """
     plots ASI projected to altitude
     """
@@ -185,7 +185,7 @@ def asi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
         return
 
 
-def asi_radec(dat: xarray.Dataset, ofn: Path=None):
+def asi_radec(dat: xarray.Dataset, ofn: Path = None):
     """
     plots ASI projected to altitude
     """

@@ -121,7 +121,7 @@ def sky2beam(anglesep_deg, Ncol: int):
     return np.polyval(polycoeff, col), MagZenInd
 
 
-def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float=110e3, method: str=None):
+def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str = None):
     """
     inputs:
     -------
@@ -186,7 +186,7 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float=110e3, metho
     return w0, w1
 
 
-def pixelmask(data: xarray.Dataset, method: str=None) -> xarray.Dataset:
+def pixelmask(data: xarray.Dataset, method: str = None) -> xarray.Dataset:
     """
     Use list because image may not be square
 

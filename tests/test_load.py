@@ -55,6 +55,11 @@ def test_site():
     time = dat.time.values.astype('datetime64[us]').astype(datetime)
     assert abs(time - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
 
+    dat = ta.load(R, 'gako', datetime(2011, 1, 6, 17))
+    assert dat['imgs'].shape[0] == 1
+    time = dat.time.values.astype('datetime64[us]').astype(datetime)
+    assert abs(time - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
+
     dat = ta.load(R, 'gako', treq=('2011-01-06T17:00:00', '2011-01-06T17:00:12'))
     assert dat['imgs'].shape[0] == 4
     times = dat.time.values.astype('datetime64[us]').astype(datetime)
