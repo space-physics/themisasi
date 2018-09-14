@@ -322,31 +322,31 @@ def _findcal(path: Path, site: str, time: datetime) -> Path:
         raise TypeError(f'must specify single datetime, you gave:  {time}')
 # %% CDF .cdf
     fcdf = list(path.glob(f'thg_l2_asc_{site}_*.cdf'))
-    dates = [loadcal(fn).caltime for fn in fcdf]
+    cdates = [loadcal(fn).caltime for fn in fcdf]
 
     datecdf = None
-    if dates:
-        for i, date in enumerate(dates):
+    if cdates:
+        for i, date in enumerate(cdates):
             if date < time:
                 break
         if date < time:
             datecdf = date
-            icdf = len(dates) - (i+1)
+            icdf = len(cdates) - (i+1)
 # %% IDL .sav
     fsav = list(path.glob(f'themis_skymap_{site}_*.sav'))
-    dates = [loadcal(fn).caltime for fn in fsav]
+    sdates = [loadcal(fn).caltime for fn in fsav]
 
     datesav = None
-    if dates:
-        for i, date in enumerate(dates):
+    if sdates:
+        for i, date in enumerate(sdates):
             if date < time:
                 break
         if date < time:
             datesav = date
-            isav = len(dates) - (i+1)
+            isav = len(sdates) - (i+1)
 
 # %% get result
-    if not dates:
+    if not sdates and not cdates:
         raise FileNotFoundError(f'could not find cal file for {site} {time}  in {path}')
     elif datecdf is None:
         return fsav[isav]
