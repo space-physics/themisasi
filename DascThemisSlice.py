@@ -18,10 +18,8 @@ import themisasi.fov as taf
 import themisasi as ta
 import themisasi.plots as tap
 import dascutils.io as dio
-try:
-    from matplotlib.pyplot import show
-except ImportError:
-    show = None
+from matplotlib.pyplot import show
+
 
 
 def main():
@@ -59,8 +57,7 @@ def main():
     themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='MZslice')
     themis = taf.line2plane(themis)
     dasc = taf.line2plane(dasc)
-    if show is None:
-        return
+
 # %% plot slice pixel mask
     tap.jointazel(
         themis, P.ofn, 'Themis Gakona slice toward DASC and magnetic zenith')

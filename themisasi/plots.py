@@ -34,6 +34,9 @@ def jointazel(cam: xarray.Dataset, ofn: Path=None, ttxt: str=''):
 
 
 def plotazel(data: xarray.Dataset, ttxt: str=''):
+    """
+    plot az, el for each pixel
+    """
 
     if 'az' not in data or 'el' not in data:
         return
@@ -87,7 +90,7 @@ def overlayrowcol(ax, rows, cols, color: str=None, label: str=None):
     if len(rows) == 1 or isinstance(rows, (np.ndarray, xarray.DataArray)) and rows.ndim == 1:
         ax.scatter(cols, rows, color=color, alpha=0.5, marker='.', label=label)
     else:
-        raise ValueError('unknonn row/col layout, was expecting 1-D')
+        raise ValueError('unknown row/col layout, was expecting 1-D')
 
     return ax
 # %%
@@ -138,7 +141,7 @@ def plotasi(data: xarray.Dataset, ofn: Path=None):
 
 def asi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
     """
-    plots ASI projected to altitude
+    plots ASI image, projected to altitude
     """
     if alt_km is None:
         plotasi(dat, ofn)
@@ -150,31 +153,33 @@ def asi_projection(dat: xarray.Dataset, alt_km: float=None, ofn: Path=None):
     if ofn:
         ofn = Path(ofn).expanduser()
         odir = ofn.parent
-
-    srange = alt_km / np.sin(np.radians(dat.el.values))
-    lat, lon, alt = pm.aer2geodetic(dat.az.values, dat.el.values, srange,
-                                    dat.lat, dat.lon, dat.alt_km)
+# %% low elevation calibration has large error
+    el = dat.el.values
+    az = dat.az.values
+    ibad = el < 10
+    az.setflags(write=True)
+    el.setflags(write=True)
+    az[ibad] = np.nan
+    el[ibad] = np.nan
+# %% convert
+    srange = alt_km / np.sin(np.radians(el))
+    lat, lon, alt = pm.aer2geodetic(az, el, srange,
+                                    dat.lat, dat.lon, dat.alt_m)
 
     fg = figure()
     ax = fg.gca()
 
-    hi = pcolormesh_nan(lon, lat, dat['imgs'][0], cmap='gray', axis=ax)  # priming
-
     ttxt = f'Themis ASI {dat.site}  projected to altitude {alt_km} km\n'  # FOV vs. HST0,HST1: green,red '
-    ht = ax.set_title(ttxt, color='g')
-    ax.set_xlabel('longitude')
-    ax.set_ylabel('latitude')
-    ax.autoscale(True, tight=True)
-    ax.grid(False)
-# %% plot narrow FOV outline
-    if 'imgs2' in dat:
-        overlayrowcol(ax, dat.rows, dat.cols)
 # %% play video
     try:
         for im in dat['imgs']:
+            ax.cla()
             ts = im.time.values.astype(str)[:-6]
-            hi.set_data(im)
-            ht.set_text(ttxt + ts)
+            pcolormesh_nan(lon, lat, dat['imgs'][0], cmap='gray', axis=ax)  # priming
+            ax.set_title(ttxt + ts, color='g')
+            ax.set_xlabel('longitude')
+            ax.set_ylabel('latitude')
+
             draw()
             pause(0.01)
             if ofn:
@@ -189,6 +194,7 @@ def asi_radec(dat: xarray.Dataset, ofn: Path=None):
     """
     plots ASI projected to altitude
     """
+    raise NotImplementedError('this concept does not work')
 
     if dat['imgs'].shape[0] == 0:
         return
@@ -207,10 +213,9 @@ def asi_radec(dat: xarray.Dataset, ofn: Path=None):
 
     ra, dec = pm.azel2radec(az, el, dat.lat, dat.lon, dat.time)
 
-    fg = figure()
-    ax = fg.gca()
-
-    pcolormesh_nan(ra, dec, dat['imgs'].values[0], cmap='gray', axis=ax)  # priming
+    ax = figure().gca()
+    #pcolormesh_nan(ra, dec, dat['imgs'].values[0], cmap='gray', axis=ax)
+    ax.pcolor(ra, dec, dat['imgs'].values[0], cmap='gray')
 
     ttxt = f'Themis ASI {dat.site}  \n'
     ax.set_title(ttxt, color='g')
