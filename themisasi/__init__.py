@@ -5,7 +5,7 @@ import requests
 import numpy as np
 import warnings
 from typing import Sequence, Union
-from .io import load, loadcal  # noqa: F401
+from .io import load, loadcal, filetimes  # noqa: F401
 
 URL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
 CALURL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/'

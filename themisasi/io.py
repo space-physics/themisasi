@@ -7,7 +7,7 @@ import warnings
 from pathlib import Path
 from datetime import datetime, timedelta
 import xarray
-from typing import Tuple, Sequence, Union, Optional
+from typing import Tuple, Sequence, Union, Optional, List
 import numpy as np
 from dateutil.parser import parse
 import cdflib
@@ -59,6 +59,15 @@ def load(path: Path,
                 raise ValueError('calibration is taken AFTER the images--may be incorrect lat/lon az/el plate scale')
 
     return data
+
+
+def filetimes(fn: Path) -> List[datetime]:
+    "prints the times available in a THEMIS ASI CDF file"""
+    h = cdfread(fn)
+
+    site = h.attget('Descriptor', 0)['Data'][:4].lower()
+
+    return Epoch.to_datetime(h[f'thg_asf_{site}_epoch'][:])
 
 
 def _timeslice(path: Path, site: str = None,

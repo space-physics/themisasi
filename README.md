@@ -107,6 +107,8 @@ import themisasi as ta
 ta.download('2012-03-12T12', 'fykn', '~/data')
 ```
 
+### get times in a file
+the convenience function `themisasi.io.filetimes(filename)` returns a list of datetimes in a file
 
 ### Video Playback / PNG conversion
 
