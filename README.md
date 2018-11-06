@@ -4,7 +4,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/lw66b366lx6ipwe7?svg=true)](https://ci.appveyor.com/project/scivision/themisasi)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d1da43f5a03c6e7456ef/maintainability)](https://codeclimate.com/github/scivision/themisasi/maintainability)
 [![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
-[![pypi format](https://img.shields.io/pypi/format/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
 [![Xarray badge](https://img.shields.io/badge/powered%20by-xarray-orange.svg?style=flat)](http://xarray.pydata.org/en/stable/why-xarray.html)
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
 
@@ -69,26 +68,34 @@ Convert azimuth/elevation to ra/dec using
 [pymap3d](https://github.com/scivision/pymap3d).
 
 
-### Download, Read and Plot THEMIS ASI Data
+## Download, Read and Plot THEMIS ASI Data
 
-1. Get video data from Themis all-sky imager
-   [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
-2. (optional) find
-   [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
-   if you want projected lat/lon for each pixel.
-   These files are named `*asc*.cdf` or `*skymap*.sav`.
+Get video data from Themis all-sky imager
+[data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/).
+The
+[plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
+data is also downloaded.
+The calibration files are named `*asc*.cdf` or `*skymap*.sav`.
 
-February 4, 2012, 8 UT Fort Yukon
+Example: February 4, 2012, 8 UT Gakona
 
-1. Download data
-   ```sh
-   DownloadThemis 2012-02-04T08
-   ```
-2. [optional] get this camera [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/thg_l2_asc_fykn_19700101_v01.cdf)
-   If you want to just plot this calibration data:
-   ```sh
-   PlotThemis ~/data/themis/thg_l2_asc_fykn_19700101_v01.cdf
-   ```
+```sh
+DownloadThemis 2012-02-04T08 gako ~/data
+```
+or via the API:
+```python
+import themisasi as ta
+
+ta.download('2012-02-04T08', 'gako', '~/data')
+```
+with the API, it is convenient to for-loop over many sites at the same time(s):
+```python
+sites = ['fykn', 'gako']
+
+for site in sites:
+   ta.download('2012-02-04T08', site, '~/data')
+```
+
 
 With the calibration data, verify that the time range of the calibration data is appropriate for the time range of the image data.
 For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.https://github.com/dib-lab/khmer/pull/1430
@@ -97,9 +104,11 @@ You can optionally download from within Python:
 ```python
 import themisasi as ta
 
-ta.download('2012-03-12T12', 'fykn', '/tmp')
+ta.download('2012-03-12T12', 'fykn', '~/data')
 ```
 
+### get times in a file
+the convenience function `themisasi.io.filetimes(filename)` returns a list of datetimes in a file
 
 ### Video Playback / PNG conversion
 

@@ -8,6 +8,7 @@ R = Path(__file__).parent
 
 def test_video():
     pytest.importorskip('matplotlib')
+    pytest.importorskip('pymap3d')
     subprocess.check_call(['PlotThemis', str(R), 'gako',
                            '2011-01-06T17:00:03'])
 
