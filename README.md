@@ -12,7 +12,10 @@
 # Themis ASI Reader
 
 
-Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data, from Python &ge; 3.6.
+Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data from Python.
+THEMIS ASI data are collected with the original 2002 design, using Starlight-Xpress Lodestar MX716 cameras with monochrome
+[Sony ICX249AL imaging chips](http://www.astro.uu.se/grundutb/wt/images/ICX249ALpalstcamex.pdf).
+A subregion of native 752 x 582 pixels (512 x 512 pixels) are 2x2 binned to 256 x 256 and retrieved over USB 1.1 for disk storage.
 
 It also reads the THEMIS ASI star registered
 [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/),
@@ -132,6 +135,17 @@ PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf -lla 65 -145 100.
 Themis site map (2009)
 
 [![Themis site map](http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif)](http://themis.ssl.berkeley.edu/gbo/display.py?)
+
+THEMIS GBO ASI spectral response:
+
+![Themis spectral response](./data/spectral_response.png)
+
+### Articles
+
+These articles give vital descriptions of THEMIS GBO ASI.
+
+* [Mende 2008 SSR](http://www.igpp.ucla.edu/public/THEMIS/SCI/Pubs/2008_Refereed/mende_ssr_onlinefirst.pdf)
+* color instrument based on Themis: [Jackel 2014](http://eprints.lancs.ac.uk/68180/4/gi_3_71_2014.pdf)
 
 
 ### Resources
