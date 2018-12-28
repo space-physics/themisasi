@@ -7,7 +7,9 @@ from matplotlib.colors import LogNorm
 import pymap3d as pm
 
 
-def jointazel(cam: xarray.Dataset, ofn: Path = None, ttxt: str = ''):
+def jointazel(cam: xarray.Dataset,
+              ofn: Path = None,
+              ttxt: str = ''):
 
     fg, axs = plotazel(cam, ttxt)
 # %% plot line from other camera to magnetic zenith
@@ -136,9 +138,17 @@ def plotasi(data: xarray.Dataset, ofn: Path = None):
         return
 
 
-def asi_projection(dat: xarray.Dataset, alt_km: float = None, ofn: Path = None):
+def asi_projection(dat: xarray.Dataset,
+                   alt_km: float = None,
+                   min_el: float = 10.,
+                   ofn: Path = None):
     """
     plots ASI projected to altitude
+
+    * dat: Xarray containing image stack and metadata (az, el, lat, lon)
+    * alt_km: projection altitude in kilometers
+    * min_el: minimum elevation angle (degrees). Data near the horizon is poorly calibrated (large angular error).
+    * ofn: filename to write of plot (optional)
     """
     if alt_km is None:
         plotasi(dat, ofn)
@@ -151,10 +161,18 @@ def asi_projection(dat: xarray.Dataset, alt_km: float = None, ofn: Path = None):
         ofn = Path(ofn).expanduser()
         odir = ofn.parent
 
-    srange = alt_km / np.sin(np.radians(dat.el.values))
-    lat, lon, alt = pm.aer2geodetic(dat.az.values, dat.el.values, srange,
-                                    dat.lat, dat.lon, dat.alt_km)
+# %% censor pixels near the horizon with large calibration error do to poor skymap fits
+    badpix = dat['el'] < min_el
+    az = dat['az'].values
+    el = dat['el'].values
+    az[badpix] = np.nan
+    el[badpix] = np.nan
+# %% coordinate transformation, let us know if error occurs
+    slant_range = alt_km / np.sin(np.radians(el))
 
+    lat, lon, alt = pm.aer2geodetic(az, el, slant_range,
+                                    dat.lat.item(), dat.lon.item(), dat.alt_km.item())
+# %% plots
     fg = figure()
     ax = fg.gca()
 
@@ -185,9 +203,14 @@ def asi_projection(dat: xarray.Dataset, alt_km: float = None, ofn: Path = None):
         return
 
 
-def asi_radec(dat: xarray.Dataset, ofn: Path = None):
+def asi_radec(dat: xarray.Dataset,
+              min_el: float = 10.,
+              ofn: Path = None):
     """
     plots ASI projected to altitude
+
+    * min_el: minimum elevation angle (degrees). Data near the horizon is poorly calibrated (large angular error).
+    * ofn: filename to write of plot (optional)
     """
 
     if dat['imgs'].shape[0] == 0:
@@ -201,7 +224,7 @@ def asi_radec(dat: xarray.Dataset, ofn: Path = None):
     az.setflags(write=True)
     el.setflags(write=True)
 
-    bad = el < 10  # low to horizon, calibration is very bad
+    bad = el < min_el  # low to horizon, calibration is very bad
     az[bad] = np.nan
     el[bad] = np.nan
 

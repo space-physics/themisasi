@@ -8,15 +8,15 @@
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
 
 
-# Themis ASI Reader
+# THEMIS GBO ASI Reader
 
 
 Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data from Python.
 THEMIS ASI data are collected with the original 2002 design, using Starlight-Xpress Lodestar MX716 cameras with monochrome
 [Sony ICX249AL imaging chips](http://www.astro.uu.se/grundutb/wt/images/ICX249ALpalstcamex.pdf).
-A subregion of native 752 x 582 pixels (512 x 512 pixels) are 2x2 binned to 256 x 256 and retrieved over USB 1.1 for disk storage.
+A subregion from full-size 752 x 582 pixels (512 x 512 pixels) are 2x2 binned to 256 x 256 pixels and retrieved over USB 1.1 for disk storage.
 
-It also reads the THEMIS ASI star registered
+This package also reads the THEMIS ASI star registered
 [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/),
 giving **azimuth and elevation** for each pixel.
 
@@ -50,14 +50,17 @@ This returns the camera image from Gakona camera closest to the requested time, 
 
 
 THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
-which is used throughout geosciences and astronomy as a "smart" Numpy array.
-The simple image data stack is obtained by:
+which is used throughout geosciences and astronomy.
+Xarray may be thought of as a "smart" Numpy array, or a multidimensional Pandas array.
+A THEMIS image data stack is obtained by:
 ```python
+dat = ta.load(...)
+
 imgs = dat['imgs']
 ```
 
-`dat.time` contains the approximate time of each image (consider the finite exposure time).
-`dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
+* `dat.time` contains the approximate time of each image (consider the finite exposure time).
+* `dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
 
 ### Image + Azimuth, Elevation
 Loading calibration data gives azimuth, elevation for each pixel and lat, lon of each camera.
@@ -67,8 +70,20 @@ import themisasi as ta
 dat = ta.load('~/data/themis', site='gako', treq='2011-01-06T17:00:03')
 ```
 If an appropriate calibration file exists, `dat` additionally contains 'az', 'el', 'lat', 'lon' and so on to allow using data for multi-camera analyses.
-Convert azimuth/elevation to ra/dec using
+
+### Coordinate conversion (optional)
+
+If desired, convert azimuth/elevation to ra/dec using
 [pymap3d](https://github.com/scivision/pymap3d).
+```sh
+pip install pymap3d
+```
+and then from within Python:
+```python
+import pymap3d as pm
+
+rasc, decl = pm.azel2radec(dat.az, dat.el, dat.lat, dat.lon, dat.time)
+```
 
 
 ## Download, Read and Plot THEMIS ASI Data
@@ -111,7 +126,7 @@ ta.download('2012-03-12T12', 'fykn', '~/data')
 ```
 
 ### get times in a file
-the convenience function `themisasi.io.filetimes(filename)` returns a list of datetimes in a file
+the convenience function `themisasi.io.filetimes(filename)` returns a list of Python `datetime` in a file
 
 ### Video Playback / PNG conversion
 

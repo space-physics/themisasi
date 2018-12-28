@@ -42,8 +42,7 @@ def download(treq: Sequence[Union[str, datetime]],
 
 # %% sanity checks
     odir = Path(odir).expanduser().resolve()
-    if not odir.is_dir():
-        raise FileNotFoundError(f'{odir} does not exist')
+    odir.mkdir(parents=True, exist_ok=True)
 
     if isinstance(site, str):
         site = [site]

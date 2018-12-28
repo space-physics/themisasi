@@ -13,7 +13,7 @@ filtfn = 'data/ir_filter.csv'
 resp = pandas.read_csv(camfn, index_col=0)
 filt = pandas.read_csv(filtfn, index_col=0)
 
-wl = np.arange(400,1000,10)
+wl = np.arange(400, 1000, 10)
 
 # %% plot
 ax = figure().gca()
@@ -27,4 +27,3 @@ ax.set_xlabel('wavelength [nm]')
 ax.set_ylabel('normalized')
 
 show()
-
