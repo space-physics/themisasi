@@ -45,7 +45,7 @@ def test_filename_calname():
 def test_site():
     # %% load by filename
     dat = ta.load(datfn)
-    times = dat.time.values
+    times = dat.time.values.astype('datetime64[us]').astype(datetime)
 
     assert (times >= datetime(2011, 1, 6, 17)).all()
     assert (times <= datetime(2011, 1, 6, 18)).all()
