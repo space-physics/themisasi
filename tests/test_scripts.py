@@ -21,12 +21,12 @@ def test_pixels_azel():
                            '-az', '65', '70', '-el', '48', '68'])
 
 
-def test_pixels_latlon():
-    pytest.importorskip('histutils')
-    pytest.importorskip('matplotlib')
-    subprocess.check_call(['PlotThemisPixels', str(R), 'gako',
-                           '2011-01-06T17:00:00', '2011-01-06T17:00:06',
-                           '-lla', '68', '-145', '100.'])
+#def test_pixels_latlon():
+#    pytest.importorskip('histutils')
+#    pytest.importorskip('matplotlib')
+#    subprocess.check_call(['PlotThemisPixels', str(R), 'gako',
+#                           '2011-01-06T17:00:00', '2011-01-06T17:00:06',
+#                           '-lla', '68', '-145', '100.'])
 
 
 if __name__ == '__main__':

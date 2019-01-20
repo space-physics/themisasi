@@ -50,18 +50,12 @@ def test_multi_site():
     assert (R/'thg_l2_asc_fykn_19700101_v01.cdf').is_file()
 
 
-def test_nonexisting():
+@pytest.mark.parametrize('time, site', [('2006-09-29T14', 'badname'),
+                                        ('1950-01-01T01', 'gako')])
+def test_nonexisting(time, site):
     with pytest.warns(UserWarning) as w:
         try:
-            ta.download('2006-09-29T14', 'badsitename', R)
-        except requests.exceptions.ConnectionError:
-            pytest.xfail('bad internet connection')
-
-        assert len(w) in (1, 2)
-
-    with pytest.warns(UserWarning) as w:
-        try:
-            ta.download('1950-01-01T01', 'gako', R)
+            ta.download(time, site, R)
         except requests.exceptions.ConnectionError:
             pytest.xfail('bad internet connection')
 

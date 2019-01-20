@@ -4,7 +4,6 @@ import pytest
 from pytest import approx
 import themisasi as ta
 from datetime import datetime, timedelta, date
-import tempfile
 #
 R = Path(__file__).parent
 datfn = R / 'thg_l1_asf_gako_2011010617_v01.cdf'
@@ -17,15 +16,13 @@ assert cal1fn.is_file()
 assert cal2fn.is_file()
 
 
-def test_filename():
-    with tempfile.NamedTemporaryFile() as f:
-        bfn = f.name
-        with pytest.raises(OSError):
-            ta.load(bfn)
-
+def test_missing_file(tmp_path):
+    badfn = tmp_path / 'notafile.cdf'
     with pytest.raises(FileNotFoundError):
-        ta.load(bfn)
+        ta.load(badfn)
 
+
+def test_filename():
     data = ta.load(datfn)
 
     assert data['imgs'].site == 'gako'
@@ -42,52 +39,45 @@ def test_filename_calname():
     assert data['az'].shape == data['imgs'].shape[1:]
 
 
-def test_site():
-    # %% load by filename
+def test_load_filename():
+    """load by filename"""
     dat = ta.load(datfn)
     times = dat.time.values.astype('datetime64[us]').astype(datetime)
 
     assert (times >= datetime(2011, 1, 6, 17)).all()
     assert (times <= datetime(2011, 1, 6, 18)).all()
-# %% load by site/time
-    dat = ta.load(R, 'gako', '2011-01-06T17:00:00')
-    assert dat['imgs'].shape[0] == 1
-    time = dat.time.values.astype('datetime64[us]').astype(datetime)
-    assert abs(time - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
 
-    dat = ta.load(R, 'gako', datetime(2011, 1, 6, 17))
-    assert dat['imgs'].shape[0] == 1
-    time = dat.time.values.astype('datetime64[us]').astype(datetime)
-    assert abs(time - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
 
-    dat = ta.load(R, 'gako', treq=('2011-01-06T17:00:00', '2011-01-06T17:00:12'))
+@pytest.mark.parametrize('site, time', [('gako', '2011-01-06T17:00:00'),
+                                        ('gako', datetime(2011, 1, 6, 17))])
+def test_load_site_time(site, time):
+    """ load by sitename + time"""
+    dat = ta.load(R, site, time)
+    assert dat['imgs'].shape[0] == 1
+    t = dat.time.values.astype('datetime64[us]').astype(datetime)
+    assert abs(t - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=.5)
+
+
+@pytest.mark.parametrize('site, treq', [('gako', ('2011-01-06T17:00:00', '2011-01-06T17:00:12')),
+                                        ('gako', ('2011-01-06T16:59:59', '2011-01-06T17:00:12'))])
+def test_load_site_timerange(site, treq):
+    """ load by sitename + timerange """
+    dat = ta.load(R, site, treq=treq)
     assert dat['imgs'].shape[0] == 4
     times = dat.time.values.astype('datetime64[us]').astype(datetime)
     assert (times >= datetime(2011, 1, 6, 17)).all()
     assert (times <= datetime(2011, 1, 6, 17, 0, 12)).all()
 
-    ta.load(R, 'gako', treq=('2011-01-06T16:59:59', '2011-01-06T17:00:12'))
-    assert dat['imgs'].shape[0] == 4
-    times = dat.time.values.astype('datetime64[us]').astype(datetime)
-    assert (times >= datetime(2011, 1, 6, 17)).all()
-    assert (times <= datetime(2011, 1, 6, 17, 0, 12)).all()
 
-
-def test_bad_time():
-    with pytest.raises(TypeError):
-        ta.load(datfn, treq=1)
-
-    with pytest.raises(ValueError):
-        ta.load(datfn, treq='2011-01-06T16:59:59')
-
-    with pytest.raises(ValueError):
-        ta.load(datfn, treq='2011-01-06T18:00:01')
-
-    with pytest.raises(FileNotFoundError):
-        ta.load(R, 'gako', treq='2010-01-01')
-
-    with pytest.raises(FileNotFoundError):
-        ta.load(R, 'gako', treq=('2010-01-01', '2010-01-01T01'))
+@pytest.mark.parametrize('path, val, err', [(datfn, 1, TypeError),
+                                            (datfn, '2011-01-06T16:59:59', ValueError),
+                                            (datfn, '2011-01-06T18:00:01', ValueError),
+                                            (R, '2010-01-01', FileNotFoundError),
+                                            (R, ('2010-01-01', '2010-01-01T01'), FileNotFoundError)
+                                            ])
+def test_bad_time(path, val, err):
+    with pytest.raises(err):
+        ta.load(path, 'gako', treq=val)
 
 
 def test_good_time():
