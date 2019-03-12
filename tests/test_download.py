@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import themisasi as ta
+import themisasi.web as tw
 import pytest
 from pathlib import Path
 import requests.exceptions
@@ -19,7 +20,7 @@ def test_single_time_site():
 
 def test_cal():
     try:
-        ta.download_cal('inuv', R)
+        tw._download_cal('inuv', R)
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 

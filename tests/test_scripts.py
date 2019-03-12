@@ -21,7 +21,7 @@ def test_pixels_azel():
                            '-az', '65', '70', '-el', '48', '68'])
 
 
-#def test_pixels_latlon():
+# def test_pixels_latlon():
 #    pytest.importorskip('histutils')
 #    pytest.importorskip('matplotlib')
 #    subprocess.check_call(['PlotThemisPixels', str(R), 'gako',
