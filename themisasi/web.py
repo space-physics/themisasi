@@ -1,40 +1,56 @@
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 from pathlib import Path
-import requests
 import numpy as np
-import warnings
-from typing import Sequence, Union
+import asyncio
+import logging
+from aiohttp_requests import requests
+from typing import Sequence, Union, Iterator
 
+
+TIMEOUT = 600  # arbitrary, seconds
 URL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
 CALURL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/'
 
 
-def urlretrieve(url: str, fn: Path, overwrite: bool = False):
+async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
     if not overwrite and fn.is_file() and fn.stat().st_size > 10000:
         print(f'SKIPPED {fn}')
         return
-# %% prepare to download
-    R = requests.head(url, allow_redirects=True, timeout=10)
-    if R.status_code != 200:
-        warnings.warn(f'{url} not found. \n HTTP ERROR {R.status_code}')
-        return
 # %% download
-    print(f'downloading {int(R.headers["Content-Length"])//1000000} MBytes:  {fn.name}')
-    R = requests.get(url, allow_redirects=True, timeout=10)
+    R = await requests.get(url, allow_redirects=True, timeout=TIMEOUT)
+
+    if R.status != 200:
+        logging.error(f'could not download {url}  {R.status}')
+        return
+
+    print(url)
+
+    data = await R.read()
+
     with fn.open('wb') as f:
-        f.write(R.content)
+        f.write(data)
 
 
 def download(treq: Sequence[Union[str, datetime]],
              site: Sequence[str], odir: Path,
              overwrite: bool = False, host: str = URL):
     """
-    treq: time request e.g. '2012-02-01T03' or a time range ['2012-02-01T03', '2012-02-01T05']
-    site: camera site e.g. gako, fykn
-    odir: output directory e.g. ~/data
-    overwrite: overwrite existing files--normally wasteful of download space, unless you had a corrupted download.
-    host: website hosting files
+    concurrent download video and calibration files
+
+    Parameters
+    ----------
+
+    treq : datetime or list of datatime
+        time request e.g. '2012-02-01T03' or a time range ['2012-02-01T03', '2012-02-01T05']
+    site : str or list of str
+        camera site e.g. gako, fykn
+    odir : pathlib.Path
+        output directory e.g. ~/data
+    overwrite : bool
+        overwrite existing files--normally wasteful of download space, unless you had a corrupted download.
+    host : str
+        website hosting files
     """
     if not host:
         raise ValueError(f'Must specify download host, e.g. {URL}')
@@ -58,16 +74,77 @@ def download(treq: Sequence[Union[str, datetime]],
     if end < start:
         raise ValueError('start time must be before end time!')
 # %% start download
-    for s in site:
-        _download_cal(s, odir, overwrite)
-        for T in np.arange(start, end+timedelta(hours=1), timedelta(hours=1)):
-            t = T.astype(datetime)
-            fpath = (f'{host}{s}/{t.year:4d}/{t.month:02d}/'
-                     f'thg_l1_asf_{s}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf')
-
-            urlretrieve(fpath, odir / fpath.split('/')[-1])
+    if hasattr(asyncio, 'run'):  # python >= 3.7
+        asyncio.run(arbiter(site, start, end, odir, overwrite, host))
+    else:  # python >= 3.5
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(arbiter(site, start, end, odir, overwrite, host))
+        loop.close()
 
 
-def _download_cal(site: str, odir: Path, owerwrite: bool = False, host: str = CALURL):
+async def arbiter(sites: Sequence[str],
+                  start: datetime, end: datetime,
+                  odir: Path, overwrite: bool, host: str):
+    """
+    This starts len(sites) tasks concurrently.
+    Thus if you only have one site, it only downloads one file at a time.
+
+    A more elegant way is to setup a task pool.
+    However normally we are downloading N sites across the same timespan,
+    where N is typically in the 3..10 range or so.
+
+    Parameters
+    ----------
+    sites : str or list of str
+        sites to download video from
+    start : datetime
+        starting time
+    end : datetime
+        ending time
+    odir : Path
+        where to download data to
+    overwrite : bool, optional
+        overwrite existing data
+    host : str
+        site hosting data
+
+
+    Example of task pool:
+    https://github.com/ec500-software-engineering/asyncio-subprocess-ffmpeg/blob/c82d3a243078d8e865740cd9c3328fe7fd6ea52e/asyncioffmpeg/ffplay.py#L45
+
+    """
+
+    futures = [_download_cal(site, odir, overwrite) for site in sites]
+
+    await asyncio.gather(*futures)
+
+    futures = [_download_video(site, odir, start, end, overwrite, host) for site in sites]
+
+    await asyncio.gather(*futures)
+
+
+async def _download_video(site: str, odir: Path,
+                          start: datetime, end: datetime,
+                          overwrite: bool,  host: str):
+
+    for url in _urlgen(site, start, end, host):
+        print('GEN: ', url)
+        await urlretrieve(url, odir / url.split('/')[-1], overwrite)
+
+
+def _urlgen(site: str, start: datetime, end: datetime, host: str) -> Iterator[str]:
+
+    for T in np.arange(start, end+timedelta(hours=1), timedelta(hours=1)):
+        t = T.astype(datetime)
+        fpath = (f'{host}{site}/{t.year:4d}/{t.month:02d}/'
+                 f'thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf')
+
+        yield fpath
+
+
+async def _download_cal(site: str, odir: Path,
+                        overwrite: bool = False, host: str = CALURL):
+
     fpath = f"{host}thg_l2_asc_{site}_19700101_v01.cdf"
-    urlretrieve(fpath,  odir / fpath.split('/')[-1])
+
+    await urlretrieve(fpath,  odir / fpath.split('/')[-1], overwrite)

@@ -88,6 +88,11 @@ rasc, decl = pm.azel2radec(dat.az, dat.el, dat.lat, dat.lon, dat.time)
 
 ## Download, Read and Plot THEMIS ASI Data
 
+The data is downloaded concurrently using `asyncio` and `aiohttp_requests`.
+There is one concurrent worker launched per site, that downloads one time at a time concurrently across sites.
+Thus if downloading for one site, one time downloads at a time.
+If downloading for 5 sites, five files download at a time across requested times by site.
+
 Get video data from Themis all-sky imager
 [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/).
 The
