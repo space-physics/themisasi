@@ -3,8 +3,11 @@
 example:
 DownloadThemis 2012-11-03T06:23 2012-11-03T06:24 ~/data -s gako
 """
-import themisasi as ta
+import themisasi.web as tweb
 from argparse import ArgumentParser
+
+VIDEO_BASE = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
+CAL_BASE = 'http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/'
 
 
 def main():
@@ -13,11 +16,14 @@ def main():
     p.add_argument('odir', help='directory to write downloaded CDF to')
     p.add_argument('-s', '--site', help='fykn gako etc.', nargs='+')
     p.add_argument('-overwrite', help='overwrite existing files', action='store_true')
-    p.add_argument('-host', default='http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/')
+    p.add_argument('-vh', help='Stem of URL for Video data', default=VIDEO_BASE)
+    p.add_argument('-ch', help='Stem of URL for calibration data', default=CAL_BASE)
 
-    p = p.parse_args()
+    P = p.parse_args()
 
-    ta.download(p.startend, p.site, p.odir, p.overwrite, p.host)
+    urls = {'video_stem': P.vh, 'cal_stem': P.ch}
+
+    tweb.download(P.startend, P.site, P.odir, P.overwrite, urls)
 
 
 if __name__ == '__main__':

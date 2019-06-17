@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import themisasi as ta
 import themisasi.web as tw
 import pytest
 from pathlib import Path
@@ -7,10 +6,14 @@ import requests.exceptions
 
 R = Path(__file__).parent
 
+VIDEO_BASE = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
+CAL_BASE = 'http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/'
+urls = {'video_stem': VIDEO_BASE, 'cal_stem': CAL_BASE}
+
 
 def test_single_time_site():
     try:
-        ta.download('2006-09-29T14', 'gako', R)
+        tw.download('2006-09-29T14', 'gako', R, urls)
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 
@@ -18,16 +21,17 @@ def test_single_time_site():
     assert (R/'thg_l2_asc_gako_19700101_v01.cdf').is_file()
 
 
-def test_cal():
+@pytest.mark.asyncio
+async def test_cal():
     try:
-        tw._download_cal('inuv', R)
+        await tw._download_cal('inuv', R, urls['cal_stem'])
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 
 
 def test_time_range():
     try:
-        ta.download(('2006-09-29T14', '2006-09-30-04'), 'gako', R)
+        tw.download(('2006-09-29T14', '2006-09-30-04'), 'gako', R, urls)
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 
@@ -37,7 +41,7 @@ def test_time_range():
 
 def test_multi_site():
     try:
-        ta.download('2006-09-30-04', ['gako', 'fykn'], R)
+        tw.download('2006-09-30-04', ['gako', 'fykn'], R, urls)
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 
@@ -52,7 +56,7 @@ def test_multi_site():
                                         ('1950-01-01T01', 'gako')])
 def test_nonexisting(time, site):
     try:
-        ta.download(time, site, R)
+        tw.download(time, site, R, urls)
     except requests.exceptions.ConnectionError:
         pytest.xfail('bad internet connection')
 

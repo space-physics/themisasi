@@ -4,13 +4,15 @@ from pathlib import Path
 import numpy as np
 import asyncio
 import logging
+import sys
+import os
 from aiohttp_requests import requests
-from typing import Sequence, Union, Iterator
-
+from typing import Sequence, Union, Iterator, Dict
 
 TIMEOUT = 600  # arbitrary, seconds
-URL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/'
-CALURL = 'http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/'
+
+if sys.version_info < (3, 7):
+    raise RuntimeError('Python >= 3.7 required')
 
 
 async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
@@ -34,7 +36,7 @@ async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
 
 def download(treq: Sequence[Union[str, datetime]],
              site: Sequence[str], odir: Path,
-             overwrite: bool = False, host: str = URL):
+             urls: Dict[str, str], overwrite: bool = False):
     """
     concurrent download video and calibration files
 
@@ -49,11 +51,9 @@ def download(treq: Sequence[Union[str, datetime]],
         output directory e.g. ~/data
     overwrite : bool
         overwrite existing files--normally wasteful of download space, unless you had a corrupted download.
-    host : str
-        website hosting files
+    urls : dict of str
+        stem of URLs to [web]site(s) hosting files
     """
-    if not host:
-        raise ValueError(f'Must specify download host, e.g. {URL}')
 
 # %% sanity checks
     odir = Path(odir).expanduser().resolve()
@@ -74,17 +74,16 @@ def download(treq: Sequence[Union[str, datetime]],
     if end < start:
         raise ValueError('start time must be before end time!')
 # %% start download
-    if hasattr(asyncio, 'run'):  # python >= 3.7
-        asyncio.run(arbiter(site, start, end, odir, overwrite, host))
-    else:  # python >= 3.5
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(arbiter(site, start, end, odir, overwrite, host))
-        loop.close()
+    if os.name == 'nt' and sys.version_info < (3, 8):
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())  # type: ignore
+
+    asyncio.run(arbiter(site, start, end, odir, overwrite, urls))
 
 
 async def arbiter(sites: Sequence[str],
                   start: datetime, end: datetime,
-                  odir: Path, overwrite: bool, host: str):
+                  odir: Path, overwrite: bool,
+                  urls: Dict[str, str]):
     """
     This starts len(sites) tasks concurrently.
     Thus if you only have one site, it only downloads one file at a time.
@@ -105,8 +104,8 @@ async def arbiter(sites: Sequence[str],
         where to download data to
     overwrite : bool, optional
         overwrite existing data
-    host : str
-        site hosting data
+    urls : dict of str
+        sites hosting data
 
 
     Example of task pool:
@@ -114,37 +113,37 @@ async def arbiter(sites: Sequence[str],
 
     """
 
-    futures = [_download_cal(site, odir, overwrite) for site in sites]
+    futures = [_download_cal(site, odir, urls['cal_stem'], overwrite) for site in sites]
 
     await asyncio.gather(*futures)
 
-    futures = [_download_video(site, odir, start, end, overwrite, host) for site in sites]
+    futures = [_download_video(site, odir, start, end, urls['video_stem'], overwrite) for site in sites]
 
     await asyncio.gather(*futures)
 
 
 async def _download_video(site: str, odir: Path,
                           start: datetime, end: datetime,
-                          overwrite: bool,  host: str):
+                          url_stem: str, overwrite: bool):
 
-    for url in _urlgen(site, start, end, host):
+    for url in _urlgen(site, start, end, url_stem):
         print('GEN: ', url)
         await urlretrieve(url, odir / url.split('/')[-1], overwrite)
 
 
-def _urlgen(site: str, start: datetime, end: datetime, host: str) -> Iterator[str]:
+def _urlgen(site: str, start: datetime, end: datetime, url_stem: str) -> Iterator[str]:
 
     for T in np.arange(start, end+timedelta(hours=1), timedelta(hours=1)):
         t = T.astype(datetime)
-        fpath = (f'{host}{site}/{t.year:4d}/{t.month:02d}/'
+        fpath = (f'{url_stem}{site}/{t.year:4d}/{t.month:02d}/'
                  f'thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf')
 
         yield fpath
 
 
-async def _download_cal(site: str, odir: Path,
-                        overwrite: bool = False, host: str = CALURL):
+async def _download_cal(site: str, odir: Path, url_stem: str,
+                        overwrite: bool = False):
 
-    fpath = f"{host}thg_l2_asc_{site}_19700101_v01.cdf"
+    fpath = f"{url_stem}thg_l2_asc_{site}_19700101_v01.cdf"
 
     await urlretrieve(fpath,  odir / fpath.split('/')[-1], overwrite)
