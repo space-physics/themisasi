@@ -1,10 +1,9 @@
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
-[![Travis-CI status](https://travis-ci.org/scivision/themisasi.svg)](https://travis-ci.org/scivision/themisasi)
-[![Coverage](https://coveralls.io/repos/github/scivision/themisasi/badge.svg?branch=master)](https://coveralls.io/github/scivision/themisasi?branch=master)
-[![Build status](https://ci.appveyor.com/api/projects/status/lw66b366lx6ipwe7?svg=true)](https://ci.appveyor.com/project/scivision/themisasi)
-[![Maintainability](https://api.codeclimate.com/v1/badges/d1da43f5a03c6e7456ef/maintainability)](https://codeclimate.com/github/scivision/themisasi/maintainability)
+
+[![Build Status](https://travis-ci.com/space-physics/themisasi.svg?branch=master)](https://travis-ci.com/space-physics/themisasi)
+[![Coverage Status](https://coveralls.io/repos/github/space-physics/themisasi/badge.svg?branch=master)](https://coveralls.io/github/space-physics/themisasi?branch=master)
+[![Build status](https://ci.appveyor.com/api/projects/status/9wakqphkwx8620r8?svg=true)](https://ci.appveyor.com/project/scivision/themisasi-sld7t)
 [![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
-[![Xarray badge](https://img.shields.io/badge/powered%20by-xarray-orange.svg?style=flat)](http://xarray.pydata.org/en/stable/why-xarray.html)
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
 
 

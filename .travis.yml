@@ -3,41 +3,32 @@ group: travis_latest
 dist: xenial
 
 git:
-  depth: 3
+  depth: 25
   quiet: true
 
 matrix:
   include:
   - os: linux
-    python: 3.6
+    python: 3.7
     install:
-    # temp workaround while waiting for PR
-    - pip install -r requirements.txt
-
     - pip install -e .[tests,cov]
-    script: 
+    - pip install -r requirements.txt
+    script:
     - flake8
-    - mypy . --ignore-missing-imports
+    - mypy .
     after_success:
     - pytest --cov
     - coveralls
-  - os: osx
-    language: sh
-    install: 
-    # temp workaround while waiting for PR
-    - pip3 install -r requirements.txt
+#  - os: osx
+#    language: sh
+#    install:
+#    - pip3 install -e .[tests]
+#  - os: windows
+#    language: sh
+#    before_install:
+#    - choco install python3
+#    - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
 
-    - pip3 install -e .[tests]
-  - os: windows
-    language: sh
-    before_install:
-    - choco install python3
-    - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
-    
-install: 
-# temp workaround while waiting for PR
-- pip install -r requirements.txt
-
-- pip install -e .[tests]
+install: pip install -e .[tests]
 
 script: pytest -rsv

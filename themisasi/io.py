@@ -212,7 +212,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     time = None
     fn = Path(fn).expanduser()
     if not fn.is_file():
-        raise FileNotFoundError(f'calibration file not found: {fn}')
+        raise FileNotFoundError(fn)
 
     if fn.suffix == '.cdf':
         site = fn.name.split('_')[3]
@@ -299,7 +299,7 @@ def loadcal(path: Path, site: str = None, time: datetime = None) -> xarray.Datas
     if path.is_file() and site is None or time is None:
         try:
             return loadcal_file(path)
-        except KeyError:
+        except (KeyError, ValueError):
             return None
     elif path.is_file():
         path = path.parent

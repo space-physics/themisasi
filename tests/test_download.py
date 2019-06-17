@@ -26,13 +26,10 @@ def test_cal():
 
 
 def test_time_range():
-    with pytest.warns(UserWarning) as w:
-        try:
-            ta.download(('2006-09-29T14', '2006-09-30-04'), 'gako', R)
-        except requests.exceptions.ConnectionError:
-            pytest.xfail('bad internet connection')
-
-        assert len(w) == 13  # 13 missing times
+    try:
+        ta.download(('2006-09-29T14', '2006-09-30-04'), 'gako', R)
+    except requests.exceptions.ConnectionError:
+        pytest.xfail('bad internet connection')
 
     assert (R/'thg_l1_asf_gako_2006093004_v01.cdf').is_file()
     assert (R/'thg_l2_asc_gako_19700101_v01.cdf').is_file()
@@ -54,13 +51,10 @@ def test_multi_site():
 @pytest.mark.parametrize('time, site', [('2006-09-29T14', 'badname'),
                                         ('1950-01-01T01', 'gako')])
 def test_nonexisting(time, site):
-    with pytest.warns(UserWarning) as w:
-        try:
-            ta.download(time, site, R)
-        except requests.exceptions.ConnectionError:
-            pytest.xfail('bad internet connection')
-
-        assert len(w) in (1, 2)
+    try:
+        ta.download(time, site, R)
+    except requests.exceptions.ConnectionError:
+        pytest.xfail('bad internet connection')
 
 
 if __name__ == '__main__':
