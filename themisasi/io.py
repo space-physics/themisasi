@@ -7,31 +7,55 @@ import warnings
 from pathlib import Path
 from datetime import datetime, timedelta
 import xarray
-from typing import Tuple, Sequence, Union, Optional, List
+from typing import Tuple, Sequence, List
 import numpy as np
 from dateutil.parser import parse
-import cdflib
 import scipy.io
+
+try:
+    import cdflib
+    Epoch = cdflib.cdfepoch()
+    cdfread = cdflib.cdfread.CDF
+except ImportError:
+    Epoch = cdfread = None
 try:
     import h5py
 except ImportError:
     h5py = None
 try:
-    from netCDF4 import Dataset
+    import netCDF4
 except ImportError:
-    Dataset = None
-
-Epoch = cdflib.cdfepoch()
-cdfread = cdflib.cdfread.CDF
+    netCDF4 = None
 
 
 def load(path: Path,
          site: str = None,
-         treq: datetime = None,
+         treq: List[datetime] = None,
          calfn: Path = None) -> xarray.Dataset:
-    """read THEMIS ASI camera data"""
+    """
+    read THEMIS ASI camera data
+
+    If treq is not specified, the whole file is loaded
+
+    Parameters
+    ----------
+    path: pathlib.Path
+        directory where Themis ASI data files are
+    site: str, optional
+        site code e.g. gako
+    treq: datetime.datetime or list of datetime.datetime, optional
+        requested time to load
+    calfn: pathlib.Path, optional
+        path to calibration file (skymap)
+
+    Returns
+    -------
+    data: xarray.Dataset
+        Themis ASI data (image stack)
+    """
 # %% time slice (assumes monotonically increasing time)
-    treq = _timereq(treq)
+    if treq is not None:
+        treq = _timereq(treq)
 
     imgs = _timeslice(path, site, treq)
 # %% optional load calibration (az, el)
@@ -62,7 +86,22 @@ def load(path: Path,
 
 
 def filetimes(fn: Path) -> List[datetime]:
-    "prints the times available in a THEMIS ASI CDF file"""
+    """
+    prints the times available in a THEMIS ASI CDF file
+
+    Parameters
+    ----------
+    fn: pathlib.Path
+        path to ASI data file
+
+    Returns
+    -------
+    time: list of datetime.datetime
+        times available in this CDF file
+    """
+    if not cdfread:
+        raise ImportError('pip install cdflib')
+
     h = cdfread(fn)
 
     site = h.attget('Descriptor', 0)['Data'][:4].lower()
@@ -70,11 +109,27 @@ def filetimes(fn: Path) -> List[datetime]:
     return Epoch.to_datetime(h[f'thg_asf_{site}_epoch'][:])
 
 
-def _timeslice(path: Path, site: str = None,
-               treq: Union[datetime, Sequence[datetime], np.ndarray] = None) -> xarray.DataArray:
+def _timeslice(path: Path,
+               site: str = None,
+               treq: Sequence[datetime] = None) -> xarray.DataArray:
     """
-    loads time slice of data
+    loads time slice of Themis ASI data
+
+    Parameters
+    ----------
+    path: pathlib.Path
+        directory where Themis asi data is
+    site: str
+        site code e.g. gako for Gakon
+    treq: datetime.datetime or list of datetime.datetime
+        requested time or min,max time range
+
+    Results
+    -------
+    data: xarray.DataArray
+        Themis ASI data
     """
+    TIME_TOL = 1  # number of seconds to tolerate in time request offset
 # %% open CDF file handle (no close method)
     site, fn = _sitefn(path, site, treq)
 
@@ -82,23 +137,23 @@ def _timeslice(path: Path, site: str = None,
 # %% load image times
     try:
         time = Epoch.to_datetime(h[f'thg_asf_{site}_epoch'][:], to_np=True)
-    except KeyError:
+    except (ValueError, KeyError):
         time = np.array(list(map(datetime.utcfromtimestamp,
                                  h[f'thg_asf_{site}_time'][:])))
 # %% time request handling
     if treq is None:
         i = slice(None)
     else:
-        treq = np.atleast_1d(treq)
+        atreq = np.atleast_1d(treq)
 
-        if treq.size == 1:
+        if atreq.size == 1:
             # Note: arbitrarily allowing up to 1 second time offset from request
-            if (treq < time-timedelta(seconds=1)).all() | (treq > time+timedelta(seconds=1)).all():
-                raise ValueError(f'requested time outside {fn}')
+            if all(atreq < (time-timedelta(seconds=TIME_TOL))) | all(atreq > time+timedelta(seconds=TIME_TOL)):
+                raise ValueError(f'requested time {atreq} outside {fn}')
 
-            i = abs(time - treq[0]).argmin()
-        elif treq.size == 2:  # start, end
-            i = (time >= treq[0]) & (time <= treq[1])
+            i = abs(time - atreq[0]).argmin()
+        elif atreq.size == 2:  # start, end
+            i = (time >= atreq[0]) & (time <= atreq[1])
         else:
             raise ValueError('for now, time req is single time or time range')
 
@@ -112,14 +167,33 @@ def _timeslice(path: Path, site: str = None,
     elif len(time) == 0:
         raise ValueError(f'no times were found with requested time bounds {treq}')
 
-    return xarray.DataArray(imgs, {'time': time}, ['time', 'y', 'x'],
+    return xarray.DataArray(imgs,
+                            coords={'time': time},
+                            dims=['time', 'y', 'x'],
                             attrs={'filename': fn.name, 'site': site})
 
 
-def _sitefn(path: Path, site: str = None,
-            treq: Union[datetime, Sequence[datetime], np.ndarray] = None) -> Tuple[str, Path]:
+def _sitefn(path: Path,
+            site: str = None,
+            treq: Sequence[datetime] = None) -> Tuple[str, Path]:
     """
-    gets site name and CDF key from filename (!)
+    gets site name and CDF key from filename
+
+    Parameters
+    ----------
+    path: pathlib.Path
+        directory or path to THemis ASI data file
+    site: str
+        site code e.g. gako for Gakona
+    treq: datetime.datetime or list of datetime.datetime
+        requested time or time range
+
+    Returns
+    -------
+    site: str
+        site code
+    fn: pathlib.Path
+        path to Themis ASI data file
     """
 
     path = Path(path).expanduser()
@@ -149,24 +223,22 @@ def _sitefn(path: Path, site: str = None,
             fn = path / f'thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf'
 
     elif path.is_file():
-        if site:
-            raise ValueError('specify filename OR site')
-
         fn = path
 
         h = cdfread(fn)
-        site = h.attget('Descriptor', 0)['Data'][:4].lower()
+        if not site:
+            site = h.attget('Descriptor', 0)['Data'][:4].lower()
+        if site != h.attget('Descriptor', 0)['Data'][:4].lower():
+            raise ValueError(f'{site} is not in {fn}')
     else:
-        raise FileNotFoundError(f'video file not found in {path}')
-
-    assert isinstance(site, str)
+        raise FileNotFoundError(path)
 
     return site, fn
 
 
-def _timereq(treq: datetime = None) -> Optional[datetime]:
+def _timereq(treq: List[datetime]) -> List[datetime]:
 
-    if treq is None or isinstance(treq, datetime):
+    if isinstance(treq, datetime):
         pass
     elif isinstance(treq, str):
         treq = parse(treq)
@@ -175,7 +247,7 @@ def _timereq(treq: datetime = None) -> Optional[datetime]:
     elif isinstance(treq[0], datetime):  # type: ignore
         pass
     else:
-        raise TypeError(f'not sure what treq {treq} is')
+        raise TypeError(treq)
 
     return treq
 
@@ -216,6 +288,9 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
 
     if fn.suffix == '.cdf':
         site = fn.name.split('_')[3]
+        if cdfread is None:
+            raise ImportError('pip install cdflib')
+
         h = cdfread(fn)
         az = h[f'thg_asf_{site}_azim'][0]
         el = h[f'thg_asf_{site}_elev'][0]
@@ -269,10 +344,10 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
             x = h['x'][0, :]
             y = h['y'][:, 0]
     elif fn.suffix == '.nc':
-        if Dataset is None:
+        if netCDF4.Dataset is None:
             raise ImportError('pip install netCDF4')
 
-        with Dataset(fn, 'r') as h:
+        with netCDF4.Dataset(fn, 'r') as h:
             az = h['az'][:]
             el = h['el'][:]
             lat = h['lla'][0]
@@ -293,7 +368,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     return cal
 
 
-def loadcal(path: Path, site: str = None, time: datetime = None) -> xarray.Dataset:
+def loadcal(path: Path, site: str = None, time: Sequence[datetime] = None) -> xarray.Dataset:
     path = Path(path).expanduser()
 
     if path.is_file() and site is None or time is None:
@@ -310,7 +385,7 @@ def loadcal(path: Path, site: str = None, time: datetime = None) -> xarray.Datas
     return loadcal_file(fn)
 
 
-def _findcal(path: Path, site: str, time: datetime) -> Path:
+def _findcal(path: Path, site: str, time: Sequence[datetime]) -> Path:
     """
     attempt to find nearest previous time calibration file
     """
