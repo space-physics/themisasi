@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>themisasi.fov API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>themisasi.fov</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">import logging
+import xarray
+import numpy as np
+from typing import Tuple
+from pymap3d.haversine import anglesep
+import pymap3d as pm
+from pymap3d.vincenty import vdist
+import histutils.findnearest as fnd
+try:
+    import scipy.ndimage as ndi
+except ImportError:
+    ndi = None
+
+
+def getimgind(imgs: xarray.Dataset, lla: np.ndarray,
+              az: np.ndarray, el: np.ndarray) -&gt; np.ndarray:
+    &#34;&#34;&#34; find pixels in images according to lat,lon,alt or az,el spec&#34;&#34;&#34;
+    if lla is not None:
+        lla = np.atleast_2d(lla)
+        assert lla.ndim == 2
+        assert lla.shape[1] == 3
+        N = lla.shape[0]
+    elif az is not None and el is not None:
+        az = np.atleast_1d(az)
+        el = np.atleast_1d(el)
+        assert az.ndim == 1 and el.ndim == 1
+        N = az.size
+    else:
+        raise ValueError(&#39;must specify LLA or az/el&#39;)
+# %% work
+    ind = np.empty((N, 2), dtype=int)
+
+    if lla is not None:
+        az, el, _ = pm.geodetic2aer(lla[:, 0], lla[:, 1], lla[:, 2]*1000,
+                                    imgs.lat, imgs.lon, imgs.alt_m)
+
+    for i, (a, e) in enumerate(zip(az, el)):
+        ind[i, :] = fnd.findClosestAzel(imgs.az, imgs.el, a, e)
+
+    ind = np.unique(ind, axis=0)
+
+    assert ind.ndim == 2
+    assert ind.shape[1] == 2  # row, column
+
+    return ind
+
+
+def projected_coord(imgs: xarray.Dataset, ind: np.ndarray, lla: Tuple[float, float, float]):
+    az = imgs.az[ind[:, 0], ind[:, 1]].values.squeeze()
+    el = imgs.el[ind[:, 0], ind[:, 1]].values.squeeze()
+
+    alt_m = lla[2]*1000 if lla is not None else 100e3
+
+    plat, plon, palt_m = pm.aer2geodetic(az, el, alt_m / np.sin(np.radians(el)),
+                                         imgs.lat, imgs.lon, imgs.alt_m)
+
+    return az, el, plat, plon, palt_m
+
+
+def line2plane(cam: xarray.Dataset) -&gt; xarray.Dataset:
+    &#34;&#34;&#34;
+    previously, you find the row, col pixels along the line from the other camera to magnetic zenith.
+    In this function, you find the indices of the plane passing through that line and both cameras.
+
+    Inputs:
+    -------
+    row: row indices of line
+    col: column indices of line
+    nPlane: number of samples (pixels) to take for plane.
+      If the plane is horizontal in the images, it would be approximately the number of x-pixels.
+      If diagonal, it would be about sqrt(2)*Nx.
+      If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
+      This parameter is not critical.
+    &#34;&#34;&#34;
+# %% linear regression
+    polycoeff = np.polyfit(cam[&#39;cols&#39;], cam[&#39;rows&#39;], deg=3, full=False)
+# %% columns (x)  to cut from picture (have to pick either rows or cols, arbitrarily I use cols)
+    # NOT range, NEED dtype= for arange api
+
+# %% rows (y) to cut from picture
+    cam[&#39;cutrow&#39;] = np.rint(np.polyval(polycoeff, cam[&#39;cutcol&#39;])).astype(int)
+    assert (cam[&#39;cutrow&#39;] &gt;= 0).all() and (cam[&#39;cutrow&#39;] &lt; cam.y.size).all(
+    ), &#39;impossible least squares fit for 1-D cut\n is your video orientation correct? are you outside the FOV?&#39;
+
+    # DONT DO THIS: cutrow.clip(0,self.supery,cutrow)
+# %% angle from magnetic zenith corresponding to those pixels
+    anglesep_deg = anglesep(cam.Bel, cam.Baz,
+                            # NEED .values or you&#39;ll get 2-D instead of 1-D!
+                            cam.el.values[cam.cutrow, cam.cutcol],
+                            cam.az.values[cam.cutrow, cam.cutcol])
+
+    if cam.verbose:
+        from maatplotlib.pyplot import figure
+        ax = figure().gca()
+        ax.plot(cam.cutcol, anglesep_deg, label=&#39;angle_sep from MZ&#39;)
+        ax.plot(cam.cutcol, cam.el.values[cam.cutrow,
+                                          cam.cutcol], label=&#39;elevation angle [deg]&#39;)
+        ax.legend()
+
+    assert anglesep_deg.ndim == 1
+    if not np.isfinite(anglesep_deg).all():
+        logging.error(f&#39;did you pick areas outside the {cam.filename} FOV?&#39;)
+# %% assemble angular distances from magnetic zenith--these are used in the tomography algorithm
+    cam[&#39;angle_deg&#39;], cam[&#39;angleMagzenind&#39;] = sky2beam(
+        anglesep_deg, cam.cutcol.size)
+
+    return cam
+
+
+def sky2beam(anglesep_deg, Ncol: int):
+    angle_deg = np.empty(Ncol, float)
+    # whether minimum angle distance from MZ is slightly positive or slightly negative, this should be OK
+    MagZenInd = anglesep_deg.argmin()
+
+    angle_deg[MagZenInd:] = 90. + anglesep_deg[MagZenInd:]
+    angle_deg[:MagZenInd] = 90. - anglesep_deg[:MagZenInd]
+# %% LSQ
+    col = np.arange(Ncol, dtype=int)
+    polycoeff = np.polyfit(col, angle_deg, deg=1, full=False)
+
+    return np.polyval(polycoeff, col), MagZenInd
+
+
+def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str = None):
+    &#34;&#34;&#34;
+    inputs:
+    -------
+    w0: wide FOV data, particularly az/el
+    w1: other camera FOV data contained in w0
+    projalt: projection altitude METERS
+    ofn: plot filename
+    fovrow: to vastly speedup intiial overlap exploration, pick row(s) of pixels to examing--it could take half an hour + otherwise.
+
+    find the ECEF x,y,z, at 110km altitude for narrow camera outer pixel
+    boundary, then find the closest pixels in the wide FOV to those points.
+    Remember, it can be (much) faster to brute force this calculation than to use
+    k-d tree.
+
+    &#34;&#34;&#34;
+    if projalt &lt; 1e3:
+        logging.warning(
+            f&#39;this function expects meters, you picked projection altitude {projalt/1e3} km&#39;)
+
+# %% print distance from wide camera to narrow camera (just for information)
+    print(
+        f&#34;intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers&#34;)
+# %% ENU projection from cam0 to cam1
+    e1, n1, u1 = pm.geodetic2enu(w1.lat, w1.lon, w1.alt_m,
+                                 w0.lat, w0.lon, w0.alt_m)
+# %% find the ENU of narrow FOV pixels at 110km from narrow FOV
+    w1 = pixelmask(w1, method)
+    if method is not None and method.lower() == &#39;mzslice&#39;:
+        w0 = pixelmask(w0, method)
+        azSlice0, elSlice0, rSlice0 = pm.ecef2aer(w1.x2mz, w1.y2mz, w1.z2mz,
+                                                  w0.lat, w0.lon, w0.alt_m)
+        azSlice1, elSlice1, rSlice1 = pm.ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz,
+                                                  w1.lat, w1.lon, w1.alt_m)
+        # find image indices (mask) corresponding to slice az,el
+        w0[&#39;rows&#39;], w0[&#39;cols&#39;] = fnd.findClosestAzel(w0[&#39;az&#39;].where(w0[&#39;fovmask&#39;]),
+                                                     w0[&#39;el&#39;].where(w0[&#39;fovmask&#39;]),
+                                                     azSlice0, elSlice0)
+        w0.attrs[&#39;Brow&#39;], w0.attrs[&#39;Bcol&#39;] = fnd.findClosestAzel(
+            w0[&#39;az&#39;], w0[&#39;el&#39;], w0.Baz, w0.Bel)
+
+        w1[&#39;rows&#39;], w1[&#39;cols&#39;] = fnd.findClosestAzel(w1[&#39;az&#39;].where(w1[&#39;fovmask&#39;]),
+                                                     w1[&#39;el&#39;].where(w1[&#39;fovmask&#39;]),
+                                                     azSlice1, elSlice1)
+        w1.attrs[&#39;Brow&#39;], w1.attrs[&#39;Bcol&#39;] = fnd.findClosestAzel(
+            w1[&#39;az&#39;], w1[&#39;el&#39;], w1.Baz, w1.Bel)
+    else:
+        # csc(x) = 1/sin(x)
+        slantrange = projalt / \
+            np.sin(np.radians(np.ma.masked_invalid(
+                w1[&#39;el&#39;].where(w1[&#39;fovmask&#39;]))))
+        assert (slantrange &gt;= projalt).all(
+        ), &#39;slantrange must be &gt;= projection altitude&#39;
+
+        e0, n0, u0 = pm.aer2enu(w1[&#39;az&#39;], w1[&#39;el&#39;], slantrange)
+    # %% find az,el to narrow FOV from ASI FOV
+        az0, el0, _ = pm.enu2aer(e0 - e1, n0 - n1, u0 - u1)
+        assert (el0 &gt;= 0).all(
+        ), &#39;FOVs may not overlap, negative elevation from cam0 to cam1&#39;
+    # %% nearest neighbor brute force
+        w0[&#39;rows&#39;], w0[&#39;cols&#39;] = fnd.findClosestAzel(w0[&#39;az&#39;], w0[&#39;el&#39;], az0, el0)
+
+    return w0, w1
+
+
+def pixelmask(data: xarray.Dataset, method: str = None) -&gt; xarray.Dataset:
+    &#34;&#34;&#34;
+    Use list because image may not be square
+
+    returns mask of chosen pixels
+    &#34;&#34;&#34;
+    if method is None or method == &#39;rect&#39;:  # outermost edge of image (trivial)
+        mask = np.zeros(data[&#39;az&#39;].shape, dtype=bool)
+        mask[:, 0] = True
+        mask[0, :] = True
+        mask[:, -1] = True
+        mask[-1, :] = True
+    elif method == &#39;perimeter&#39;:  # perimeter for arbitrary shapes  e.g all-sky cameras
+        if ndi is None:
+            raise ImportError(&#39;pip install scipy&#39;)
+
+        mask = ndi.distance_transform_cdt(~np.isnan(data[&#39;az&#39;]), &#39;taxicab&#39;) == 1
+    elif method.lower() == &#39;mzslice&#39;:
+        &#34;&#34;&#34;
+        Assuming the imagers are all-sky, we arbitrarily discard pixels of low elevation as distortion is high low to horizon.
+        &#34;&#34;&#34;
+        MIN_EL = 5  # degrees, arbitrary
+        if data.srpts is None:
+            return ValueError(&#39;must include slant range points&#39;)
+
+        mask = np.zeros(data[&#39;az&#39;].shape, dtype=bool)
+        mask[data[&#39;el&#39;] &gt;= MIN_EL] = True
+
+        data[&#39;fovmask&#39;] = ((&#39;y&#39;, &#39;x&#39;), mask)
+
+        data.attrs[&#39;x2mz&#39;], data.attrs[&#39;y2mz&#39;], data.attrs[&#39;z2mz&#39;] = pm.aer2ecef(data.attrs[&#39;Baz&#39;], data.attrs[&#39;Bel&#39;],
+                                                                                 data.srpts,
+                                                                                 data.attrs[&#39;lat&#39;], data.attrs[&#39;lon&#39;],
+                                                                                 data.attrs[&#39;alt_m&#39;])
+        return data
+    else:
+        raise ValueError(f&#39;unknown mask {method}&#39;)
+# %% sanity check
+    if ~mask.any():
+        raise ValueError(&#39;no FOV overlap found&#39;)
+
+    data[&#39;fovmask&#39;] = ((&#39;y&#39;, &#39;x&#39;), mask)
+
+    return data</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="themisasi.fov.getimgind"><code class="name flex">
+<span>def <span class="ident">getimgind</span></span>(<span>imgs, lla, az, el)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>find pixels in images according to lat,lon,alt or az,el spec</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def getimgind(imgs: xarray.Dataset, lla: np.ndarray,
+              az: np.ndarray, el: np.ndarray) -&gt; np.ndarray:
+    &#34;&#34;&#34; find pixels in images according to lat,lon,alt or az,el spec&#34;&#34;&#34;
+    if lla is not None:
+        lla = np.atleast_2d(lla)
+        assert lla.ndim == 2
+        assert lla.shape[1] == 3
+        N = lla.shape[0]
+    elif az is not None and el is not None:
+        az = np.atleast_1d(az)
+        el = np.atleast_1d(el)
+        assert az.ndim == 1 and el.ndim == 1
+        N = az.size
+    else:
+        raise ValueError(&#39;must specify LLA or az/el&#39;)
+# %% work
+    ind = np.empty((N, 2), dtype=int)
+
+    if lla is not None:
+        az, el, _ = pm.geodetic2aer(lla[:, 0], lla[:, 1], lla[:, 2]*1000,
+                                    imgs.lat, imgs.lon, imgs.alt_m)
+
+    for i, (a, e) in enumerate(zip(az, el)):
+        ind[i, :] = fnd.findClosestAzel(imgs.az, imgs.el, a, e)
+
+    ind = np.unique(ind, axis=0)
+
+    assert ind.ndim == 2
+    assert ind.shape[1] == 2  # row, column
+
+    return ind</code></pre>
+</details>
+</dd>
+<dt id="themisasi.fov.line2plane"><code class="name flex">
+<span>def <span class="ident">line2plane</span></span>(<span>cam)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>previously, you find the row, col pixels along the line from the other camera to magnetic zenith.
+In this function, you find the indices of the plane passing through that line and both cameras.</p>
+<h2 id="inputs">Inputs:</h2>
+<p>row: row indices of line
+col: column indices of line
+nPlane: number of samples (pixels) to take for plane.
+If the plane is horizontal in the images, it would be approximately the number of x-pixels.
+If diagonal, it would be about sqrt(2)*Nx.
+If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
+This parameter is not critical.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def line2plane(cam: xarray.Dataset) -&gt; xarray.Dataset:
+    &#34;&#34;&#34;
+    previously, you find the row, col pixels along the line from the other camera to magnetic zenith.
+    In this function, you find the indices of the plane passing through that line and both cameras.
+
+    Inputs:
+    -------
+    row: row indices of line
+    col: column indices of line
+    nPlane: number of samples (pixels) to take for plane.
+      If the plane is horizontal in the images, it would be approximately the number of x-pixels.
+      If diagonal, it would be about sqrt(2)*Nx.
+      If less, the image is sampled more sparsely, which is in effect recducing the resolution of the image.
+      This parameter is not critical.
+    &#34;&#34;&#34;
+# %% linear regression
+    polycoeff = np.polyfit(cam[&#39;cols&#39;], cam[&#39;rows&#39;], deg=3, full=False)
+# %% columns (x)  to cut from picture (have to pick either rows or cols, arbitrarily I use cols)
+    # NOT range, NEED dtype= for arange api
+
+# %% rows (y) to cut from picture
+    cam[&#39;cutrow&#39;] = np.rint(np.polyval(polycoeff, cam[&#39;cutcol&#39;])).astype(int)
+    assert (cam[&#39;cutrow&#39;] &gt;= 0).all() and (cam[&#39;cutrow&#39;] &lt; cam.y.size).all(
+    ), &#39;impossible least squares fit for 1-D cut\n is your video orientation correct? are you outside the FOV?&#39;
+
+    # DONT DO THIS: cutrow.clip(0,self.supery,cutrow)
+# %% angle from magnetic zenith corresponding to those pixels
+    anglesep_deg = anglesep(cam.Bel, cam.Baz,
+                            # NEED .values or you&#39;ll get 2-D instead of 1-D!
+                            cam.el.values[cam.cutrow, cam.cutcol],
+                            cam.az.values[cam.cutrow, cam.cutcol])
+
+    if cam.verbose:
+        from maatplotlib.pyplot import figure
+        ax = figure().gca()
+        ax.plot(cam.cutcol, anglesep_deg, label=&#39;angle_sep from MZ&#39;)
+        ax.plot(cam.cutcol, cam.el.values[cam.cutrow,
+                                          cam.cutcol], label=&#39;elevation angle [deg]&#39;)
+        ax.legend()
+
+    assert anglesep_deg.ndim == 1
+    if not np.isfinite(anglesep_deg).all():
+        logging.error(f&#39;did you pick areas outside the {cam.filename} FOV?&#39;)
+# %% assemble angular distances from magnetic zenith--these are used in the tomography algorithm
+    cam[&#39;angle_deg&#39;], cam[&#39;angleMagzenind&#39;] = sky2beam(
+        anglesep_deg, cam.cutcol.size)
+
+    return cam</code></pre>
+</details>
+</dd>
+<dt id="themisasi.fov.mergefov"><code class="name flex">
+<span>def <span class="ident">mergefov</span></span>(<span>w0, w1, projalt=110000.0, method=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="inputs">inputs:</h2>
+<p>w0: wide FOV data, particularly az/el
+w1: other camera FOV data contained in w0
+projalt: projection altitude METERS
+ofn: plot filename
+fovrow: to vastly speedup intiial overlap exploration, pick row(s) of pixels to examing&ndash;it could take half an hour + otherwise.</p>
+<p>find the ECEF x,y,z, at 110km altitude for narrow camera outer pixel
+boundary, then find the closest pixels in the wide FOV to those points.
+Remember, it can be (much) faster to brute force this calculation than to use
+k-d tree.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str = None):
+    &#34;&#34;&#34;
+    inputs:
+    -------
+    w0: wide FOV data, particularly az/el
+    w1: other camera FOV data contained in w0
+    projalt: projection altitude METERS
+    ofn: plot filename
+    fovrow: to vastly speedup intiial overlap exploration, pick row(s) of pixels to examing--it could take half an hour + otherwise.
+
+    find the ECEF x,y,z, at 110km altitude for narrow camera outer pixel
+    boundary, then find the closest pixels in the wide FOV to those points.
+    Remember, it can be (much) faster to brute force this calculation than to use
+    k-d tree.
+
+    &#34;&#34;&#34;
+    if projalt &lt; 1e3:
+        logging.warning(
+            f&#39;this function expects meters, you picked projection altitude {projalt/1e3} km&#39;)
+
+# %% print distance from wide camera to narrow camera (just for information)
+    print(
+        f&#34;intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers&#34;)
+# %% ENU projection from cam0 to cam1
+    e1, n1, u1 = pm.geodetic2enu(w1.lat, w1.lon, w1.alt_m,
+                                 w0.lat, w0.lon, w0.alt_m)
+# %% find the ENU of narrow FOV pixels at 110km from narrow FOV
+    w1 = pixelmask(w1, method)
+    if method is not None and method.lower() == &#39;mzslice&#39;:
+        w0 = pixelmask(w0, method)
+        azSlice0, elSlice0, rSlice0 = pm.ecef2aer(w1.x2mz, w1.y2mz, w1.z2mz,
+                                                  w0.lat, w0.lon, w0.alt_m)
+        azSlice1, elSlice1, rSlice1 = pm.ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz,
+                                                  w1.lat, w1.lon, w1.alt_m)
+        # find image indices (mask) corresponding to slice az,el
+        w0[&#39;rows&#39;], w0[&#39;cols&#39;] = fnd.findClosestAzel(w0[&#39;az&#39;].where(w0[&#39;fovmask&#39;]),
+                                                     w0[&#39;el&#39;].where(w0[&#39;fovmask&#39;]),
+                                                     azSlice0, elSlice0)
+        w0.attrs[&#39;Brow&#39;], w0.attrs[&#39;Bcol&#39;] = fnd.findClosestAzel(
+            w0[&#39;az&#39;], w0[&#39;el&#39;], w0.Baz, w0.Bel)
+
+        w1[&#39;rows&#39;], w1[&#39;cols&#39;] = fnd.findClosestAzel(w1[&#39;az&#39;].where(w1[&#39;fovmask&#39;]),
+                                                     w1[&#39;el&#39;].where(w1[&#39;fovmask&#39;]),
+                                                     azSlice1, elSlice1)
+        w1.attrs[&#39;Brow&#39;], w1.attrs[&#39;Bcol&#39;] = fnd.findClosestAzel(
+            w1[&#39;az&#39;], w1[&#39;el&#39;], w1.Baz, w1.Bel)
+    else:
+        # csc(x) = 1/sin(x)
+        slantrange = projalt / \
+            np.sin(np.radians(np.ma.masked_invalid(
+                w1[&#39;el&#39;].where(w1[&#39;fovmask&#39;]))))
+        assert (slantrange &gt;= projalt).all(
+        ), &#39;slantrange must be &gt;= projection altitude&#39;
+
+        e0, n0, u0 = pm.aer2enu(w1[&#39;az&#39;], w1[&#39;el&#39;], slantrange)
+    # %% find az,el to narrow FOV from ASI FOV
+        az0, el0, _ = pm.enu2aer(e0 - e1, n0 - n1, u0 - u1)
+        assert (el0 &gt;= 0).all(
+        ), &#39;FOVs may not overlap, negative elevation from cam0 to cam1&#39;
+    # %% nearest neighbor brute force
+        w0[&#39;rows&#39;], w0[&#39;cols&#39;] = fnd.findClosestAzel(w0[&#39;az&#39;], w0[&#39;el&#39;], az0, el0)
+
+    return w0, w1</code></pre>
+</details>
+</dd>
+<dt id="themisasi.fov.pixelmask"><code class="name flex">
+<span>def <span class="ident">pixelmask</span></span>(<span>data, method=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Use list because image may not be square</p>
+<p>returns mask of chosen pixels</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def pixelmask(data: xarray.Dataset, method: str = None) -&gt; xarray.Dataset:
+    &#34;&#34;&#34;
+    Use list because image may not be square
+
+    returns mask of chosen pixels
+    &#34;&#34;&#34;
+    if method is None or method == &#39;rect&#39;:  # outermost edge of image (trivial)
+        mask = np.zeros(data[&#39;az&#39;].shape, dtype=bool)
+        mask[:, 0] = True
+        mask[0, :] = True
+        mask[:, -1] = True
+        mask[-1, :] = True
+    elif method == &#39;perimeter&#39;:  # perimeter for arbitrary shapes  e.g all-sky cameras
+        if ndi is None:
+            raise ImportError(&#39;pip install scipy&#39;)
+
+        mask = ndi.distance_transform_cdt(~np.isnan(data[&#39;az&#39;]), &#39;taxicab&#39;) == 1
+    elif method.lower() == &#39;mzslice&#39;:
+        &#34;&#34;&#34;
+        Assuming the imagers are all-sky, we arbitrarily discard pixels of low elevation as distortion is high low to horizon.
+        &#34;&#34;&#34;
+        MIN_EL = 5  # degrees, arbitrary
+        if data.srpts is None:
+            return ValueError(&#39;must include slant range points&#39;)
+
+        mask = np.zeros(data[&#39;az&#39;].shape, dtype=bool)
+        mask[data[&#39;el&#39;] &gt;= MIN_EL] = True
+
+        data[&#39;fovmask&#39;] = ((&#39;y&#39;, &#39;x&#39;), mask)
+
+        data.attrs[&#39;x2mz&#39;], data.attrs[&#39;y2mz&#39;], data.attrs[&#39;z2mz&#39;] = pm.aer2ecef(data.attrs[&#39;Baz&#39;], data.attrs[&#39;Bel&#39;],
+                                                                                 data.srpts,
+                                                                                 data.attrs[&#39;lat&#39;], data.attrs[&#39;lon&#39;],
+                                                                                 data.attrs[&#39;alt_m&#39;])
+        return data
+    else:
+        raise ValueError(f&#39;unknown mask {method}&#39;)
+# %% sanity check
+    if ~mask.any():
+        raise ValueError(&#39;no FOV overlap found&#39;)
+
+    data[&#39;fovmask&#39;] = ((&#39;y&#39;, &#39;x&#39;), mask)
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="themisasi.fov.projected_coord"><code class="name flex">
+<span>def <span class="ident">projected_coord</span></span>(<span>imgs, ind, lla)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def projected_coord(imgs: xarray.Dataset, ind: np.ndarray, lla: Tuple[float, float, float]):
+    az = imgs.az[ind[:, 0], ind[:, 1]].values.squeeze()
+    el = imgs.el[ind[:, 0], ind[:, 1]].values.squeeze()
+
+    alt_m = lla[2]*1000 if lla is not None else 100e3
+
+    plat, plon, palt_m = pm.aer2geodetic(az, el, alt_m / np.sin(np.radians(el)),
+                                         imgs.lat, imgs.lon, imgs.alt_m)
+
+    return az, el, plat, plon, palt_m</code></pre>
+</details>
+</dd>
+<dt id="themisasi.fov.sky2beam"><code class="name flex">
+<span>def <span class="ident">sky2beam</span></span>(<span>anglesep_deg, Ncol)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def sky2beam(anglesep_deg, Ncol: int):
+    angle_deg = np.empty(Ncol, float)
+    # whether minimum angle distance from MZ is slightly positive or slightly negative, this should be OK
+    MagZenInd = anglesep_deg.argmin()
+
+    angle_deg[MagZenInd:] = 90. + anglesep_deg[MagZenInd:]
+    angle_deg[:MagZenInd] = 90. - anglesep_deg[:MagZenInd]
+# %% LSQ
+    col = np.arange(Ncol, dtype=int)
+    polycoeff = np.polyfit(col, angle_deg, deg=1, full=False)
+
+    return np.polyval(polycoeff, col), MagZenInd</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="themisasi" href="index.html">themisasi</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="themisasi.fov.getimgind" href="#themisasi.fov.getimgind">getimgind</a></code></li>
+<li><code><a title="themisasi.fov.line2plane" href="#themisasi.fov.line2plane">line2plane</a></code></li>
+<li><code><a title="themisasi.fov.mergefov" href="#themisasi.fov.mergefov">mergefov</a></code></li>
+<li><code><a title="themisasi.fov.pixelmask" href="#themisasi.fov.pixelmask">pixelmask</a></code></li>
+<li><code><a title="themisasi.fov.projected_coord" href="#themisasi.fov.projected_coord">projected_coord</a></code></li>
+<li><code><a title="themisasi.fov.sky2beam" href="#themisasi.fov.sky2beam">sky2beam</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
