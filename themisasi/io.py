@@ -42,7 +42,7 @@ def load(path: Path,
     path: pathlib.Path
         directory where Themis ASI data files are
     site: str, optional
-        site code e.g. gako
+        site code e.g. gako.  Only needed if "path" is a directory instead of a file
     treq: datetime.datetime or list of datetime.datetime, optional
         requested time to load
     calfn: pathlib.Path, optional
@@ -237,6 +237,9 @@ def _sitefn(path: Path,
 
 
 def _timereq(treq: List[datetime]) -> List[datetime]:
+    """
+    parse time request
+    """
 
     if isinstance(treq, datetime):
         pass
@@ -254,7 +257,9 @@ def _timereq(treq: List[datetime]) -> List[datetime]:
 
 def _downsample(imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray,
                 x: np.ndarray, y: np.ndarray) -> xarray.Dataset:
-    """downsamples cal data to match image data
+    """
+    downsamples cal data to match image data
+
     because of the discontinuous nature of the calibration data, typical resampling is not valid.
     Figured better to add a little error with plain decimation rather than enormous error with invalid technique.
     """
@@ -279,6 +284,16 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     reads data mapping themis gbo asi pixels to azimuth,elevation
     calibration data url is
     http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
+
+    Parameters
+    ----------
+    fn: pathlib.Path
+        path to calibration file
+
+    Returns
+    -------
+    cal: xarray.Dataset
+        calibration data
     """
     site = None
     time = None
@@ -368,16 +383,36 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     return cal
 
 
-def loadcal(path: Path, site: str = None, time: Sequence[datetime] = None) -> xarray.Dataset:
+def loadcal(path: Path,
+            site: str = None,
+            time: Sequence[datetime] = None) -> xarray.Dataset:
+    """
+    load calibration skymap file
+
+    Parameters
+    ----------
+    path: pathlib.Path
+        directory or path to calibration file
+    site: str
+        site code e.g. gako
+    time: datetime.datetime or list of datetime.datetime
+        time requested
+
+    Returns
+    -------
+    cal: xarray.Dataset
+        calibration data
+    """
     path = Path(path).expanduser()
 
-    if path.is_file() and site is None or time is None:
-        try:
-            return loadcal_file(path)
-        except (KeyError, ValueError):
-            return None
-    elif path.is_file():
-        path = path.parent
+    if path.is_file():
+        if site is None or time is None:
+            try:
+                return loadcal_file(path)
+            except (KeyError, ValueError):
+                return None
+        else:
+            path = path.parent
 
     assert isinstance(site, str)
     fn = _findcal(path, site, time)
