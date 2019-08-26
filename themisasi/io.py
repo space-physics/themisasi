@@ -445,24 +445,24 @@ def _findcal(path: Path, site: str, time: Sequence[datetime]) -> Path:
 
     datecdf = None
     if cdates:
-        for i, date in enumerate(cdates):
+        for _i, date in enumerate(cdates):
             if date < time:
                 break
         if date < time:
             datecdf = date
-            icdf = len(cdates) - (i+1)
+            icdf = len(cdates) - (_i+1)
 # %% IDL .sav
     fsav = list(path.glob(f'themis_skymap_{site}_*.sav'))
     sdates = [loadcal(fn).caltime for fn in fsav]
 
     datesav = None
     if sdates:
-        for i, date in enumerate(sdates):
+        for _i, date in enumerate(sdates):
             if date < time:
                 break
         if date < time:
             datesav = date
-            isav = len(sdates) - (i+1)
+            isav = len(sdates) - (_i+1)
 
 # %% get result
     if not sdates and not cdates:
