@@ -24,11 +24,7 @@ giving **azimuth and elevation** for each pixel.
   ```sh
   git clone https://github.com/space-physics/themisasi
   ```
-1. install `cdflib`, which only uses Numpy to read CDF:
-   ```sh
-   pip install -r themisasi/requirements.txt
-   ```
-2. install this program
+1. install this program
    ```sh
    pip install -e themisasi
    ```
