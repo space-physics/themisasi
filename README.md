@@ -1,8 +1,7 @@
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
 
-[![Build Status](https://travis-ci.com/space-physics/themisasi.svg?branch=master)](https://travis-ci.com/space-physics/themisasi)
-[![Coverage Status](https://coveralls.io/repos/github/space-physics/themisasi/badge.svg?branch=master)](https://coveralls.io/github/space-physics/themisasi?branch=master)
-[![Build status](https://ci.appveyor.com/api/projects/status/9wakqphkwx8620r8?svg=true)](https://ci.appveyor.com/project/scivision/themisasi-sld7t)
+[![Actions Status](https://github.com/space-physics/themisasi/workflows/ci/badge.svg)](https://github.com/space-physics/themisasi/actions)
+
 [![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
 
@@ -21,13 +20,17 @@ giving **azimuth and elevation** for each pixel.
 
 ## Install
 
+0. clone this repository
+  ```sh
+  git clone https://github.com/space-physics/themisasi
+  ```
 1. install `cdflib`, which only uses Numpy to read CDF:
    ```sh
-   pip install -r requirements.txt
+   pip install -r themisasi/requirements.txt
    ```
 2. install this program
    ```sh
-   pip install -e .
+   pip install -e themisasi
    ```
 
 You can test the basic functionality by from the top `cdflib` directory:

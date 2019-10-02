@@ -14,23 +14,23 @@ from matplotlib.pyplot import show
 
 
 def main():
-    p = ArgumentParser(description='register/plot other camera FOV onto Themis FOV')
-    p.add_argument('themiscal', help='ASI calibration')
-    p.add_argument('dasccal', help='DASC cal', nargs=3)
-    p.add_argument('-o', '--ofn', help='write output plot')
+    p = ArgumentParser(description="register/plot other camera FOV onto Themis FOV")
+    p.add_argument("themiscal", help="ASI calibration")
+    p.add_argument("dasccal", help="DASC cal", nargs=3)
+    p.add_argument("-o", "--ofn", help="write output plot")
     P = p.parse_args()
 
-# %% load data
+    # %% load data
     themis = ta.loadcal(P.themiscal)
     dasc = dio.load(*P.dasccal)
-# %% merge FOV
+    # %% merge FOV
     # paint HiST field of view onto Themis
-    themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method='perimeter')
-# %% plot joint az/el contours
-    tap.jointazel(themis, P.ofn, 'Themis Gakona overlaid on Poker Flat ASI')
+    themis, dasc = taf.mergefov(themis, dasc, projalt=110e3, method="perimeter")
+    # %% plot joint az/el contours
+    tap.jointazel(themis, P.ofn, "Themis Gakona overlaid on Poker Flat ASI")
 
     show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

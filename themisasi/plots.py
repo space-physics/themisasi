@@ -6,71 +6,69 @@ from matplotlib.pyplot import figure, draw, pause
 from matplotlib.colors import LogNorm
 
 
-def jointazel(cam: xarray.Dataset,
-              ofn: Path = None,
-              ttxt: str = ''):
+def jointazel(cam: xarray.Dataset, ofn: Path = None, ttxt: str = ""):
 
     fg, axs = plotazel(cam, ttxt)
-# %% plot line from other camera to magnetic zenith
-    overlayrowcol(axs[0], cam.rows, cam.cols, 'g')
-    overlayrowcol(axs[1], cam.rows, cam.cols, 'g')
-# %% plot plane including this camera and line to magnetic zenith from other camera
+    # %% plot line from other camera to magnetic zenith
+    overlayrowcol(axs[0], cam.rows, cam.cols, "g")
+    overlayrowcol(axs[1], cam.rows, cam.cols, "g")
+    # %% plot plane including this camera and line to magnetic zenith from other camera
     try:
-        axs[0] = overlayrowcol(axs[0], cam.cutrow, cam.cutcol, 'r', '1-D cut')
-        axs[1] = overlayrowcol(axs[1], cam.cutrow, cam.cutcol, 'r', '1-D cut')
+        axs[0] = overlayrowcol(axs[0], cam.cutrow, cam.cutcol, "r", "1-D cut")
+        axs[1] = overlayrowcol(axs[1], cam.cutrow, cam.cutcol, "r", "1-D cut")
     except AttributeError:
         pass  # this was not a 1-D plane case
 
     if ofn:
         ofn = Path(ofn).expanduser()
-        print('saving', ofn)
-        fg.savefig(ofn, bbox_inches='tight', dpi=100)
+        print("saving", ofn)
+        fg.savefig(ofn, bbox_inches="tight", dpi=100)
 
-    if 'Baz' in cam.attrs:
-        axs[0].scatter(cam.Bcol, cam.Brow, 250, 'red', '*', label='Mag. Zen.')
-        axs[1].scatter(cam.Bcol, cam.Brow, 250, 'red', '*', label='Mag. Zen.')
+    if "Baz" in cam.attrs:
+        axs[0].scatter(cam.Bcol, cam.Brow, 250, "red", "*", label="Mag. Zen.")
+        axs[1].scatter(cam.Bcol, cam.Brow, 250, "red", "*", label="Mag. Zen.")
 
     for a in axs:
         a.legend()
 
 
-def plotazel(data: xarray.Dataset, ttxt: str = ''):
+def plotazel(data: xarray.Dataset, ttxt: str = ""):
 
-    if 'az' not in data or 'el' not in data:
+    if "az" not in data or "el" not in data:
         return
 
     fg = figure(figsize=(12, 6))
     ax = fg.subplots(1, 2, sharey=True)
 
-    ttxt = f'{data.filename} {ttxt}'
+    ttxt = f"{data.filename} {ttxt}"
     if data.caltime is not None:
-        ttxt += f'{data.caltime}'
+        ttxt += f"{data.caltime}"
 
     fg.suptitle(ttxt)
 
-    c = ax[0].contour(data['az'].x, data['az'].y, data['az'])
-    ax[0].clabel(c, fmt='%0.1f')
-    ax[0].set_title('azimuth')
-    ax[0].set_xlabel('x-pixels')
-    ax[0].set_ylabel('y-pixels')
+    c = ax[0].contour(data["az"].x, data["az"].y, data["az"])
+    ax[0].clabel(c, fmt="%0.1f")
+    ax[0].set_title("azimuth")
+    ax[0].set_xlabel("x-pixels")
+    ax[0].set_ylabel("y-pixels")
 
-    c = ax[1].contour(data['el'].x, data['el'].y, data['el'])
-    ax[1].clabel(c, fmt='%0.1f')
-    ax[1].set_title('elevation')
-    ax[1].set_xlabel('x-pixels')
+    c = ax[1].contour(data["el"].x, data["el"].y, data["el"])
+    ax[1].clabel(c, fmt="%0.1f")
+    ax[1].set_title("elevation")
+    ax[1].set_xlabel("x-pixels")
 
     return fg, ax
 
 
-def plottimeseries(data: np.ndarray, time: datetime, ttxt: str = ''):
+def plottimeseries(data: np.ndarray, time: datetime, ttxt: str = ""):
 
     assert data.ndim == 2
 
     ax = figure().gca()
 
     ax.plot(time, data)
-    ax.set_xlabel('time')
-    ax.set_ylabel('brightness [data numbers]')
+    ax.set_xlabel("time")
+    ax.set_ylabel("brightness [data numbers]")
     ax.set_title(ttxt)
 
 
@@ -86,11 +84,13 @@ def overlayrowcol(ax, rows, cols, color: str = None, label: str = None):
         return
 
     if len(rows) == 1 or isinstance(rows, (np.ndarray, xarray.DataArray)) and rows.ndim == 1:
-        ax.scatter(cols, rows, color=color, alpha=0.5, marker='.', label=label)
+        ax.scatter(cols, rows, color=color, alpha=0.5, marker=".", label=label)
     else:
-        raise ValueError('unknonn row/col layout, was expecting 1-D')
+        raise ValueError("unknonn row/col layout, was expecting 1-D")
 
     return ax
+
+
 # %%
 
 
@@ -100,7 +100,7 @@ def plotasi(data: xarray.Dataset, ofn: Path = None):
     list of 1-D arrays or 2-D array
     """
 
-    if data['imgs'].shape[0] == 0:
+    if data["imgs"].shape[0] == 0:
         return
 
     if ofn:
@@ -110,29 +110,28 @@ def plotasi(data: xarray.Dataset, ofn: Path = None):
     fg = figure()
     ax = fg.gca()
 
-    hi = ax.imshow(data['imgs'][0], cmap='gray', origin='lower',
-                   norm=LogNorm(), interpolation='none')  # priming
-    ttxt = f'Themis ASI {data.site}\n'  # FOV vs. HST0,HST1: green,red '
-    ht = ax.set_title(ttxt, color='g')
-    ax.set_xlabel('x-pixels')
-    ax.set_ylabel('y-pixels')
+    hi = ax.imshow(data["imgs"][0], cmap="gray", origin="lower", norm=LogNorm(), interpolation="none")  # priming
+    ttxt = f"Themis ASI {data.site}\n"  # FOV vs. HST0,HST1: green,red '
+    ht = ax.set_title(ttxt, color="g")
+    ax.set_xlabel("x-pixels")
+    ax.set_ylabel("y-pixels")
     ax.autoscale(True, tight=True)
     ax.grid(False)
-# %% plot narrow FOV outline
-    if 'imgs2' in data:
+    # %% plot narrow FOV outline
+    if "imgs2" in data:
         overlayrowcol(ax, data.rows, data.cols)
-# %% play video
+    # %% play video
     try:
-        for im in data['imgs']:
-            ts = str(im.time.astype('datetime64[us]').astype(datetime))
+        for im in data["imgs"]:
+            ts = str(im.time.astype("datetime64[us]").astype(datetime))
             hi.set_data(im)
             ht.set_text(ttxt + ts)
             draw()
             pause(0.01)
             if ofn:
                 fn = odir / (ofn.stem + ts + ofn.suffix)
-                print('saving', fn, end='\r')
-                fg.savefig(fn, bbox_inches='tight', facecolor='k')
+                print("saving", fn, end="\r")
+                fg.savefig(fn, bbox_inches="tight", facecolor="k")
     except KeyboardInterrupt:
         return
 
@@ -144,6 +143,7 @@ def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=
 
     mask = np.isfinite(x) & np.isfinite(y)
     top = None
+    bottom = None
 
     for i, m in enumerate(mask):
         good = m.nonzero()[0]
@@ -155,11 +155,11 @@ def pcolormesh_nan(x: np.ndarray, y: np.ndarray, c: np.ndarray, cmap=None, axis=
         else:
             bottom = i
 
-        x[i, good[-1]:] = x[i, good[-1]]
-        y[i, good[-1]:] = y[i, good[-1]]
+        x[i, good[-1] :] = x[i, good[-1]]
+        y[i, good[-1] :] = y[i, good[-1]]
 
-        x[i, :good[0]] = x[i, good[0]]
-        y[i, :good[0]] = y[i, good[0]]
+        x[i, : good[0]] = x[i, good[0]]
+        y[i, : good[0]] = y[i, good[0]]
 
     x[:top, :] = np.nanmean(x[top, :])
     y[:top, :] = np.nanmean(y[top, :])
