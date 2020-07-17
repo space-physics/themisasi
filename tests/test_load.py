@@ -49,7 +49,9 @@ def test_load_filename():
     assert (times <= datetime(2011, 1, 6, 18)).all()
 
 
-@pytest.mark.parametrize("site, time", [("gako", "2011-01-06T17:00:00"), ("gako", datetime(2011, 1, 6, 17))])
+@pytest.mark.parametrize(
+    "site, time", [("gako", "2011-01-06T17:00:00"), ("gako", datetime(2011, 1, 6, 17))]
+)
 def test_load_site_time(site, time):
     """ load by sitename + time"""
     dat = ta.load(R, site, time)
@@ -60,7 +62,10 @@ def test_load_site_time(site, time):
 
 @pytest.mark.parametrize(
     "site, treq",
-    [("gako", ("2011-01-06T17:00:00", "2011-01-06T17:00:12")), ("gako", ("2011-01-06T16:59:59", "2011-01-06T17:00:12"))],
+    [
+        ("gako", ("2011-01-06T17:00:00", "2011-01-06T17:00:12")),
+        ("gako", ("2011-01-06T16:59:59", "2011-01-06T17:00:12")),
+    ],
 )
 def test_load_site_timerange(site, treq):
     """ load by sitename + timerange """
@@ -126,4 +131,4 @@ def test_calread_sitedate():
 
 
 if __name__ == "__main__":
-    pytest.main(["-xrsv", __file__])
+    pytest.main([__file__])

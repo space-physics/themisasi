@@ -31,7 +31,9 @@ def getimgind(imgs: xarray.Dataset, lla: np.ndarray, az: np.ndarray, el: np.ndar
     ind = np.empty((N, 2), dtype=int)
 
     if lla is not None:
-        az, el, _ = pm.geodetic2aer(lla[:, 0], lla[:, 1], lla[:, 2] * 1000, imgs.lat, imgs.lon, imgs.alt_m)
+        az, el, _ = pm.geodetic2aer(
+            lla[:, 0], lla[:, 1], lla[:, 2] * 1000, imgs.lat, imgs.lon, imgs.alt_m
+        )
 
     for i, (a, e) in enumerate(zip(az, el)):
         ind[i, :] = fnd.findClosestAzel(imgs.az, imgs.el, a, e)
@@ -50,7 +52,9 @@ def projected_coord(imgs: xarray.Dataset, ind: np.ndarray, lla: Tuple[float, flo
 
     alt_m = lla[2] * 1000 if lla is not None else 100e3
 
-    plat, plon, palt_m = pm.aer2geodetic(az, el, alt_m / np.sin(np.radians(el)), imgs.lat, imgs.lon, imgs.alt_m)
+    plat, plon, palt_m = pm.aer2geodetic(
+        az, el, alt_m / np.sin(np.radians(el)), imgs.lat, imgs.lon, imgs.alt_m
+    )
 
     return az, el, plat, plon, palt_m
 
@@ -139,31 +143,45 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, met
 
     """
     if projalt < 1e3:
-        logging.warning(f"this function expects meters, you picked projection altitude {projalt/1e3} km")
+        logging.warning(
+            f"this function expects meters, you picked projection altitude {projalt/1e3} km"
+        )
 
     # %% print distance from wide camera to narrow camera (just for information)
-    print(f"intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers")
+    print(
+        f"intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers"
+    )
     # %% ENU projection from cam0 to cam1
     e1, n1, u1 = pm.geodetic2enu(w1.lat, w1.lon, w1.alt_m, w0.lat, w0.lon, w0.alt_m)
     # %% find the ENU of narrow FOV pixels at 110km from narrow FOV
     w1 = pixelmask(w1, method)
     if method is not None and method.lower() == "mzslice":
         w0 = pixelmask(w0, method)
-        azSlice0, elSlice0, rSlice0 = pm.ecef2aer(w1.x2mz, w1.y2mz, w1.z2mz, w0.lat, w0.lon, w0.alt_m)
-        azSlice1, elSlice1, rSlice1 = pm.ecef2aer(w0.x2mz, w0.y2mz, w0.z2mz, w1.lat, w1.lon, w1.alt_m)
+        azSlice0, elSlice0, rSlice0 = pm.ecef2aer(
+            w1.x2mz, w1.y2mz, w1.z2mz, w0.lat, w0.lon, w0.alt_m
+        )
+        azSlice1, elSlice1, rSlice1 = pm.ecef2aer(
+            w0.x2mz, w0.y2mz, w0.z2mz, w1.lat, w1.lon, w1.alt_m
+        )
         # find image indices (mask) corresponding to slice az,el
         w0["rows"], w0["cols"] = fnd.findClosestAzel(
             w0["az"].where(w0["fovmask"]), w0["el"].where(w0["fovmask"]), azSlice0, elSlice0
         )
-        w0.attrs["Brow"], w0.attrs["Bcol"] = fnd.findClosestAzel(w0["az"], w0["el"], w0.Baz, w0.Bel)
+        w0.attrs["Brow"], w0.attrs["Bcol"] = fnd.findClosestAzel(
+            w0["az"], w0["el"], w0.Baz, w0.Bel
+        )
 
         w1["rows"], w1["cols"] = fnd.findClosestAzel(
             w1["az"].where(w1["fovmask"]), w1["el"].where(w1["fovmask"]), azSlice1, elSlice1
         )
-        w1.attrs["Brow"], w1.attrs["Bcol"] = fnd.findClosestAzel(w1["az"], w1["el"], w1.Baz, w1.Bel)
+        w1.attrs["Brow"], w1.attrs["Bcol"] = fnd.findClosestAzel(
+            w1["az"], w1["el"], w1.Baz, w1.Bel
+        )
     else:
         # csc(x) = 1/sin(x)
-        slantrange = projalt / np.sin(np.radians(np.ma.masked_invalid(w1["el"].where(w1["fovmask"]))))
+        slantrange = projalt / np.sin(
+            np.radians(np.ma.masked_invalid(w1["el"].where(w1["fovmask"])))
+        )
         assert (slantrange >= projalt).all(), "slantrange must be >= projection altitude"
 
         e0, n0, u0 = pm.aer2enu(w1["az"], w1["el"], slantrange)
@@ -207,7 +225,12 @@ def pixelmask(data: xarray.Dataset, method: str = None) -> xarray.Dataset:
         data["fovmask"] = (("y", "x"), mask)
 
         data.attrs["x2mz"], data.attrs["y2mz"], data.attrs["z2mz"] = pm.aer2ecef(
-            data.attrs["Baz"], data.attrs["Bel"], data.srpts, data.attrs["lat"], data.attrs["lon"], data.attrs["alt_m"]
+            data.attrs["Baz"],
+            data.attrs["Bel"],
+            data.srpts,
+            data.attrs["lat"],
+            data.attrs["lon"],
+            data.attrs["alt_m"],
         )
         return data
     else:

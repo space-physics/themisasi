@@ -7,7 +7,7 @@ import warnings
 from pathlib import Path
 from datetime import datetime, timedelta
 import xarray
-from typing import Tuple, Sequence, List
+import typing as T
 import numpy as np
 from dateutil.parser import parse
 import scipy.io
@@ -29,7 +29,9 @@ except ImportError:
     netCDF4 = None
 
 
-def load(path: Path, site: str = None, treq: List[datetime] = None, calfn: Path = None) -> xarray.Dataset:
+def load(
+    path: Path, site: str = None, treq: T.List[datetime] = None, calfn: Path = None
+) -> xarray.Dataset:
     """
     read THEMIS ASI camera data
 
@@ -71,19 +73,23 @@ def load(path: Path, site: str = None, treq: List[datetime] = None, calfn: Path 
 
     if cal is not None:
         if cal.site is not None and cal.site != imgs.site:
-            raise ValueError(f"cal site {cal.site} and data site {imgs.site} do not match. Was wrong calibration file used?")
+            raise ValueError(
+                f"cal site {cal.site} and data site {imgs.site} do not match. Was wrong calibration file used?"
+            )
 
         data = xarray.merge((data, cal))
         data.attrs = cal.attrs
         data.attrs.update(imgs.attrs)
         if data.caltime is not None:
             if (np.datetime64(data.caltime) >= data.time).any():
-                raise ValueError("calibration is taken AFTER the images--may be incorrect lat/lon az/el plate scale")
+                raise ValueError(
+                    "calibration is taken AFTER the images--may be incorrect lat/lon az/el plate scale"
+                )
 
     return data
 
 
-def filetimes(fn: Path) -> List[datetime]:
+def filetimes(fn: Path) -> T.List[datetime]:
     """
     prints the times available in a THEMIS ASI CDF file
 
@@ -107,7 +113,7 @@ def filetimes(fn: Path) -> List[datetime]:
     return Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
 
 
-def _timeslice(path: Path, site: str = None, treq: Sequence[datetime] = None) -> xarray.DataArray:
+def _timeslice(path: Path, site: str = None, treq: T.Sequence[datetime] = None) -> xarray.DataArray:
     """
     loads time slice of Themis ASI data
 
@@ -143,7 +149,9 @@ def _timeslice(path: Path, site: str = None, treq: Sequence[datetime] = None) ->
 
         if atreq.size == 1:
             # Note: arbitrarily allowing up to 1 second time offset from request
-            if all(atreq < (time - timedelta(seconds=TIME_TOL))) | all(atreq > time + timedelta(seconds=TIME_TOL)):
+            if all(atreq < (time - timedelta(seconds=TIME_TOL))) | all(
+                atreq > time + timedelta(seconds=TIME_TOL)
+            ):
                 raise ValueError(f"requested time {atreq} outside {fn}")
 
             i = abs(time - atreq[0]).argmin()
@@ -162,10 +170,15 @@ def _timeslice(path: Path, site: str = None, treq: Sequence[datetime] = None) ->
     elif len(time) == 0:
         raise ValueError(f"no times were found with requested time bounds {treq}")
 
-    return xarray.DataArray(imgs, coords={"time": time}, dims=["time", "y", "x"], attrs={"filename": fn.name, "site": site})
+    return xarray.DataArray(
+        imgs,
+        coords={"time": time},
+        dims=["time", "y", "x"],
+        attrs={"filename": fn.name, "site": site},
+    )
 
 
-def _sitefn(path: Path, site: str = None, treq: Sequence[datetime] = None) -> Tuple[str, Path]:
+def _sitefn(path: Path, site: str = None, treq: T.Union[datetime, T.Sequence[datetime]] = None) -> T.Tuple[str, Path]:
     """
     gets site name and CDF key from filename
 
@@ -226,7 +239,7 @@ def _sitefn(path: Path, site: str = None, treq: Sequence[datetime] = None) -> Tu
     return site, fn
 
 
-def _timereq(treq: List[datetime]) -> List[datetime]:
+def _timereq(treq: T.List[datetime]) -> T.List[datetime]:
     """
     parse time request
     """
@@ -245,7 +258,9 @@ def _timereq(treq: List[datetime]) -> List[datetime]:
     return treq
 
 
-def _downsample(imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray, x: np.ndarray, y: np.ndarray) -> xarray.Dataset:
+def _downsample(
+    imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray, x: np.ndarray, y: np.ndarray
+) -> xarray.Dataset:
     """
     downsamples cal data to match image data
 
@@ -257,7 +272,9 @@ def _downsample(imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray, x: np.ndar
 
     downscale = (az.shape[0] // imgs.shape[1], az.shape[1] // imgs.shape[2])
 
-    logging.warning(f"downsizing calibration az/el data by factors of {downscale} to match image data")
+    logging.warning(
+        f"downsizing calibration az/el data by factors of {downscale} to match image data"
+    )
 
     az = az[:: downscale[0], :: downscale[1]]
     el = el[:: downscale[0], :: downscale[1]]
@@ -362,13 +379,20 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     cal = xarray.Dataset(
         {"az": (("y", "x"), az), "el": (("y", "x"), el)},
         coords={"y": y, "x": x},
-        attrs={"lat": lat, "lon": lon, "alt_m": alt_m, "site": site, "calfilename": fn.name, "caltime": time},
+        attrs={
+            "lat": lat,
+            "lon": lon,
+            "alt_m": alt_m,
+            "site": site,
+            "calfilename": fn.name,
+            "caltime": time,
+        },
     )
 
     return cal
 
 
-def loadcal(path: Path, site: str = None, time: Sequence[datetime] = None) -> xarray.Dataset:
+def loadcal(path: Path, site: str = None, time: T.Sequence[datetime] = None) -> xarray.Dataset:
     """
     load calibration skymap file
 
@@ -403,7 +427,7 @@ def loadcal(path: Path, site: str = None, time: Sequence[datetime] = None) -> xa
     return loadcal_file(fn)
 
 
-def _findcal(path: Path, site: str, time: Sequence[datetime]) -> Path:
+def _findcal(path: Path, site: str, time: T.Sequence[datetime]) -> Path:
     """
     attempt to find nearest previous time calibration file
     """

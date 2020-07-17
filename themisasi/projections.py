@@ -7,7 +7,9 @@ from matplotlib.pyplot import figure, draw, pause
 from .plots import pcolormesh_nan, overlayrowcol
 
 
-def asi_projection(dat: xarray.Dataset, projalt_m: float = None, min_el: float = 10.0, ofn: Path = None):
+def asi_projection(
+    dat: xarray.Dataset, projalt_m: float = None, min_el: float = 10.0, ofn: Path = None
+):
     """
     plots ASI projected to altitude
 
@@ -36,7 +38,9 @@ def asi_projection(dat: xarray.Dataset, projalt_m: float = None, min_el: float =
     # %% coordinate transformation, let us know if error occurs
     slant_range = projalt_m / np.sin(np.radians(el))
 
-    lat, lon, alt = pm.aer2geodetic(az, el, slant_range, dat.lat.item(), dat.lon.item(), dat.alt_m.item())
+    lat, lon, alt = pm.aer2geodetic(
+        az, el, slant_range, dat.lat.item(), dat.lon.item(), dat.alt_m.item()
+    )
     # %% plots
     fg = figure()
     ax = fg.gca()

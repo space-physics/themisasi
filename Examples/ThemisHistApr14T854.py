@@ -52,7 +52,16 @@ ocal = ["~/code/histfeas/precompute/hst0cal.h5", "~/code/histfeas/precompute/hst
 
 # %%
 try:
-    plotthemis(imgs, t, site, treq, moviefn, rows=R, cols=C, ext=(wC[0, 0], wC[0, -1], wR[-1, 0], wR[0, 0]))
+    plotthemis(
+        imgs,
+        t,
+        site,
+        treq,
+        moviefn,
+        rows=R,
+        cols=C,
+        ext=(wC[0, 0], wC[0, -1], wR[-1, 0], wR[0, 0]),
+    )
 except NameError:
     # 60 second computation
     imgs, R, C, t, site, wR, wC = altfiducial(asifn, asical, ocal, treq, odir)

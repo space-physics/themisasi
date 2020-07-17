@@ -6,13 +6,31 @@ import asyncio
 import logging
 import sys
 import os
-from aiohttp_requests import requests
-from typing import Sequence, Union, Iterator, Dict
+import argparse
+import requests
+import typing as T
 
 TIMEOUT = 600  # arbitrary, seconds
+VIDEO_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
+CAL_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
 
-if sys.version_info < (3, 7):
-    raise RuntimeError("Python >= 3.7 required")
+
+def cli():
+    p = argparse.ArgumentParser()
+    p.add_argument(
+        "startend", help="start/end times UTC e.g. 2012-11-03T06:23 2012-11-03T06:24", nargs="+"
+    )
+    p.add_argument("odir", help="directory to write downloaded CDF to")
+    p.add_argument("-s", "--site", help="fykn gako etc.", nargs="+")
+    p.add_argument("-overwrite", help="overwrite existing files", action="store_true")
+    p.add_argument("-vh", help="Stem of URL for Video data", default=VIDEO_BASE)
+    p.add_argument("-ch", help="Stem of URL for calibration data", default=CAL_BASE)
+
+    P = p.parse_args()
+
+    urls = {"video_stem": P.vh, "cal_stem": P.ch}
+
+    download(P.startend, P.site, P.odir, P.overwrite, urls)
 
 
 async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
@@ -20,21 +38,24 @@ async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
         print(f"SKIPPED {fn}")
         return
     # %% download
-    R = await requests.get(url, allow_redirects=True, timeout=TIMEOUT)
+    R = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
 
-    if R.status != 200:
-        logging.error(f"could not download {url}  {R.status}")
+    if R.status_code != 200:
+        logging.error(f"could not download {url}  {R.status_code}")
         return
 
     print(url)
 
-    data = await R.read()
-
-    with fn.open("wb") as f:
-        f.write(data)
+    fn.write_bytes(R.content)
 
 
-def download(treq: Sequence[Union[str, datetime]], site: Sequence[str], odir: Path, urls: Dict[str, str], overwrite: bool = False):
+def download(
+    treq: T.Sequence[T.Union[str, datetime]],
+    site: T.Sequence[str],
+    odir: Path,
+    urls: T.Dict[str, str],
+    overwrite: bool = False,
+):
     """
     concurrent download video and calibration files
 
@@ -78,7 +99,14 @@ def download(treq: Sequence[Union[str, datetime]], site: Sequence[str], odir: Pa
     asyncio.run(arbiter(site, start, end, odir, overwrite, urls))
 
 
-async def arbiter(sites: Sequence[str], start: datetime, end: datetime, odir: Path, overwrite: bool, urls: Dict[str, str]):
+async def arbiter(
+    sites: T.Sequence[str],
+    start: datetime,
+    end: datetime,
+    odir: Path,
+    overwrite: bool,
+    urls: T.Dict[str, str],
+):
     """
     This starts len(sites) tasks concurrently.
     Thus if you only have one site, it only downloads one file at a time.
@@ -101,33 +129,32 @@ async def arbiter(sites: Sequence[str], start: datetime, end: datetime, odir: Pa
         overwrite existing data
     urls : dict of str
         sites hosting data
-
-
-    Example of task pool:
-    https://github.com/ec500-software-engineering/asyncio-subprocess-ffmpeg/blob/c82d3a243078d8e865740cd9c3328fe7fd6ea52e/asyncioffmpeg/ffplay.py#L45
-
     """
 
     futures = [_download_cal(site, odir, urls["cal_stem"], overwrite) for site in sites]
 
     await asyncio.gather(*futures)
 
-    futures = [_download_video(site, odir, start, end, urls["video_stem"], overwrite) for site in sites]
+    futures = [
+        _download_video(site, odir, start, end, urls["video_stem"], overwrite) for site in sites
+    ]
 
     await asyncio.gather(*futures)
 
 
-async def _download_video(site: str, odir: Path, start: datetime, end: datetime, url_stem: str, overwrite: bool):
+async def _download_video(
+    site: str, odir: Path, start: datetime, end: datetime, url_stem: str, overwrite: bool
+):
 
     for url in _urlgen(site, start, end, url_stem):
         print("GEN: ", url)
         await urlretrieve(url, odir / url.split("/")[-1], overwrite)
 
 
-def _urlgen(site: str, start: datetime, end: datetime, url_stem: str) -> Iterator[str]:
+def _urlgen(site: str, start: datetime, end: datetime, url_stem: str) -> T.Iterator[str]:
 
-    for T in np.arange(start, end + timedelta(hours=1), timedelta(hours=1)):
-        t = T.astype(datetime)
+    for dt64 in np.arange(start, end + timedelta(hours=1), timedelta(hours=1)):
+        t = dt64.astype(datetime)
         fpath = (
             f"{url_stem}{site}/{t.year:4d}/{t.month:02d}/"
             f"thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf"

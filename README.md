@@ -1,12 +1,9 @@
+# THEMIS GBO ASI Reader
+
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
-
-[![Actions Status](https://github.com/space-physics/themisasi/workflows/ci/badge.svg)](https://github.com/space-physics/themisasi/actions)
-
+![Actions Status](https://github.com/space-physics/themisasi/workflows/ci/badge.svg)
 [![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
-
-
-# THEMIS GBO ASI Reader
 
 
 Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data from Python.
@@ -20,25 +17,26 @@ giving **azimuth and elevation** for each pixel.
 
 ## Install
 
-0. clone this repository
-  ```sh
-  git clone https://github.com/space-physics/themisasi
-  ```
-1. install this program
-   ```sh
-   pip install -e themisasi
-   ```
-
-You can test the basic functionality by from the top `cdflib` directory:
 ```sh
-pytest
+git clone https://github.com/space-physics/themisasi
+
+pip install -e themisasi
+```
+
+Optionally test the basic functionality by:
+
+```sh
+pytest themisasi
 ```
 
 ## Usage
+
 One of the main ways analysts might use THEMIS-ASI data is by loading it into a 3-D array (time, x, y).
 
 ### Single time
+
 This example is where the ASI video files are in `~/data/themis`, and the Gakona site is selected at the time shown.
+
 ```python
 import themisasi as ta
 
@@ -47,10 +45,12 @@ dat = ta.load('~/data/themis', site='gako', treq='2011-01-06T17:00:03')
 This returns the camera image from Gakona camera closest to the requested time, and the 'az', 'el' calibration data, if available.
 
 
-THEMIS-ASI output [xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
+THEMIS-ASI output
+[xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
 which is used throughout geosciences and astronomy.
 Xarray may be thought of as a "smart" Numpy array, or a multidimensional Pandas array.
 A THEMIS image data stack is obtained by:
+
 ```python
 dat = ta.load(...)
 
@@ -61,6 +61,7 @@ imgs = dat['imgs']
 * `dat.x` and `dat.y` are simple pixel indices, perhaps not often needed.
 
 ### Image + Azimuth, Elevation
+
 Loading calibration data gives azimuth, elevation for each pixel and lat, lon of each camera.
 ```python
 import themisasi as ta
@@ -104,12 +105,14 @@ Example: February 4, 2012, 8 UT Gakona
 DownloadThemis 2012-02-04T08 gako ~/data
 ```
 or via the API:
+
 ```python
 import themisasi as ta
 
 ta.download('2012-02-04T08', 'gako', '~/data')
 ```
 with the API, it is convenient to for-loop over many sites at the same time(s):
+
 ```python
 sites = ['fykn', 'gako']
 
@@ -122,6 +125,7 @@ With the calibration data, verify that the time range of the calibration data is
 For example, calibration data from 1999 may not be valid for 2018 if the camera was ever moved in the enclosure during maintanence.https://github.com/dib-lab/khmer/pull/1430
 
 You can optionally download from within Python:
+
 ```python
 import themisasi as ta
 
@@ -129,6 +133,7 @@ ta.download('2012-03-12T12', 'fykn', '~/data')
 ```
 
 ### get times in a file
+
 the convenience function `themisasi.io.filetimes(filename)` returns a list of Python `datetime` in a file
 
 ### Video Playback / PNG conversion
@@ -142,6 +147,7 @@ PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 ```
 
 ### Plot time series of pixel(s)
+
 Again, be sure the calibration file is appropriate for the time range of the video--the camera may have been moved / reoriented during maintenance.
 
 The pixels can be specified by (azimuth, elevation) or (lat, lon, projection altitude [km])
@@ -177,31 +183,19 @@ These articles give vital descriptions of THEMIS GBO ASI.
 
 ### Resources
 
--   Themis GBO ASI
-    [site coordinates](http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls)
--   THEMIS GBO ASI
-    [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/)
--   THEMIS GBO ASI
-    [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
--   Themis GBO ASI
-    [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
--   Themis GBO ASI
-    [mosaic (all sites together)](http://themis.ssl.berkeley.edu/gbo/display.py?)
+* Themis GBO ASI [site coordinates](http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls)
+* THEMIS GBO ASI [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/)
+* THEMIS GBO ASI [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
+* Themis GBO ASI [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
+* Themis GBO ASI [mosaic (all sites together)](http://themis.ssl.berkeley.edu/gbo/display.py?)
 
 
-
-### Matlab
-
-The Matlab code is obsolete, the Python version has so much more:
-```matlab
-readTHEMIS('thg_l1_asf_fykn_2013041408_v01.cdf')
-```
 ### data corruption
 
 I discovered that IDL 8.0 had a problem saving structured arrays of bytes.
 While current versions of IDL can read these corrupted .sav files, GDL 0.9.4 and SciPy 0.16.1 cannot.
-I submitted a
-[patch to SciPy](https://github.com/scipy/scipy/pull/5801)
+My
+[patch is part of SciPy](https://github.com/scipy/scipy/pull/5801)
 to allow reading these files, which was incorporated into SciPy 0.18.0.
 
 As a fallback, read and rewrite the corrupted file with the IDL script in the

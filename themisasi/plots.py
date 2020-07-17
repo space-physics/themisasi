@@ -110,7 +110,9 @@ def plotasi(data: xarray.Dataset, ofn: Path = None):
     fg = figure()
     ax = fg.gca()
 
-    hi = ax.imshow(data["imgs"][0], cmap="gray", origin="lower", norm=LogNorm(), interpolation="none")  # priming
+    hi = ax.imshow(
+        data["imgs"][0], cmap="gray", origin="lower", norm=LogNorm(), interpolation="none"
+    )  # priming
     ttxt = f"Themis ASI {data.site}\n"  # FOV vs. HST0,HST1: green,red '
     ht = ax.set_title(ttxt, color="g")
     ax.set_xlabel("x-pixels")
