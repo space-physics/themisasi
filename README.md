@@ -73,7 +73,8 @@ If an appropriate calibration file exists, `dat` additionally contains 'az', 'el
 ### Coordinate conversion (optional)
 
 If desired, convert azimuth/elevation to ra/dec using
-[pymap3d](https://github.com/scivision/pymap3d).
+[pymap3d](https://github.com/geospace-code/pymap3d).
+
 ```sh
 pip install pymap3d
 ```
@@ -83,7 +84,6 @@ import pymap3d as pm
 
 rasc, decl = pm.azel2radec(dat.az, dat.el, dat.lat, dat.lon, dat.time)
 ```
-
 
 ## Download, Read and Plot THEMIS ASI Data
 
@@ -102,7 +102,7 @@ The calibration files are named `*asc*.cdf` or `*skymap*.sav`.
 Example: February 4, 2012, 8 UT Gakona
 
 ```sh
-DownloadThemis 2012-02-04T08 gako ~/data
+themisasi_download 2012-02-04T08 gako ~/data
 ```
 or via the API:
 
@@ -142,8 +142,9 @@ This example plays the video content.
 
 Use the `-o` option to dump the frames to individual PNGs for easier back-and-forth viewing.
 The calibration file (second filename) is optional.
+
 ```sh
-PlotThemis ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
+themisasi_video ~/data/themis/thg_l1_asf_fykn_2013041408_v01.cdf
 ```
 
 ### Plot time series of pixel(s)
@@ -153,14 +154,16 @@ Again, be sure the calibration file is appropriate for the time range of the vid
 The pixels can be specified by (azimuth, elevation) or (lat, lon, projection altitude [km])
 
 Azimuth / Elevation:
+
 ```sh
-PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf -az 65 70 -el 48 68
+themisasi_pixels tests/thg_l1_ast_gako_20110505_v01.cdf -az 65 70 -el 48 68
 ```
 
 Latitude, Longitude, Projection Altitude [kilometers]:
 Typically the brightest aurora is in the 100-110 km altitude range, so a common approximate is to assume "all" of the brightness comes from a single altitude in this region.
+
 ```sh
-PlotThemisPixels tests/thg_l1_ast_gako_20110505_v01.cdf -lla 65 -145 100.
+themisasi_pixels tests/thg_l1_ast_gako_20110505_v01.cdf -lla 65 -145 100.
 ```
 
 ## Notes
