@@ -22,3 +22,7 @@ def cli():
     imgs = load(P.path, site=P.site, treq=P.treq, calfn=P.calpath)
     # %% plot
     asi_radec(imgs, P.odir)
+
+
+if __name__ == "__main__":
+    cli()

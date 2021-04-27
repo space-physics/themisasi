@@ -168,3 +168,7 @@ async def _download_cal(site: str, odir: Path, url_stem: str, overwrite: bool = 
     fpath = f"{url_stem}thg_l2_asc_{site}_19700101_v01.cdf"
 
     await urlretrieve(fpath, odir / fpath.split("/")[-1], overwrite)
+
+
+if __name__ == "__main__":
+    cli()

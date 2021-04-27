@@ -52,3 +52,7 @@ def cli():
     plottimeseries(dat, imgs.time, ttxt)
 
     show()
+
+
+if __name__ == "__main__":
+    cli()

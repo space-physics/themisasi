@@ -14,7 +14,7 @@ except ImportError:
 
 
 def getimgind(imgs: xarray.Dataset, lla: np.ndarray, az: np.ndarray, el: np.ndarray) -> np.ndarray:
-    """ find pixels in images according to lat,lon,alt or az,el spec"""
+    """find pixels in images according to lat,lon,alt or az,el spec"""
     if lla is not None:
         lla = np.atleast_2d(lla)
         assert lla.ndim == 2
@@ -217,7 +217,7 @@ def pixelmask(data: xarray.Dataset, method: str = None) -> xarray.Dataset:
         """
         MIN_EL = 5  # degrees, arbitrary
         if data.srpts is None:
-            return ValueError("must include slant range points")
+            raise ValueError("must include slant range points")
 
         mask = np.zeros(data["az"].shape, dtype=bool)
         mask[data["el"] >= MIN_EL] = True

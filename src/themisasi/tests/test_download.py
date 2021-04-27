@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-import themisasi.web as tw
+import themisasi.download as tw
 import pytest
 from pathlib import Path
 import requests.exceptions
@@ -58,7 +57,3 @@ def test_nonexisting(time, site):
         tw.download(time, site, R, urls)
     except requests.exceptions.ConnectionError:
         pytest.xfail("bad internet connection")
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

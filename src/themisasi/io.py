@@ -2,10 +2,12 @@
 """
 Read THEMIS GBO ASI data
 """
+
+from __future__ import annotations
 import logging
 import warnings
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 import xarray
 import typing as T
 import numpy as np
@@ -30,7 +32,7 @@ except ImportError:
 
 
 def load(
-    path: Path, site: str = None, treq: T.List[datetime] = None, calfn: Path = None
+    path: Path, site: str = None, treq: datetime = None, calfn: Path = None
 ) -> xarray.Dataset:
     """
     read THEMIS ASI camera data
@@ -43,7 +45,7 @@ def load(
         directory where Themis ASI data files are
     site: str, optional
         site code e.g. gako.  Only needed if "path" is a directory instead of a file
-    treq: datetime.datetime or list of datetime.datetime, optional
+    treq: datetime.datetime, optional
         requested time to load
     calfn: pathlib.Path, optional
         path to calibration file (skymap)
@@ -55,7 +57,7 @@ def load(
     """
     # %% time slice (assumes monotonically increasing time)
     if treq is not None:
-        treq = _timereq(treq)
+        treq = _timereq(treq)  # type: ignore
 
     imgs = _timeslice(path, site, treq)
     # %% optional load calibration (az, el)
@@ -68,7 +70,7 @@ def load(
     else:
         try:
             cal = loadcal(path, site, treq)
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             pass
 
     if cal is not None:
@@ -89,7 +91,7 @@ def load(
     return data
 
 
-def filetimes(fn: Path) -> T.List[datetime]:
+def filetimes(fn: Path) -> list[datetime]:
     """
     prints the times available in a THEMIS ASI CDF file
 
@@ -113,7 +115,9 @@ def filetimes(fn: Path) -> T.List[datetime]:
     return Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
 
 
-def _timeslice(path: Path, site: str = None, treq: T.Sequence[datetime] = None) -> xarray.DataArray:
+def _timeslice(
+    path: Path, site: str = None, treq: T.Optional[datetime | list[datetime]] = None
+) -> xarray.DataArray:
     """
     loads time slice of Themis ASI data
 
@@ -137,24 +141,21 @@ def _timeslice(path: Path, site: str = None, treq: T.Sequence[datetime] = None) 
 
     h = cdfread(fn)
     # %% load image times
-    try:
-        time = Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:], to_np=True)
-    except (ValueError, KeyError):
-        time = np.array(list(map(datetime.utcfromtimestamp, h[f"thg_asf_{site}_time"][:])))
+    time = Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:], to_np=True)
     # %% time request handling
     if treq is None:
         i = slice(None)
     else:
-        atreq = np.atleast_1d(treq)
+        atreq = np.atleast_1d(np.asarray(treq))
 
         if atreq.size == 1:
             # Note: arbitrarily allowing up to 1 second time offset from request
-            if all(atreq < (time - timedelta(seconds=TIME_TOL))) | all(
-                atreq > time + timedelta(seconds=TIME_TOL)
+            if all(atreq < (time - np.timedelta64(TIME_TOL, "s"))) | all(
+                atreq > time + np.timedelta64(TIME_TOL, "s")
             ):
                 raise ValueError(f"requested time {atreq} outside {fn}")
 
-            i = abs(time - atreq[0]).argmin()
+            i = abs(time - np.datetime64(atreq[0])).argmin()
         elif atreq.size == 2:  # start, end
             i = (time >= atreq[0]) & (time <= atreq[1])
         else:
@@ -165,9 +166,9 @@ def _timeslice(path: Path, site: str = None, treq: T.Sequence[datetime] = None) 
         imgs = imgs[None, ...]
 
     time = time[i]
-    if isinstance(time, datetime):
+    if isinstance(time, (datetime, np.datetime64)):
         time = [time]
-    elif len(time) == 0:
+    if len(time) == 0:
         raise ValueError(f"no times were found with requested time bounds {treq}")
 
     return xarray.DataArray(
@@ -178,7 +179,9 @@ def _timeslice(path: Path, site: str = None, treq: T.Sequence[datetime] = None) 
     )
 
 
-def _sitefn(path: Path, site: str = None, treq: T.Union[datetime, T.Sequence[datetime]] = None) -> T.Tuple[str, Path]:
+def _sitefn(
+    path: Path, site: str = None, treq: T.Optional[datetime | list[datetime]] = None
+) -> tuple[str, Path]:
     """
     gets site name and CDF key from filename
 
@@ -223,7 +226,9 @@ def _sitefn(path: Path, site: str = None, treq: T.Union[datetime, T.Sequence[dat
 
             t0 = treq[-1]
 
-            fn = path / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
+            fn = (
+                path / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
+            )
 
     elif path.is_file():
         fn = path
@@ -239,7 +244,7 @@ def _sitefn(path: Path, site: str = None, treq: T.Union[datetime, T.Sequence[dat
     return site, fn
 
 
-def _timereq(treq: T.List[datetime]) -> T.List[datetime]:
+def _timereq(treq: datetime | list[datetime]) -> datetime | list[datetime]:
     """
     parse time request
     """
@@ -248,9 +253,9 @@ def _timereq(treq: T.List[datetime]) -> T.List[datetime]:
         pass
     elif isinstance(treq, str):
         treq = parse(treq)
-    elif isinstance(treq[0], str):  # type: ignore
-        treq = list(map(parse, treq))  # type: ignore
-    elif isinstance(treq[0], datetime):  # type: ignore
+    elif isinstance(treq[0], str):
+        treq = list(map(parse, treq))
+    elif isinstance(treq[0], datetime):
         pass
     else:
         raise TypeError(treq)
@@ -260,7 +265,7 @@ def _timereq(treq: T.List[datetime]) -> T.List[datetime]:
 
 def _downsample(
     imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray, x: np.ndarray, y: np.ndarray
-) -> xarray.Dataset:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     downsamples cal data to match image data
 
@@ -392,7 +397,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     return cal
 
 
-def loadcal(path: Path, site: str = None, time: T.Sequence[datetime] = None) -> xarray.Dataset:
+def loadcal(path: Path, site: str = None, time: datetime = None) -> xarray.Dataset:
     """
     load calibration skymap file
 
@@ -402,7 +407,7 @@ def loadcal(path: Path, site: str = None, time: T.Sequence[datetime] = None) -> 
         directory or path to calibration file
     site: str
         site code e.g. gako
-    time: datetime.datetime or list of datetime.datetime
+    time: datetime.datetime
         time requested
 
     Returns
@@ -414,20 +419,18 @@ def loadcal(path: Path, site: str = None, time: T.Sequence[datetime] = None) -> 
 
     if path.is_file():
         if site is None or time is None:
-            try:
-                return loadcal_file(path)
-            except (KeyError, ValueError):
-                return None
+            return loadcal_file(path)
         else:
             path = path.parent
 
     assert isinstance(site, str)
+    assert time is not None
     fn = _findcal(path, site, time)
 
     return loadcal_file(fn)
 
 
-def _findcal(path: Path, site: str, time: T.Sequence[datetime]) -> Path:
+def _findcal(path: Path, site: str, time: datetime) -> Path:
     """
     attempt to find nearest previous time calibration file
     """

@@ -45,7 +45,7 @@ def asi_projection(
     fg = figure()
     ax = fg.gca()
 
-    hi = pcolormesh_nan(lon, lat, dat["imgs"][0], cmap="gray", axis=ax)  # priming
+    hi = pcolormesh_nan(lon, lat, dat["imgs"].data[0], cmap="gray", axis=ax)  # priming
 
     ttxt = f"Themis ASI {dat.site}  projected to altitude {projalt_m/1e3} km\n"  # FOV vs. HST0,HST1: green,red '
     ht = ax.set_title(ttxt, color="g")
@@ -100,7 +100,7 @@ def asi_radec(dat: xarray.Dataset, min_el: float = 10.0, ofn: Path = None):
     fg = figure()
     ax = fg.gca()
 
-    pcolormesh_nan(ra, dec, dat["imgs"].values[0], cmap="gray", axis=ax)  # priming
+    pcolormesh_nan(ra, dec, dat["imgs"].data[0], cmap="gray", axis=ax)  # priming
 
     ttxt = f"Themis ASI {dat.site}  \n"
     ax.set_title(ttxt, color="g")

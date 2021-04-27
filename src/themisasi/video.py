@@ -24,3 +24,7 @@ def cli():
     plotazel(imgs)
 
     plotasi(imgs, P.odir)
+
+
+if __name__ == "__main__":
+    cli()

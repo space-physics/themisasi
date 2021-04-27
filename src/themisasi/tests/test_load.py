@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from pathlib import Path
 import pytest
 from pytest import approx
@@ -23,7 +22,8 @@ def test_missing_file(tmp_path):
         ta.load(badfn)
 
 
-def test_filename():
+def test_filename_simple():
+
     data = ta.load(datfn)
 
     assert data["imgs"].site == "gako"
@@ -53,7 +53,7 @@ def test_load_filename():
     "site, time", [("gako", "2011-01-06T17:00:00"), ("gako", datetime(2011, 1, 6, 17))]
 )
 def test_load_site_time(site, time):
-    """ load by sitename + time"""
+    """load by sitename + time"""
     dat = ta.load(R, site, time)
     assert dat["imgs"].shape[0] == 1
     t = dat.time.values.astype("datetime64[us]").astype(datetime)
@@ -68,7 +68,7 @@ def test_load_site_time(site, time):
     ],
 )
 def test_load_site_timerange(site, treq):
-    """ load by sitename + timerange """
+    """load by sitename + timerange"""
     dat = ta.load(R, site, treq=treq)
     assert dat["imgs"].shape[0] == 4
     times = dat.time.values.astype("datetime64[us]").astype(datetime)
@@ -128,7 +128,3 @@ def test_calread_sitedate():
 
     cal = ta.loadcal(R, "gako", "2011-01-06")
     assert cal.caltime.date() == date(2007, 2, 2)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
