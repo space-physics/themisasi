@@ -1,8 +1,7 @@
 # THEMIS GBO ASI Reader
 
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
-![Actions Status](https://github.com/space-physics/themisasi/workflows/ci/badge.svg)
-[![pypi versions](https://img.shields.io/pypi/pyversions/themisasi.svg)](https://pypi.python.org/pypi/themisasi)
+[![ci](https://github.com/space-physics/themisasi/actions/workflows/ci.yml/badge.svg)](https://github.com/space-physics/themisasi/actions/workflows/ci.yml)
 [![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
 
 
