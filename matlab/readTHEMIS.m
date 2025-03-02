@@ -1,9 +1,3 @@
-function [data,t,hdrs] = readTHEMIS(varargin)
-%
-% Note this file is obsolete, use the Python version instead, many more features.
-%
-% Michael Hirsch, Dec 2013
-% Boston University
 % reference: http://themis.ssl.berkeley.edu/gbo/THEMIS_All_Sky_Imager-2.pdf
 % high-res (256x256 pixel) data: http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi
 % low-res (64x64 thumbnail pixel) data: http://themis.ssl.berkeley.edu/data/themis/thg/l0/asi/
@@ -11,35 +5,22 @@ function [data,t,hdrs] = readTHEMIS(varargin)
 % info
 % http://themis.ssl.berkeley.edu/instrument_asi.shtml
 %
-% sites that saw HST:
+% sites that saw HiST:
 % fykn: http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04
-%%
 
-p = inputParser();
-addRequired(p,'fn')
-addOptional(p,'path','~/data/')
-addParamValue(p,'startind',1) %#ok<*NVREPL>
-addParamValue(p,'stopind',[])
-addParamValue(p,'writevid',false)
-addParamValue(p,'fullthumb','f')%f for full, t for thumb
-p.parse(varargin{:})
-U = p.Results;
-
-site = regexp(U.fn,'(?<=thg_l\d_as\w_)\w{4}(?=_.*.cdf)','match','once');
-display([' site: ',site])
-
-%% select clims for imagesc() (arbitrary for best viewing contrast)
-switch site
-    case {'gako','fykn'}, clims=[2200 10e3];
-    case {'mcgr'}, clims=[2200 5000];
-    otherwise, clims = [0 3000];
+function [data,t,hdrs, site] = readTHEMIS(file, fullthumb)
+arguments
+  file (1,1) string {mustBeFile}
+  fullthumb (1,1) string = "f" %f for full, t for thumb
 end
+
+[~,filename] = fileparts(file);
+
+site = regexp(filename,'(?<=thg_l\d_as\w_)\w{4}', match='once');
+disp([' site: ',site])
+
 %% read data
-
-
-dfn = [U.path,filesep,U.fn];
-
-hdrs = cdfinfo(dfn);
+hdrs = cdfinfo(file);
 
 %format of variableNames is by column:
 % 1) variable name
@@ -47,66 +28,19 @@ hdrs = cdfinfo(dfn);
 % 3) # of records for the variable
 % 4) data type of variable (CDF)
 % 5) see doc cdfinfo
-variableNames = hdrs.Variables;
 
-t = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site,'_epoch'],...
-          'convertepochtodatenum',true,'combineRecords',true);
-epoch0 = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site,'_epoch0'],...
-          'convertepochtodatenum',true,'combineRecords',true);
+v = "thg_as" + fullthumb + "_" + site + "_epoch";
+disp(file + " < " + v)
+t = cdfread(file, Variables=v, DatetimeType="datetime", CombineRecords=true);
+
+% v = v + "0";
+% disp(file + " < " + v)
+% epoch0 = cdfread(file, Variables=v, CombineRecords=true);
 
 % this isn't matlab datenum, since 0AD?
-% CDFt = cdfread(dfn,'variable',['thg_as',ft,'_',site,'_time'],...
-%              'convertepochtodatenum',true,'combineRecords',true);
+% CDFt = cdfread(file, Variables=['thg_as',ft,'_',site,'_time'], CombineRecords=true);
 
-data = cdfread(dfn,'variable',['thg_as',U.fullthumb,'_',site],'combinerecords',true);
-
-Nrec = length(t);
-if isempty(U.stopind), U.stopind = Nrec; end
-%% plotting
-currFrame = squeeze(data(1,:,:));
-
-hf = figure(1); clf(1)
-ax = axes('parent',hf);
-hi = imagesc(currFrame,clims);
-set(ax,'ydir','normal')
-ht= title('','interpreter','none');
-xlabel('x-pixel')
-ylabel('y-pixel')
-colorbar
-colormap gray
-
-figure(2),clf(2)
-imhist(currFrame)
-title(['First frame histogram: ', string(t(1))])
-
-display(['Showing frames from ',int2str(U.startind),' to ',int2str(U.stopind)])
-
-[~,dstem] = fileparts(U.fn); %for PNG | AVI
-if U.writevid
-    vidFN = [U.path,filesep,dstem,'.avi'];
-    vwObj = VideoWriter(vidFN,'Motion JPEG AVI');
-    vwObj.FrameRate = 4; %VLC can't playback less than 4fps--very old VLC bug
-    vwObj.Quality = 90;
-    open(vwObj)
-    disp(['Writing MJPEG AVI ',vidFN])
-else
-    vwObj = [];
-end
-
-for i = U.startind:U.stopind
-    currFrame = squeeze(data(i,:,:));
-    set(ht,'string',{U.fn,...
-                   string(t(i)) + "UT,  iCDF= " + int2str(i) + "/" + int2str(Nrec)})
-    set(hi,cdata=currFrame)
-
-    if U.writevid
-       gf = getframe(hf);
-       writeVideo(vwObj,gf);
-    end
-
-pause(0.01)
-end %for
-
-close(vwObj);
-
+v = "thg_as" + fullthumb + "_" + site;
+disp(file + " < " + v)
+data = cdfread(file, Variables=v, DatetimeType="datetime", Combinerecords=true);
 end
