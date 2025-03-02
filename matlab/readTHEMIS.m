@@ -1,6 +1,6 @@
 function [data,t,hdrs] = readTHEMIS(varargin)
 %
-% Note this file is obsolete, use the Python versio instead, many more features.
+% Note this file is obsolete, use the Python version instead, many more features.
 %
 % Michael Hirsch, Dec 2013
 % Boston University
@@ -77,7 +77,7 @@ colormap gray
 
 figure(2),clf(2)
 imhist(currFrame)
-title(['First frame histogram: ',datestr(t(1))])
+title(['First frame histogram: ', string(t(1))])
 
 display(['Showing frames from ',int2str(U.startind),' to ',int2str(U.stopind)])
 
@@ -88,7 +88,7 @@ if U.writevid
     vwObj.FrameRate = 4; %VLC can't playback less than 4fps--very old VLC bug
     vwObj.Quality = 90;
     open(vwObj)
-    display(['Writing MJPEG AVI ',vidFN])
+    disp(['Writing MJPEG AVI ',vidFN])
 else
     vwObj = [];
 end
@@ -96,8 +96,8 @@ end
 for i = U.startind:U.stopind
     currFrame = squeeze(data(i,:,:));
     set(ht,'string',{U.fn,...
-                   [datestr(t(i)),'UT,  iCDF= ',int2str(i),'/',int2str(Nrec)]})
-    set(hi,'cdata',currFrame)
+                   string(t(i)) + "UT,  iCDF= " + int2str(i) + "/" + int2str(Nrec)})
+    set(hi,cdata=currFrame)
 
     if U.writevid
        gf = getframe(hf);
@@ -109,6 +109,4 @@ end %for
 
 close(vwObj);
 
-if nargout==0, clear, end
-
-end %fcn
+end

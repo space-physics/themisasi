@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Using data from ICX249AL datasheet
 and Jackel 2014
