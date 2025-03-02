@@ -1,15 +1,12 @@
-#!/usr/bin/env python
 """
 Read THEMIS GBO ASI data
 """
 
-from __future__ import annotations
 import logging
 import warnings
 from pathlib import Path
 from datetime import datetime
 import xarray
-import typing as T
 import numpy as np
 from dateutil.parser import parse
 import scipy.io
@@ -32,7 +29,7 @@ except ImportError:
 
 
 def load(
-    path: Path, site: str = None, treq: datetime = None, calfn: Path = None
+    path: Path, site: str | None = None, treq: datetime | None = None, calfn: Path | None = None
 ) -> xarray.Dataset:
     """
     read THEMIS ASI camera data
@@ -116,7 +113,7 @@ def filetimes(fn: Path) -> list[datetime]:
 
 
 def _timeslice(
-    path: Path, site: str = None, treq: T.Optional[datetime | list[datetime]] = None
+    path: Path, site: str | None = None, treq: datetime | None = None
 ) -> xarray.DataArray:
     """
     loads time slice of Themis ASI data
@@ -135,18 +132,20 @@ def _timeslice(
     data: xarray.DataArray
         Themis ASI data
     """
+
     TIME_TOL = 1  # number of seconds to tolerate in time request offset
     # %% open CDF file handle (no close method)
     site, fn = _sitefn(path, site, treq)
 
     h = cdfread(fn)
     # %% load image times
-    time = Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:], to_np=True)
+    time = Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
     # %% time request handling
+
     if treq is None:
         i = slice(None)
     else:
-        atreq = np.atleast_1d(np.asarray(treq))
+        atreq = np.atleast_1d(np.asarray(treq)).astype(np.datetime64)
 
         if atreq.size == 1:
             # Note: arbitrarily allowing up to 1 second time offset from request
@@ -180,7 +179,7 @@ def _timeslice(
 
 
 def _sitefn(
-    path: Path, site: str = None, treq: T.Optional[datetime | list[datetime]] = None
+    path: Path, site: str | None = None, treq: datetime | list[datetime] | None = None
 ) -> tuple[str, Path]:
     """
     gets site name and CDF key from filename
@@ -311,75 +310,78 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     if not fn.is_file():
         raise FileNotFoundError(fn)
 
-    if fn.suffix == ".cdf":
-        site = fn.name.split("_")[3]
-        if cdfread is None:
-            raise ImportError("pip install cdflib")
+    match fn.suffix:
+        case ".cdf":
+            site = fn.name.split("_")[3]
+            if cdfread is None:
+                raise ImportError("pip install cdflib")
 
-        h = cdfread(fn)
-        az = h[f"thg_asf_{site}_azim"][0]
-        el = h[f"thg_asf_{site}_elev"][0]
-        lat = h[f"thg_asc_{site}_glat"]
-        lon = (h[f"thg_asc_{site}_glon"] + 180) % 360 - 180  # [0,360] -> [-180,180]
-        alt_m = h[f"thg_asc_{site}_alti"]
-        x = y = h[f"thg_asf_{site}_c256"]
-        time = datetime.utcfromtimestamp(h[f"thg_asf_{site}_time"][-1])
-    elif fn.suffix == ".sav":
-        site = fn.name.split("_")[2]
-        # THEMIS SAV calibration files written with glitch from bug in IDL
-        warnings.simplefilter("ignore", UserWarning)
-        h = scipy.io.readsav(fn, python_dict=True, verbose=False)
-        warnings.resetwarnings()
+            h = cdfread(fn)
+            az = h[f"thg_asf_{site}_azim"][0]
+            el = h[f"thg_asf_{site}_elev"][0]
+            lat = h[f"thg_asc_{site}_glat"]
+            lon = (h[f"thg_asc_{site}_glon"] + 180) % 360 - 180  # [0,360] -> [-180,180]
+            alt_m = h[f"thg_asc_{site}_alti"]
+            x = y = h[f"thg_asf_{site}_c256"]
+            time = datetime.utcfromtimestamp(h[f"thg_asf_{site}_time"][-1])
+        case ".sav":
+            site = fn.name.split("_")[2]
+            # THEMIS SAV calibration files written with glitch from bug in IDL
+            warnings.simplefilter("ignore", UserWarning)
+            h = scipy.io.readsav(fn, python_dict=True, verbose=False)
+            warnings.resetwarnings()
 
-        az = h["skymap"]["full_azimuth"][0]
-        el = h["skymap"]["full_elevation"][0]
-        lat = h["skymap"]["site_map_latitude"].item()
-        lon = (h["skymap"]["site_map_longitude"].item() + 180) % 360 - 180  # [0,360] -> [-180,180]
-        alt_m = h["skymap"]["site_map_altitude"].item()
-        x = h["skymap"]["full_column"][0][0, :]
-        y = h["skymap"]["full_row"][0][:, 0]
-        try:
-            tstr = h["skymap"]["generation_info"][0][0][2]
-            time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
-        except (KeyError, ValueError):
-            if h["skymap"]["site_unix_time"] > 0:
-                tutc = h["skymap"]["site_unix_time"]
-            elif h["skymap"]["imager_unix_time"] > 0:
-                tutc = h["skymap"]["imager_unix_time"]
-            else:
-                tutc = None
+            az = h["skymap"]["full_azimuth"][0]
+            el = h["skymap"]["full_elevation"][0]
+            lat = h["skymap"]["site_map_latitude"].item()
+            lon = (
+                h["skymap"]["site_map_longitude"].item() + 180
+            ) % 360 - 180  # [0,360] -> [-180,180]
+            alt_m = h["skymap"]["site_map_altitude"].item()
+            x = h["skymap"]["full_column"][0][0, :]
+            y = h["skymap"]["full_row"][0][:, 0]
+            try:
+                tstr = h["skymap"]["generation_info"][0][0][2]
+                time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
+            except (KeyError, ValueError):
+                if h["skymap"]["site_unix_time"] > 0:
+                    tutc = h["skymap"]["site_unix_time"]
+                elif h["skymap"]["imager_unix_time"] > 0:
+                    tutc = h["skymap"]["imager_unix_time"]
+                else:
+                    tutc = None
 
-            if tutc is not None:
-                time = datetime.utcfromtimestamp(tutc)
-            else:  # last resort
-                time = datetime(int(fn.name[19:23]), int(fn.name[23:25]), int(fn.name[25:27]))
+                if tutc is not None:
+                    time = datetime.utcfromtimestamp(tutc)
+                else:  # last resort
+                    time = datetime(int(fn.name[19:23]), int(fn.name[23:25]), int(fn.name[25:27]))
 
-    elif fn.suffix == ".h5":
-        if h5py is None:
-            raise ImportError("pip install h5py")
+        case ".h5":
+            if h5py is None:
+                raise ImportError("pip install h5py")
 
-        with h5py.File(fn, "r") as h:
-            az = h["az"][:]
-            el = h["el"][:]
-            lat = h["lla"][0]
-            lon = h["lla"][1]
-            alt_m = h["lla"][2]
-            x = h["x"][0, :]
-            y = h["y"][:, 0]
-    elif fn.suffix == ".nc":
-        if netCDF4.Dataset is None:
-            raise ImportError("pip install netCDF4")
+            with h5py.File(fn, "r") as h:
+                az = h["az"][:]
+                el = h["el"][:]
+                lat = h["lla"][0]
+                lon = h["lla"][1]
+                alt_m = h["lla"][2]
+                x = h["x"][0, :]
+                y = h["y"][:, 0]
+        case ".nc":
+            if netCDF4.Dataset is None:
+                raise ImportError("pip install netCDF4")
 
-        with netCDF4.Dataset(fn, "r") as h:
-            az = h["az"][:]
-            el = h["el"][:]
-            lat = h["lla"][0]
-            lon = h["lla"][1]
-            alt_m = h["lla"][2]
-            x = h["x"][0, :].astype(int)
-            y = np.flipud(h["y"][:, 0]).astype(int)
-    else:
-        raise ValueError(f"{fn} calibration file format is not known to this program.")
+            with netCDF4.Dataset(fn, "r") as h:
+                az = h["az"][:]
+                el = h["el"][:]
+                lat = h["lla"][0]
+                lon = h["lla"][1]
+                alt_m = h["lla"][2]
+                x = h["x"][0, :].astype(int)
+                y = np.flipud(h["y"][:, 0]).astype(int)
+        case _:
+            raise ValueError(f"{fn} calibration file format is not known to this program.")
 
     cal = xarray.Dataset(
         {"az": (("y", "x"), az), "el": (("y", "x"), el)},
@@ -397,7 +399,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     return cal
 
 
-def loadcal(path: Path, site: str = None, time: datetime = None) -> xarray.Dataset:
+def loadcal(path: Path, site: str | None = None, time: datetime | None = None) -> xarray.Dataset:
     """
     load calibration skymap file
 

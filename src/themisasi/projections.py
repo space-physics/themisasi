@@ -8,7 +8,10 @@ from .plots import pcolormesh_nan, overlayrowcol
 
 
 def asi_projection(
-    dat: xarray.Dataset, projalt_m: float = None, min_el: float = 10.0, ofn: Path = None
+    dat: xarray.Dataset,
+    projalt_m: float | None = None,
+    min_el: float = 10.0,
+    ofn: Path | None = None,
 ):
     """
     plots ASI projected to altitude
@@ -47,7 +50,8 @@ def asi_projection(
 
     hi = pcolormesh_nan(lon, lat, dat["imgs"].data[0], cmap="gray", axis=ax)  # priming
 
-    ttxt = f"Themis ASI {dat.site}  projected to altitude {projalt_m/1e3} km\n"  # FOV vs. HST0,HST1: green,red '
+    ttxt = f"Themis ASI {dat.site}  projected to altitude {projalt_m / 1e3} km\n"
+    # FOV vs. HST0,HST1: green,red '
     ht = ax.set_title(ttxt, color="g")
     ax.set_xlabel("longitude")
     ax.set_ylabel("latitude")
@@ -72,7 +76,7 @@ def asi_projection(
         return
 
 
-def asi_radec(dat: xarray.Dataset, min_el: float = 10.0, ofn: Path = None):
+def asi_radec(dat: xarray.Dataset, min_el: float = 10.0, ofn: Path | None = None):
     """
     plots ASI projected to altitude
 

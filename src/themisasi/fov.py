@@ -1,7 +1,6 @@
 import logging
 import xarray
 import numpy as np
-from typing import Tuple
 from pymap3d.haversine import anglesep
 import pymap3d as pm
 from pymap3d.vincenty import vdist
@@ -13,7 +12,7 @@ except ImportError:
     ndi = None
 
 
-def getimgind(imgs: xarray.Dataset, lla: np.ndarray, az: np.ndarray, el: np.ndarray) -> np.ndarray:
+def getimgind(imgs: xarray.Dataset, lla, az, el):
     """find pixels in images according to lat,lon,alt or az,el spec"""
     if lla is not None:
         lla = np.atleast_2d(lla)
@@ -46,7 +45,7 @@ def getimgind(imgs: xarray.Dataset, lla: np.ndarray, az: np.ndarray, el: np.ndar
     return ind
 
 
-def projected_coord(imgs: xarray.Dataset, ind: np.ndarray, lla: Tuple[float, float, float]):
+def projected_coord(imgs: xarray.Dataset, ind, lla: tuple[float, float, float]):
     az = imgs.az[ind[:, 0], ind[:, 1]].values.squeeze()
     el = imgs.el[ind[:, 0], ind[:, 1]].values.squeeze()
 
@@ -126,7 +125,9 @@ def sky2beam(anglesep_deg, Ncol: int):
     return np.polyval(polycoeff, col), MagZenInd
 
 
-def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str = None):
+def mergefov(
+    w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str | None = None
+):
     """
     inputs:
     -------
@@ -144,12 +145,12 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, met
     """
     if projalt < 1e3:
         logging.warning(
-            f"this function expects meters, you picked projection altitude {projalt/1e3} km"
+            f"this function expects meters, you picked projection altitude {projalt / 1e3} km"
         )
 
     # %% print distance from wide camera to narrow camera (just for information)
     print(
-        f"intercamera distance with {w0.site}:  {vdist(w0.lat,w0.lon, w1.lat,w1.lon)[0]/1e3:.1f} kilometers"
+        f"intercamera distance with {w0.site}:  {vdist(w0.lat, w0.lon, w1.lat, w1.lon)[0] / 1e3:.1f} kilometers"
     )
     # %% ENU projection from cam0 to cam1
     e1, n1, u1 = pm.geodetic2enu(w1.lat, w1.lon, w1.alt_m, w0.lat, w0.lon, w0.alt_m)
@@ -194,7 +195,7 @@ def mergefov(w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, met
     return w0, w1
 
 
-def pixelmask(data: xarray.Dataset, method: str = None) -> xarray.Dataset:
+def pixelmask(data: xarray.Dataset, method: str | None = None) -> xarray.Dataset:
     """
     Use list because image may not be square
 

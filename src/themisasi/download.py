@@ -50,10 +50,10 @@ async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
 
 
 def download(
-    treq: T.Sequence[T.Union[str, datetime]],
-    site: T.Sequence[str],
+    treq: list[str | datetime],
+    site: list[str],
     odir: Path,
-    urls: T.Dict[str, str],
+    urls: dict[str, str],
     overwrite: bool = False,
 ):
     """
@@ -100,12 +100,12 @@ def download(
 
 
 async def arbiter(
-    sites: T.Sequence[str],
+    sites: list[str],
     start: datetime,
     end: datetime,
     odir: Path,
     overwrite: bool,
-    urls: T.Dict[str, str],
+    urls: dict[str, str],
 ):
     """
     This starts len(sites) tasks concurrently.
