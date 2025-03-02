@@ -4,8 +4,6 @@ from pathlib import Path
 import numpy as np
 import asyncio
 import logging
-import sys
-import os
 import argparse
 import requests
 import typing as T
@@ -93,8 +91,6 @@ def download(
     if end < start:
         raise ValueError("start time must be before end time!")
     # %% start download
-    if os.name == "nt" and sys.version_info < (3, 8):
-        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())  # type: ignore
 
     asyncio.run(arbiter(site, start, end, odir, overwrite, urls))
 
