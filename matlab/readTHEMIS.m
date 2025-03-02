@@ -17,7 +17,7 @@ end
 [~,filename] = fileparts(file);
 
 site = regexp(filename,'(?<=thg_l\d_as\w_)\w{4}', match='once');
-disp([' site: ',site])
+disp("site: " + site)
 
 %% read data
 hdrs = cdfinfo(file);
