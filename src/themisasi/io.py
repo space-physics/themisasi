@@ -107,7 +107,7 @@ def filetimes(fn: Path) -> list[datetime]:
 
     h = cdfread(fn)
 
-    site = h.attget("Descriptor", 0)["Data"][:4].lower()
+    site = h.attget("Descriptor", 0).Data[:4].lower()
 
     return Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
 
@@ -233,9 +233,10 @@ def _sitefn(
         fn = path
 
         h = cdfread(fn)
+
         if not site:
-            site = h.attget("Descriptor", 0)["Data"][:4].lower()
-        if site != h.attget("Descriptor", 0)["Data"][:4].lower():
+            site = h.attget("Descriptor", 0).Data[:4].lower()
+        if site != h.attget("Descriptor", 0).Data[:4].lower():
             raise ValueError(f"{site} is not in {fn}")
     else:
         raise FileNotFoundError(path)
