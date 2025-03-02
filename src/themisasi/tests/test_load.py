@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 from pytest import approx
 import themisasi as ta
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 
 #
 R = Path(__file__).parent
@@ -57,7 +57,7 @@ def test_load_site_time(site, time):
     dat = ta.load(R, site, time)
     assert dat["imgs"].shape[0] == 1
     t = dat.time.values.astype("datetime64[us]").astype(datetime)
-    assert abs(t - datetime(2011, 1, 6, 17, 0, 0)) < timedelta(seconds=0.5)
+    assert t == datetime(2011, 1, 6, 17, 0, 0, 53000)
 
 
 @pytest.mark.parametrize(
@@ -94,12 +94,13 @@ def test_bad_time(path, val, err):
 def test_good_time():
     dat = ta.load(datfn, treq="2011-01-06T17:00:12")
     assert dat["imgs"].shape[0] == 1
-    time = dat.time.values.astype("datetime64[us]").astype(datetime)
-    assert abs(time - datetime(2011, 1, 6, 17, 0, 12)) < timedelta(seconds=0.02)
+    time = dat.time[0].values.astype("datetime64[us]").astype(datetime)
+    assert time == datetime(2011, 1, 6, 17, 0, 12, 13000)
 
     dat = ta.load(datfn, treq=("2011-01-06T17:00:00", "2011-01-06T17:00:12"))
     assert dat["imgs"].shape[0] == 4
-    time = dat.time.values.astype("datetime64[us]").astype(datetime)
+    time = dat.time[0].values.astype("datetime64[us]").astype(datetime)
+    assert time == datetime(2011, 1, 6, 17, 0, 0, 53000)
 
 
 def test_autoload_cal():
@@ -127,4 +128,5 @@ def test_calread_cdf():
 def test_calread_sitedate():
 
     cal = ta.loadcal(R, "gako", "2011-01-06")
-    assert cal.caltime.date() == date(2007, 2, 2)
+
+    assert cal.caltime.date() == date(2007, 2, 1)

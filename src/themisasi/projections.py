@@ -1,9 +1,11 @@
 import xarray
 from pathlib import Path
-import pymap3d as pm
 import logging
+
 import numpy as np
 from matplotlib.pyplot import figure, draw, pause
+
+import pymap3d as pm
 from .plots import pcolormesh_nan, overlayrowcol
 
 

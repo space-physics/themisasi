@@ -324,7 +324,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
             lon = (h[f"thg_asc_{site}_glon"] + 180) % 360 - 180  # [0,360] -> [-180,180]
             alt_m = h[f"thg_asc_{site}_alti"]
             x = y = h[f"thg_asf_{site}_c256"]
-            time = datetime.utcfromtimestamp(h[f"thg_asf_{site}_time"][-1])
+            time = datetime.fromtimestamp(h[f"thg_asf_{site}_time"][-1])
         case ".sav":
             site = fn.name.split("_")[2]
             # THEMIS SAV calibration files written with glitch from bug in IDL
@@ -457,6 +457,7 @@ def _findcal(path: Path, site: str, time: datetime) -> Path:
     cdates = [loadcal(fn).caltime for fn in fcdf]
 
     datecdf = None
+
     if cdates:
         for _i, date in enumerate(cdates):
             if date < time:
