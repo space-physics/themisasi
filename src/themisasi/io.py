@@ -31,7 +31,7 @@ except ImportError:
 def load(
     path: Path,
     site: str | None = None,
-    treq: datetime | None = None,
+    treq = None,
     calfn: Path | None = None,
 ) -> xarray.Dataset:
     """
@@ -251,7 +251,7 @@ def _sitefn(
     return site, fn
 
 
-def _timereq(treq: datetime | list[datetime]) -> datetime | list[datetime]:
+def _timereq(treq) -> datetime | list[datetime]:
     """
     parse time request
     """
@@ -270,9 +270,7 @@ def _timereq(treq: datetime | list[datetime]) -> datetime | list[datetime]:
     return treq
 
 
-def _downsample(
-    imgs: xarray.Dataset, az: np.ndarray, el: np.ndarray, x: np.ndarray, y: np.ndarray
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def _downsample(imgs: xarray.Dataset, az, el, x, y) -> tuple:
     """
     downsamples cal data to match image data
 

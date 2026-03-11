@@ -33,10 +33,7 @@ version = {attr = "themisasi.__version__"}
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-asyncio", "mypy"]
-plot = [
-    "matplotlib",
-    "seaborn",
-]
+plot = [ "matplotlib" ]
 io = [
     "netcdf4",
     "h5py",

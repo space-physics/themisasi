@@ -83,11 +83,7 @@ def overlayrowcol(ax, rows, cols, color: str | None = None, label: str | None = 
     if rows is None or cols is None:
         return
 
-    if (
-        len(rows) == 1
-        or isinstance(rows, (np.ndarray, xarray.DataArray))
-        and rows.ndim == 1
-    ):
+    if rows.ndim == 1:
         ax.scatter(cols, rows, color=color, alpha=0.5, marker=".", label=label)
     else:
         raise ValueError("unknonn row/col layout, was expecting 1-D")

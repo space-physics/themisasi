@@ -1,20 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 paint HiST field of view onto Themis
 
+This example no longer works due to major program rework
 """
+
+# mypy: ignore-errors
 
 from datetime import datetime
 from matplotlib.pyplot import show
 from themisasi import altfiducial
 from themisasi.plots import plotthemis
-
-try:
-    import seaborn as sns
-
-    sns.set_context("talk")
-except ImportError:
-    pass
 
 
 sitereq = "whit"  # 'fykn' 'gako' 'mcgr'

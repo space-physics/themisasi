@@ -50,8 +50,8 @@ async def urlretrieve(url: str, fn: Path, overwrite: bool = False):
 
 
 def download(
-    treq: list[str | datetime],
-    site: list[str],
+    treq: str | list[str | datetime],
+    site: str | list[str],
     odir: Path,
     urls: dict[str, str],
     overwrite: bool = False,
@@ -159,14 +159,15 @@ def _urlgen(
     site: str, start: datetime, end: datetime, url_stem: str
 ) -> T.Iterator[str]:
 
-    for dt64 in np.arange(start, end + timedelta(hours=1), timedelta(hours=1)):
-        t = dt64.astype(datetime)
+    t = start
+    while t <= end:
         fpath = (
             f"{url_stem}{site}/{t.year:4d}/{t.month:02d}/"
             f"thg_l1_asf_{site}_{t.year:4d}{t.month:02d}{t.day:02d}{t.hour:02d}_v01.cdf"
         )
 
         yield fpath
+        t += timedelta(hours=1)
 
 
 async def _download_cal(site: str, odir: Path, url_stem: str, overwrite: bool = False):

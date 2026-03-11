@@ -8,6 +8,7 @@ on:
 jobs:
 
   core:
+    timeout-minutes: 10
 
     strategy:
       matrix:
@@ -16,14 +17,17 @@ jobs:
     runs-on: ${{ matrix.os}}
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.10'
 
-    - run: pip install .[tests,lint]
+    - run: pip install .[tests]
 
-    - run: flake8
-    - run: mypy
+    - name: type annotation check
+      run: mypy --non-interactive --install-types
 
     - run: pytest
+
+    - uses: pre-commit-ci/lite-action@v1.1.0
+      if: always()

@@ -20,10 +20,7 @@ import themisasi as ta
 import themisasi.plots as tap
 import dascutils.io as dio
 
-try:
-    from matplotlib.pyplot import show
-except ImportError:
-    show = None
+from matplotlib.pyplot import show
 
 
 def main():
