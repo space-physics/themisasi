@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Multi-camera view
-GAKO: http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/gako/2008/03/
+GAKO: https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/gako/2008/03/
 + PFRR
 """
 

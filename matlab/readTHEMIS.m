@@ -1,12 +1,12 @@
-% reference: http://themis.ssl.berkeley.edu/gbo/THEMIS_All_Sky_Imager-2.pdf
-% high-res (256x256 pixel) data: http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi
-% low-res (64x64 thumbnail pixel) data: http://themis.ssl.berkeley.edu/data/themis/thg/l0/asi/
+% reference: https://themis.ssl.berkeley.edu/gbo/THEMIS_All_Sky_Imager-2.pdf
+% high-res (256x256 pixel) data: https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi
+% low-res (64x64 thumbnail pixel) data: https://themis.ssl.berkeley.edu/data/themis/thg/l0/asi/
 %
 % info
-% http://themis.ssl.berkeley.edu/instrument_asi.shtml
+% https://themis.ssl.berkeley.edu/instrument_asi.shtml
 %
 % sites that saw HiST:
-% fykn: http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04
+% fykn: https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/fykn/2013/04
 
 function [data,t,hdrs, site] = readTHEMIS(file, fullthumb)
 arguments

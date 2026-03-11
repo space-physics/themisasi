@@ -2,16 +2,16 @@
 
 [![Zenodo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.215309.svg)](https://doi.org/10.5281/zenodo.215309)
 [![ci](https://github.com/space-physics/themisasi/actions/workflows/ci.yml/badge.svg)](https://github.com/space-physics/themisasi/actions/workflows/ci.yml)
-[![PyPi Download stats](http://pepy.tech/badge/themisasi)](http://pepy.tech/project/themisasi)
+[![PyPi Download stats](https://pepy.tech/badge/themisasi)](https://pepy.tech/project/themisasi)
 
 
 Read & plot 256x256 "high resolution" THEMIS ASI ground-based imager data from Python.
 THEMIS ASI data are collected with the original 2002 design, using Starlight-Xpress Lodestar MX716 cameras with monochrome
-[Sony ICX249AL imaging chips](http://www.astro.uu.se/grundutb/wt/images/ICX249ALpalstcamex.pdf).
+[Sony ICX249AL imaging chips](https://www.astro.uu.se/grundutb/wt/images/ICX249ALpalstcamex.pdf).
 A subregion from full-size 752 x 582 pixels (512 x 512 pixels) are 2x2 binned to 256 x 256 pixels and retrieved over USB 1.1 for disk storage.
 
 This package also reads the THEMIS ASI star registered
-[plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/),
+[plate scale](https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/),
 giving **azimuth and elevation** for each pixel.
 
 ## Install
@@ -45,7 +45,7 @@ This returns the camera image from Gakona camera closest to the requested time, 
 
 
 THEMIS-ASI output
-[xarray.Dataset](http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
+[xarray.Dataset](https://xarray.pydata.org/en/stable/generated/xarray.Dataset.html),
 which is used throughout geosciences and astronomy.
 Xarray may be thought of as a "smart" Numpy array, or a multidimensional Pandas array.
 A THEMIS image data stack is obtained by:
@@ -92,9 +92,9 @@ Thus if downloading for one site, one time downloads at a time.
 If downloading for 5 sites, five files download at a time across requested times by site.
 
 Get video data from Themis all-sky imager
-[data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/).
+[data repository](https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/).
 The
-[plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
+[plate scale](https://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
 data is also downloaded.
 The calibration files are named `*asc*.cdf` or `*skymap*.sav`.
 
@@ -169,7 +169,7 @@ python -m themisasi.pixels tests/thg_l1_ast_gako_20110505_v01.cdf -lla 65 -145 1
 
 Themis site map (2009)
 
-[![Themis site map](http://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif)](http://themis.ssl.berkeley.edu/gbo/display.py?)
+[![Themis site map](https://themis.ssl.berkeley.edu/data/themis/events/THEMIS_GBO_Station_Map-2009-01.gif)](https://themis.ssl.berkeley.edu/gbo/display.py?)
 
 THEMIS GBO ASI spectral response:
 
@@ -179,17 +179,17 @@ THEMIS GBO ASI spectral response:
 
 These articles give vital descriptions of THEMIS GBO ASI.
 
-* [Mende 2008 SSR](http://www.igpp.ucla.edu/public/THEMIS/SCI/Pubs/2008_Refereed/mende_ssr_onlinefirst.pdf)
-* color instrument based on Themis: [Jackel 2014](http://eprints.lancs.ac.uk/68180/4/gi_3_71_2014.pdf)
+* [Mende 2008 SSR](https://www.igpp.ucla.edu/public/THEMIS/SCI/Pubs/2008_Refereed/mende_ssr_onlinefirst.pdf)
+* color instrument based on Themis: [Jackel 2014](https://eprints.lancs.ac.uk/68180/4/gi_3_71_2014.pdf)
 
 
 ### Resources
 
-* Themis GBO ASI [site coordinates](http://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls)
-* THEMIS GBO ASI [plate scale](http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/)
-* THEMIS GBO ASI [plate scale](http://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
-* Themis GBO ASI [data repository](http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
-* Themis GBO ASI [mosaic (all sites together)](http://themis.ssl.berkeley.edu/gbo/display.py?)
+* Themis GBO ASI [site coordinates](https://themis.ssl.berkeley.edu/images/ASI/THEMIS_ASI_Station_List_Nov_2011.xls)
+* THEMIS GBO ASI [plate scale](https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/)
+* THEMIS GBO ASI [plate scale](https://themis.ssl.berkeley.edu/themisdata/thg/l2/asi/cal/)
+* Themis GBO ASI [data repository](https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/)
+* Themis GBO ASI [mosaic (all sites together)](https://themis.ssl.berkeley.edu/gbo/display.py?)
 
 
 ### data corruption

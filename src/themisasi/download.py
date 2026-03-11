@@ -9,8 +9,8 @@ import requests
 import typing as T
 
 TIMEOUT = 600  # arbitrary, seconds
-VIDEO_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
-CAL_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
+VIDEO_BASE = "https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
+CAL_BASE = "https://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
 
 
 def cli():

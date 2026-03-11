@@ -11,13 +11,8 @@ import numpy as np
 from dateutil.parser import parse
 import scipy.io
 
-try:
-    import cdflib
+import cdflib
 
-    Epoch = cdflib.cdfepoch()
-    cdfread = cdflib.cdfread.CDF
-except ImportError:
-    Epoch = cdfread = None
 try:
     import h5py
 except ImportError:
@@ -105,14 +100,12 @@ def filetimes(fn: Path) -> list[datetime]:
     time: list of datetime.datetime
         times available in this CDF file
     """
-    if not cdfread:
-        raise ImportError("pip install cdflib")
 
-    h = cdfread(fn)
+    h = cdflib.cdfread.CDF(fn)
 
     site = h.attget("Descriptor", 0).Data[:4].lower()
 
-    return Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
+    return cdflib.cdfepoch().to_datetime(h[f"thg_asf_{site}_epoch"][:])
 
 
 def _timeslice(
@@ -140,9 +133,9 @@ def _timeslice(
     # %% open CDF file handle (no close method)
     site, fn = _sitefn(path, site, treq)
 
-    h = cdfread(fn)
+    h = cdflib.cdfread.CDF(fn)
     # %% load image times
-    time = Epoch.to_datetime(h[f"thg_asf_{site}_epoch"][:])
+    time = cdflib.cdfepoch().to_datetime(h[f"thg_asf_{site}_epoch"][:])
     # %% time request handling
 
     if treq is None:
@@ -239,7 +232,7 @@ def _sitefn(
     elif path.is_file():
         fn = path
 
-        h = cdfread(fn)
+        h = cdflib.cdfread.CDF(fn)
 
         if not site:
             site = h.attget("Descriptor", 0).Data[:4].lower()
@@ -298,7 +291,7 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     """
     reads data mapping themis gbo asi pixels to azimuth,elevation
     calibration data url is
-    http://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
+    https://data.phys.ucalgary.ca/sort_by_project/THEMIS/asi/skymaps/new_style/
 
     Parameters
     ----------
@@ -319,16 +312,16 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     match fn.suffix:
         case ".cdf":
             site = fn.name.split("_")[3]
-            if cdfread is None:
-                raise ImportError("pip install cdflib")
 
-            h = cdfread(fn)
+            h = cdflib.cdfread.CDF(fn)
+
             az = h[f"thg_asf_{site}_azim"][0]
             el = h[f"thg_asf_{site}_elev"][0]
             lat = h[f"thg_asc_{site}_glat"]
             lon = (h[f"thg_asc_{site}_glon"] + 180) % 360 - 180  # [0,360] -> [-180,180]
             alt_m = h[f"thg_asc_{site}_alti"]
             x = y = h[f"thg_asf_{site}_c256"]
+
             time = datetime.fromtimestamp(h[f"thg_asf_{site}_time"][-1])
         case ".sav":
             site = fn.name.split("_")[2]
@@ -367,8 +360,6 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
                     )
 
         case ".h5":
-            if h5py is None:
-                raise ImportError("pip install h5py")
 
             with h5py.File(fn, "r") as h:
                 az = h["az"][:]
@@ -379,8 +370,6 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
                 x = h["x"][0, :]
                 y = h["y"][:, 0]
         case ".nc":
-            if netCDF4.Dataset is None:
-                raise ImportError("pip install netCDF4")
 
             with netCDF4.Dataset(fn, "r") as h:
                 az = h["az"][:]
