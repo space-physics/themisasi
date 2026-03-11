@@ -5,8 +5,8 @@ import requests.exceptions
 
 R = Path(__file__).parent
 
-VIDEO_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
-CAL_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
+VIDEO_BASE = "https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
+CAL_BASE = "https://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
 urls = {"video_stem": VIDEO_BASE, "cal_stem": CAL_BASE}
 
 

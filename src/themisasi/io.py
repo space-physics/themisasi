@@ -8,7 +8,6 @@ from pathlib import Path
 from datetime import datetime
 import xarray
 import numpy as np
-from dateutil.parser import parse
 import scipy.io
 
 import cdflib
@@ -252,9 +251,9 @@ def _timereq(treq) -> datetime | list[datetime]:
     if isinstance(treq, datetime):
         pass
     elif isinstance(treq, str):
-        treq = parse(treq)
+        treq = datetime.fromisoformat(treq)
     elif isinstance(treq[0], str):
-        treq = list(map(parse, treq))
+        treq = list(map(datetime.fromisoformat, treq))
     elif isinstance(treq[0], datetime):
         pass
     else:
@@ -447,7 +446,7 @@ def _findcal(path: Path, site: str, time: datetime) -> Path:
         raise ValueError(f"site code is four characters e.g. fykn.  You gave:   {site}")
 
     if isinstance(time, str):
-        time = parse(time)
+        time = datetime.fromisoformat(time)
 
     if isinstance(time, (list, tuple, np.ndarray)):
         time = time[0]  # assume first time is earliest

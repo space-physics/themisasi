@@ -1,7 +1,5 @@
-from dateutil.parser import parse
 from datetime import datetime, timedelta
 from pathlib import Path
-import numpy as np
 import asyncio
 import logging
 import argparse
@@ -84,9 +82,9 @@ def download(
     if isinstance(treq, (str, datetime)):
         treq = [treq]
 
-    start = parse(treq[0]) if isinstance(treq[0], str) else treq[0]
+    start = datetime.fromisoformat(treq[0]) if isinstance(treq[0], str) else treq[0]
     if len(treq) == 2:
-        end = parse(treq[1]) if isinstance(treq[1], str) else treq[1]
+        end = datetime.fromisoformat(treq[1]) if isinstance(treq[1], str) else treq[1]
     else:
         end = start
 
