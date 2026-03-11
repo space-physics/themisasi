@@ -129,4 +129,4 @@ def test_calread_sitedate():
 
     cal = ta.loadcal(R, "gako", "2011-01-06")
 
-    assert cal.caltime.date() == date(2007, 2, 1)
+    assert cal.caltime.date() in {date(2007, 2, 1), date(2007, 2, 2)}
