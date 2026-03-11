@@ -4,7 +4,7 @@ import asyncio
 import logging
 import argparse
 import requests
-import typing as T
+import collections.abc
 
 TIMEOUT = 600  # arbitrary, seconds
 VIDEO_BASE = "https://themis.ssl.berkeley.edu/data/themis/thg/l1/asi/"
@@ -104,13 +104,6 @@ async def arbiter(
     urls: dict[str, str],
 ):
     """
-    This starts len(sites) tasks concurrently.
-    Thus if you only have one site, it only downloads one file at a time.
-
-    A more elegant way is to setup a task pool.
-    However normally we are downloading N sites across the same timespan,
-    where N is typically in the 3..10 range or so.
-
     Parameters
     ----------
     sites : str or list of str
@@ -127,16 +120,10 @@ async def arbiter(
         sites hosting data
     """
 
-    futures = [_download_cal(site, odir, urls["cal_stem"], overwrite) for site in sites]
-
-    await asyncio.gather(*futures)
-
-    futures = [
-        _download_video(site, odir, start, end, urls["video_stem"], overwrite)
-        for site in sites
-    ]
-
-    await asyncio.gather(*futures)
+    async with asyncio.TaskGroup() as tg:
+        for site in sites:
+            tg.create_task(_download_cal(site, odir, urls["cal_stem"], overwrite))
+            tg.create_task(_download_video(site, odir, start, end, urls["video_stem"], overwrite))
 
 
 async def _download_video(
@@ -155,7 +142,7 @@ async def _download_video(
 
 def _urlgen(
     site: str, start: datetime, end: datetime, url_stem: str
-) -> T.Iterator[str]:
+) -> collections.abc.Iterator[str]:
 
     t = start
     while t <= end:
