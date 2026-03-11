@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 import asyncio
+import itertools
 import logging
 import argparse
 import requests
@@ -102,6 +103,7 @@ async def arbiter(
     odir: Path,
     overwrite: bool,
     urls: dict[str, str],
+    batch_size: int = 4,
 ):
     """
     Parameters
@@ -118,12 +120,15 @@ async def arbiter(
         overwrite existing data
     urls : dict of str
         sites hosting data
+    batch_size : int
+        number of sites to download concurrently
     """
 
-    async with asyncio.TaskGroup() as tg:
-        for site in sites:
-            tg.create_task(_download_cal(site, odir, urls["cal_stem"], overwrite))
-            tg.create_task(_download_video(site, odir, start, end, urls["video_stem"], overwrite))
+    for batch in itertools.batched(sites, batch_size):
+        async with asyncio.TaskGroup() as tg:
+            for site in batch:
+                tg.create_task(_download_cal(site, odir, urls["cal_stem"], overwrite))
+                tg.create_task(_download_video(site, odir, start, end, urls["video_stem"], overwrite))
 
 
 async def _download_video(

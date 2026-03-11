@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "themisasi"
 description = "reads and plots THEMIS ASI video data of aurora."
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = {file = "LICENSE.txt"}
 keywords = ["all-sky-camera", "aurora"]
 classifiers = [
