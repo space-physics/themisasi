@@ -16,7 +16,9 @@ CAL_BASE = "http://themis.ssl.berkeley.edu/data/themis/thg/l2/asi/cal/"
 def cli():
     p = argparse.ArgumentParser()
     p.add_argument(
-        "startend", help="start/end times UTC e.g. 2012-11-03T06:23 2012-11-03T06:24", nargs="+"
+        "startend",
+        help="start/end times UTC e.g. 2012-11-03T06:23 2012-11-03T06:24",
+        nargs="+",
     )
     p.add_argument("odir", help="directory to write downloaded CDF to")
     p.add_argument("-s", "--site", help="fykn gako etc.", nargs="+")
@@ -132,14 +134,20 @@ async def arbiter(
     await asyncio.gather(*futures)
 
     futures = [
-        _download_video(site, odir, start, end, urls["video_stem"], overwrite) for site in sites
+        _download_video(site, odir, start, end, urls["video_stem"], overwrite)
+        for site in sites
     ]
 
     await asyncio.gather(*futures)
 
 
 async def _download_video(
-    site: str, odir: Path, start: datetime, end: datetime, url_stem: str, overwrite: bool
+    site: str,
+    odir: Path,
+    start: datetime,
+    end: datetime,
+    url_stem: str,
+    overwrite: bool,
 ):
 
     for url in _urlgen(site, start, end, url_stem):
@@ -147,7 +155,9 @@ async def _download_video(
         await urlretrieve(url, odir / url.split("/")[-1], overwrite)
 
 
-def _urlgen(site: str, start: datetime, end: datetime, url_stem: str) -> T.Iterator[str]:
+def _urlgen(
+    site: str, start: datetime, end: datetime, url_stem: str
+) -> T.Iterator[str]:
 
     for dt64 in np.arange(start, end + timedelta(hours=1), timedelta(hours=1)):
         t = dt64.astype(datetime)

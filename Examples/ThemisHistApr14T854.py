@@ -3,6 +3,7 @@
 paint HiST field of view onto Themis
 
 """
+
 from datetime import datetime
 from matplotlib.pyplot import show
 from themisasi import altfiducial
@@ -24,7 +25,7 @@ sitereq = "whit"  # 'fykn' 'gako' 'mcgr'
 treq = (datetime(2013, 4, 14, 8, 53), datetime(2013, 4, 14, 8, 56))  # HIST event
 odir = None
 
-moviefn = f'THEMIS/{sitereq}_hst0,1_{treq[0].strftime("%Y-%m-%dT%H%M")}.mkv'
+moviefn = f"THEMIS/{sitereq}_hst0,1_{treq[0].strftime('%Y-%m-%dT%H%M')}.mkv"
 # %%
 
 if sitereq == "fykn":
@@ -48,7 +49,10 @@ elif sitereq == "whit":
 else:
     raise ValueError(f"site {sitereq} not configured")
 
-ocal = ["~/code/histfeas/precompute/hst0cal.h5", "~/code/histfeas/precompute/hst1cal.h5"]
+ocal = [
+    "~/code/histfeas/precompute/hst0cal.h5",
+    "~/code/histfeas/precompute/hst1cal.h5",
+]
 
 # %%
 try:

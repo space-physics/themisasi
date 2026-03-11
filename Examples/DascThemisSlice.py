@@ -12,6 +12,7 @@ If the project proceeds, I would perhaps redo the API much more cleanly.
 DASC coord: 65.1260, -147.479
 DASC exposure: 1 sec.
 """
+
 from argparse import ArgumentParser
 import numpy as np
 import themisasi.fov as taf
@@ -64,7 +65,9 @@ def main():
         return
     # %% plot slice pixel mask
     tap.jointazel(themis, P.ofn, "Themis Gakona slice toward DASC and magnetic zenith")
-    tap.jointazel(dasc, P.ofn, "DASC Poker Flat slice toward Themis Gakona and magnetic zenith")
+    tap.jointazel(
+        dasc, P.ofn, "DASC Poker Flat slice toward Themis Gakona and magnetic zenith"
+    )
 
     show()
 

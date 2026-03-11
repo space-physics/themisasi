@@ -80,9 +80,9 @@ def line2plane(cam: xarray.Dataset) -> xarray.Dataset:
 
     # %% rows (y) to cut from picture
     cam["cutrow"] = np.rint(np.polyval(polycoeff, cam["cutcol"])).astype(int)
-    assert (cam["cutrow"] >= 0).all() and (
-        cam["cutrow"] < cam.y.size
-    ).all(), "impossible least squares fit for 1-D cut\n is your video orientation correct? are you outside the FOV?"
+    assert (cam["cutrow"] >= 0).all() and (cam["cutrow"] < cam.y.size).all(), (
+        "impossible least squares fit for 1-D cut\n is your video orientation correct? are you outside the FOV?"
+    )
 
     # DONT DO THIS: cutrow.clip(0,self.supery,cutrow)
     # %% angle from magnetic zenith corresponding to those pixels
@@ -99,7 +99,11 @@ def line2plane(cam: xarray.Dataset) -> xarray.Dataset:
 
         ax = figure().gca()
         ax.plot(cam.cutcol, anglesep_deg, label="angle_sep from MZ")
-        ax.plot(cam.cutcol, cam.el.values[cam.cutrow, cam.cutcol], label="elevation angle [deg]")
+        ax.plot(
+            cam.cutcol,
+            cam.el.values[cam.cutrow, cam.cutcol],
+            label="elevation angle [deg]",
+        )
         ax.legend()
 
     assert anglesep_deg.ndim == 1
@@ -126,7 +130,10 @@ def sky2beam(anglesep_deg, Ncol: int):
 
 
 def mergefov(
-    w0: xarray.Dataset, w1: xarray.Dataset, projalt: float = 110e3, method: str | None = None
+    w0: xarray.Dataset,
+    w1: xarray.Dataset,
+    projalt: float = 110e3,
+    method: str | None = None,
 ):
     """
     inputs:
@@ -166,14 +173,20 @@ def mergefov(
         )
         # find image indices (mask) corresponding to slice az,el
         w0["rows"], w0["cols"] = fnd.findClosestAzel(
-            w0["az"].where(w0["fovmask"]), w0["el"].where(w0["fovmask"]), azSlice0, elSlice0
+            w0["az"].where(w0["fovmask"]),
+            w0["el"].where(w0["fovmask"]),
+            azSlice0,
+            elSlice0,
         )
         w0.attrs["Brow"], w0.attrs["Bcol"] = fnd.findClosestAzel(
             w0["az"], w0["el"], w0.Baz, w0.Bel
         )
 
         w1["rows"], w1["cols"] = fnd.findClosestAzel(
-            w1["az"].where(w1["fovmask"]), w1["el"].where(w1["fovmask"]), azSlice1, elSlice1
+            w1["az"].where(w1["fovmask"]),
+            w1["el"].where(w1["fovmask"]),
+            azSlice1,
+            elSlice1,
         )
         w1.attrs["Brow"], w1.attrs["Bcol"] = fnd.findClosestAzel(
             w1["az"], w1["el"], w1.Baz, w1.Bel
@@ -183,12 +196,16 @@ def mergefov(
         slantrange = projalt / np.sin(
             np.radians(np.ma.masked_invalid(w1["el"].where(w1["fovmask"])))
         )
-        assert (slantrange >= projalt).all(), "slantrange must be >= projection altitude"
+        assert (slantrange >= projalt).all(), (
+            "slantrange must be >= projection altitude"
+        )
 
         e0, n0, u0 = pm.aer2enu(w1["az"], w1["el"], slantrange)
         # %% find az,el to narrow FOV from ASI FOV
         az0, el0, _ = pm.enu2aer(e0 - e1, n0 - n1, u0 - u1)
-        assert (el0 >= 0).all(), "FOVs may not overlap, negative elevation from cam0 to cam1"
+        assert (el0 >= 0).all(), (
+            "FOVs may not overlap, negative elevation from cam0 to cam1"
+        )
         # %% nearest neighbor brute force
         w0["rows"], w0["cols"] = fnd.findClosestAzel(w0["az"], w0["el"], az0, el0)
 

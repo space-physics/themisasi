@@ -11,7 +11,9 @@ from .projections import asi_radec
 
 
 def cli():
-    p = ArgumentParser(description=" reads THEMIS GBO ASI CDF files and plays high speed video")
+    p = ArgumentParser(
+        description=" reads THEMIS GBO ASI CDF files and plays high speed video"
+    )
     p.add_argument("path", help="Themis ASI image file directory")
     p.add_argument("site", help="4 character site name e.g. gako")
     p.add_argument("treq", help="time or time range to load", nargs="+")

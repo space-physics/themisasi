@@ -51,7 +51,9 @@ def test_multi_site():
     assert (R / "thg_l2_asc_fykn_19700101_v01.cdf").is_file()
 
 
-@pytest.mark.parametrize("time, site", [("2006-09-29T14", "badname"), ("1950-01-01T01", "gako")])
+@pytest.mark.parametrize(
+    "time, site", [("2006-09-29T14", "badname"), ("1950-01-01T01", "gako")]
+)
 def test_nonexisting(time, site):
     try:
         tw.download(time, site, R, urls)

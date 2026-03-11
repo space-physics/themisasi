@@ -32,16 +32,7 @@ version = {attr = "themisasi.__version__"}
 
 
 [project.optional-dependencies]
-tests = ["pytest", "pytest-asyncio"]
-lint = [
-    "flake8",
-    "flake8-bugbear",
-    "flake8-builtins",
-    "flake8-blind-except",
-    "mypy",
-    "types-python-dateutil",
-    "types-requests"
-]
+tests = ["pytest", "pytest-asyncio", "mypy"]
 plot = [
     "matplotlib",
     "seaborn",
@@ -62,7 +53,9 @@ cameras = [
 line-length = 99
 
 [tool.mypy]
-files = ["src/"]
+files = ["."]
 
 ignore_missing_imports = true
 allow_redefinition = true
+install_types = true
+exclude = ["^build([/\\\\]|$)"]

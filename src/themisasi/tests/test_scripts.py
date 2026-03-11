@@ -10,7 +10,14 @@ def test_video():
     pytest.importorskip("matplotlib")
     pytest.importorskip("pymap3d")
     subprocess.check_call(
-        [sys.executable, "-m", "themisasi.video", str(R), "gako", "2011-01-06T17:00:03"],
+        [
+            sys.executable,
+            "-m",
+            "themisasi.video",
+            str(R),
+            "gako",
+            "2011-01-06T17:00:03",
+        ],
         cwd=R.parent,
     )
 

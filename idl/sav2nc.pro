@@ -18,7 +18,7 @@ return,fid
 end
 
 PRO SAV2HDF5, fin
-; This example created for rescuing corrupted THEMIS GBO ASI .sav files 
+; This example created for rescuing corrupted THEMIS GBO ASI .sav files
 ; that were unreadable by other means such as scipy.io.readsav
 ; Michael Hirsch Jan 2016
 
@@ -62,8 +62,8 @@ print,fout
 rc = size(az,/dimensions)
 fid = ncdf_create(fout,/clobber)
 
-x = ncdf_dimdef(fid,'x',rc[1]) 
-y = ncdf_dimdef(fid,'y',rc[0]) 
+x = ncdf_dimdef(fid,'x',rc[1])
+y = ncdf_dimdef(fid,'y',rc[0])
 
 fid = var2nc(az,'az',fid,x,y)
 fid = var2nc(el,'el',fid,x,y)

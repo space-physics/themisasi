@@ -5,6 +5,7 @@ This assumes all the brightness comes from a thin layer at that altitude, which
 is a common first-order approximation made in multi-instrument studies, for example using
 auroral video with GNSS TEC measurements.
 """
+
 from pathlib import Path
 import themisasi as ta
 import themisasi.projections as tap

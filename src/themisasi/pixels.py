@@ -16,7 +16,9 @@ PlotThemisPixels tests/ gako 2011-01-06T17:00:00 -az 65 70 -el 48 68
 
 
 def cli():
-    p = ArgumentParser(description=" reads THEMIS GBO ASI CDF files and plays high speed video")
+    p = ArgumentParser(
+        description=" reads THEMIS GBO ASI CDF files and plays high speed video"
+    )
     p.add_argument("path", help="ASI data path")
     p.add_argument("site", help="site 4 character code e.g. gako")
     p.add_argument("treq", help="time (or time start,stop) requested", nargs="+")
@@ -25,7 +27,10 @@ def cli():
     p.add_argument("-az", help="azimuth(s) to plot (degrees)", type=float, nargs="+")
     g.add_argument("-el", help="elevation(s) to plot (degrees)", type=float, nargs="+")
     g.add_argument(
-        "-lla", help="latitude, longitude, altitude [km] projection", type=float, nargs=3
+        "-lla",
+        help="latitude, longitude, altitude [km] projection",
+        type=float,
+        nargs=3,
     )
 
     p.add_argument("-o", "--odir", help="write video to this directory")

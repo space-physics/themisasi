@@ -29,7 +29,10 @@ except ImportError:
 
 
 def load(
-    path: Path, site: str | None = None, treq: datetime | None = None, calfn: Path | None = None
+    path: Path,
+    site: str | None = None,
+    treq: datetime | None = None,
+    calfn: Path | None = None,
 ) -> xarray.Dataset:
     """
     read THEMIS ASI camera data
@@ -217,7 +220,10 @@ def _sitefn(
         else:
             raise ValueError("Must specify filename OR path and site and time")
 
-        fn = path / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
+        fn = (
+            path
+            / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
+        )
         if not fn.is_file():
             # try to use last time in file, if first time wasn't covered
             if isinstance(treq, datetime):
@@ -226,7 +232,8 @@ def _sitefn(
             t0 = treq[-1]
 
             fn = (
-                path / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
+                path
+                / f"thg_l1_asf_{site}_{t0.year}{t0.month:02d}{t0.day:02d}{t0.hour:02d}_v01.cdf"
             )
 
     elif path.is_file():
@@ -343,7 +350,9 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
             y = h["skymap"]["full_row"][0][:, 0]
             try:
                 tstr = h["skymap"]["generation_info"][0][0][2]
-                time = datetime(int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10]))
+                time = datetime(
+                    int(tstr[:4]), int(tstr[4:6]), int(tstr[6:8]), int(tstr[8:10])
+                )
             except (KeyError, ValueError):
                 if h["skymap"]["site_unix_time"] > 0:
                     tutc = h["skymap"]["site_unix_time"]
@@ -355,7 +364,9 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
                 if tutc is not None:
                     time = datetime.utcfromtimestamp(tutc)
                 else:  # last resort
-                    time = datetime(int(fn.name[19:23]), int(fn.name[23:25]), int(fn.name[25:27]))
+                    time = datetime(
+                        int(fn.name[19:23]), int(fn.name[23:25]), int(fn.name[25:27])
+                    )
 
         case ".h5":
             if h5py is None:
@@ -382,7 +393,9 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
                 x = h["x"][0, :].astype(int)
                 y = np.flipud(h["y"][:, 0]).astype(int)
         case _:
-            raise ValueError(f"{fn} calibration file format is not known to this program.")
+            raise ValueError(
+                f"{fn} calibration file format is not known to this program."
+            )
 
     cal = xarray.Dataset(
         {"az": (("y", "x"), az), "el": (("y", "x"), el)},
@@ -400,7 +413,9 @@ def loadcal_file(fn: Path) -> xarray.Dataset:
     return cal
 
 
-def loadcal(path: Path, site: str | None = None, time: datetime | None = None) -> xarray.Dataset:
+def loadcal(
+    path: Path, site: str | None = None, time: datetime | None = None
+) -> xarray.Dataset:
     """
     load calibration skymap file
 
